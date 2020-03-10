@@ -35,9 +35,10 @@ inspecode:
 
   uncrustify:
     auto-fix: true
-    thresholds: { num-issues: 332 }
-      # 332 issues on prod    (uncrustify 0.68.1)
-      # 331 issues on staging (uncrustify 0.70.1)
+    thresholds: { num-issues: 331 }
+      # 331 issues on SaaS/staging (uncrustify 0.70.1)
+      # 331 issues on SaaS/prod    (uncrustify 0.70.1)
+      # 332 issues on Enterprise   (uncrustify 0.68.1)
 
   unused:
     thresholds: { num-issues: 448 }
