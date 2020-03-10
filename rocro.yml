@@ -21,7 +21,7 @@ inspecode:
     thresholds: { num-issues: 54 }
 
   infer:
-    thresholds: { num-issues: 999 }
+    thresholds: { num-issues: 95 }
 
   jscpd:
     thresholds: { num-issues: 140 }
@@ -36,6 +36,8 @@ inspecode:
   uncrustify:
     auto-fix: true
     thresholds: { num-issues: 332 }
+      # 332 issues on prod    (uncrustify 0.68.1)
+      # 331 issues on staging (uncrustify 0.70.1)
 
   unused:
     thresholds: { num-issues: 448 }
