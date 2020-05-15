@@ -14,8 +14,9 @@ inspecode:
   cppcheck:
     thresholds: { num-issues: 5 }
 
-  fortify:
-    thresholds: { num-issues: 999 }
+  #### not supported yet. (codelift#1883)
+  #fortify:
+  #  thresholds: { num-issues: 999 }
 
   fossology:
     thresholds: { num-issues: 22 }
@@ -43,6 +44,7 @@ inspecode:
       # 331 issues on SaaS/prod    (uncrustify 0.70.1)
       # 332 issues on Enterprise   (uncrustify 0.68.1)
 
+  #### not supported yet. (codelift#1884)
   #understand:
   #  thresholds: { num-issues: 999 }
 
