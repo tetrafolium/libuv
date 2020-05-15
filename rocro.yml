@@ -43,8 +43,8 @@ inspecode:
       # 331 issues on SaaS/prod    (uncrustify 0.70.1)
       # 332 issues on Enterprise   (uncrustify 0.68.1)
 
-  understand:
-    thresholds: { num-issues: 999 }
+  #understand:
+  #  thresholds: { num-issues: 999 }
 
   unused:
     thresholds: { num-issues: 448 }
