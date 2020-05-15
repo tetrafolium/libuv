@@ -1,50 +1,6 @@
 inspecode:
 
-  astyle:
-    auto-fix: true
-    thresholds: { num-issues: 300 }
-
-  clang-format:
-    auto-fix: true
-    thresholds: { num-issues: 333 }
-
-  cpd:
-    thresholds: { num-issues: 78 }
-
-  cppcheck:
-    thresholds: { num-issues: 5 }
-
   fortify:
-    thresholds: { num-issues: 999 }
-
-  fossology:
-    thresholds: { num-issues: 22 }
-
-  grep:
-    thresholds: { num-issues: 54 }
-
-  infer:
-    thresholds: { num-issues: 95 }
-
-  jscpd:
-    thresholds: { num-issues: 140 }
-
-  misspell:
-    auto-fix: true
-    thresholds: { num-issues: 8 }
-
-  scan-build:
-    thresholds: { num-issues: 11 }
-
-  uncrustify:
-    auto-fix: true
-    thresholds: { num-issues: 331 }
-      # 331 issues on SaaS/staging (uncrustify 0.70.1)
-      # 331 issues on SaaS/prod    (uncrustify 0.70.1)
-      # 332 issues on Enterprise   (uncrustify 0.68.1)
-
-  #understand:
-  #  thresholds: { num-issues: 999 }
-
-  unused:
-    thresholds: { num-issues: 448 }
+  - thresholds: { num-issues: 999 }
+  - thresholds: { num-issues: 999 }
+    machine: { cpu: 2 }
