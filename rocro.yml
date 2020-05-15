@@ -4,3 +4,5 @@ inspecode:
   - thresholds: { num-issues: 999 }
   - thresholds: { num-issues: 999 }
     machine: { cpu: 2 }
+  - thresholds: { num-issues: 999 }
+    machine: { cpu: 3 }
