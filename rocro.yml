@@ -22,7 +22,7 @@ inspecode:
         - -build/include_order    #  629
         - -build/include_subdir   #  591
       --linelength: 100
-    thresholds: { num-issues: 999 }
+    thresholds: { num-issues: 742 }
 
   #### not supported yet. (codelift#1883)
   #fortify:
