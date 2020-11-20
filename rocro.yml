@@ -12,9 +12,16 @@ inspecode:
     thresholds: { num-issues: 78 }
 
   cppcheck:
-    thresholds: { num-issues: 5 }
+    thresholds: { num-issues: 7 }
 
   cpplint:
+    options:
+      --filter:
+        - -readability/casting    # 1635
+        - -whitespace/parens      # 1000
+        - -build/include_order    #  629
+        - -build/include_subdir   #  591
+      --linelength: 100
     thresholds: { num-issues: 999 }
 
   #### not supported yet. (codelift#1883)
@@ -31,7 +38,7 @@ inspecode:
     thresholds: { num-issues: 124 }
 
   jscpd:
-    thresholds: { num-issues: 140 }
+    thresholds: { num-issues: 134 }
 
   misspell:
     auto-fix: true
