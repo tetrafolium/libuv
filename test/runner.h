@@ -35,16 +35,16 @@
  * Struct to store both tests and to define helper processes for tasks.
  */
 typedef struct {
-  char *task_name;
-  char *process_name;
-  int (*main)(void);
-  int is_helper;
-  int show_output;
+	char *task_name;
+	char *process_name;
+	int (*main)(void);
+	int is_helper;
+	int show_output;
 
-  /*
-   * The time in milliseconds after which a single test or benchmark times out.
-   */
-  int timeout;
+	/*
+	 * The time in milliseconds after which a single test or benchmark times out.
+	 */
+	int timeout;
 } task_entry_t, bench_entry_t;
 
 /*
@@ -53,26 +53,26 @@ typedef struct {
 #define TASK_LIST_START task_entry_t TASKS[] = {
 
 #define TASK_LIST_END                                                          \
-  { 0, 0, 0, 0, 0, 0 }                                                         \
-  }                                                                            \
-  ;
+	{ 0, 0, 0, 0, 0, 0 }                                                         \
+	}                                                                            \
+	;
 
-#define TEST_DECLARE(name) int run_test_##name(void);
+#define TEST_DECLARE(name) int run_test_ ## name(void);
 
-#define TEST_ENTRY(name) {#name, #name, &run_test_##name, 0, 0, 5000},
+#define TEST_ENTRY(name) {#name, #name, &run_test_ ## name, 0, 0, 5000},
 
 #define TEST_ENTRY_CUSTOM(name, is_helper, show_output, timeout)               \
-  {#name, #name, &run_test_##name, is_helper, show_output, timeout},
+	{#name, #name, &run_test_ ## name, is_helper, show_output, timeout},
 
-#define BENCHMARK_DECLARE(name) int run_benchmark_##name(void);
+#define BENCHMARK_DECLARE(name) int run_benchmark_ ## name(void);
 
 #define BENCHMARK_ENTRY(name)                                                  \
-  {#name, #name, &run_benchmark_##name, 0, 0, 60000},
+	{#name, #name, &run_benchmark_ ## name, 0, 0, 60000},
 
-#define HELPER_DECLARE(name) int run_helper_##name(void);
+#define HELPER_DECLARE(name) int run_helper_ ## name(void);
 
 #define HELPER_ENTRY(task_name, name)                                          \
-  {#task_name, #name, &run_helper_##name, 1, 0, 0},
+	{#task_name, #name, &run_helper_ ## name, 1, 0, 0},
 
 #define TEST_HELPER HELPER_ENTRY
 #define BENCHMARK_HELPER HELPER_ENTRY

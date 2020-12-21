@@ -30,45 +30,45 @@ static int seen_timer_handle;
 static uv_timer_t timer;
 
 static void walk_cb(uv_handle_t *handle, void *arg) {
-  ASSERT(arg == (void *)magic_cookie);
+	ASSERT(arg == (void *)magic_cookie);
 
-  if (handle == (uv_handle_t *)&timer) {
-    seen_timer_handle++;
-  } else {
-    ASSERT(0 && "unexpected handle");
-  }
+	if (handle == (uv_handle_t *)&timer) {
+		seen_timer_handle++;
+	} else {
+		ASSERT(0 && "unexpected handle");
+	}
 }
 
 static void timer_cb(uv_timer_t *handle) {
-  ASSERT(handle == &timer);
+	ASSERT(handle == &timer);
 
-  uv_walk(handle->loop, walk_cb, magic_cookie);
-  uv_close((uv_handle_t *)handle, NULL);
+	uv_walk(handle->loop, walk_cb, magic_cookie);
+	uv_close((uv_handle_t *)handle, NULL);
 }
 
 TEST_IMPL(walk_handles) {
-  uv_loop_t *loop;
-  int r;
+	uv_loop_t *loop;
+	int r;
 
-  loop = uv_default_loop();
+	loop = uv_default_loop();
 
-  r = uv_timer_init(loop, &timer);
-  ASSERT(r == 0);
+	r = uv_timer_init(loop, &timer);
+	ASSERT(r == 0);
 
-  r = uv_timer_start(&timer, timer_cb, 1, 0);
-  ASSERT(r == 0);
+	r = uv_timer_start(&timer, timer_cb, 1, 0);
+	ASSERT(r == 0);
 
-  /* Start event loop, expect to see the timer handle in walk_cb. */
-  ASSERT(seen_timer_handle == 0);
-  r = uv_run(loop, UV_RUN_DEFAULT);
-  ASSERT(r == 0);
-  ASSERT(seen_timer_handle == 1);
+	/* Start event loop, expect to see the timer handle in walk_cb. */
+	ASSERT(seen_timer_handle == 0);
+	r = uv_run(loop, UV_RUN_DEFAULT);
+	ASSERT(r == 0);
+	ASSERT(seen_timer_handle == 1);
 
-  /* Loop is finished, walk_cb should not see our timer handle. */
-  seen_timer_handle = 0;
-  uv_walk(loop, walk_cb, magic_cookie);
-  ASSERT(seen_timer_handle == 0);
+	/* Loop is finished, walk_cb should not see our timer handle. */
+	seen_timer_handle = 0;
+	uv_walk(loop, walk_cb, magic_cookie);
+	ASSERT(seen_timer_handle == 0);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

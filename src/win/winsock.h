@@ -103,23 +103,23 @@
 #define AFD_POLL_ALL ((1 << AFD_NUM_POLL_EVENTS) - 1)
 
 typedef struct _AFD_RECV_DATAGRAM_INFO {
-  LPWSABUF BufferArray;
-  ULONG BufferCount;
-  ULONG AfdFlags;
-  ULONG TdiFlags;
-  struct sockaddr *Address;
-  int *AddressLength;
+	LPWSABUF BufferArray;
+	ULONG BufferCount;
+	ULONG AfdFlags;
+	ULONG TdiFlags;
+	struct sockaddr *Address;
+	int *AddressLength;
 } AFD_RECV_DATAGRAM_INFO, *PAFD_RECV_DATAGRAM_INFO;
 
 typedef struct _AFD_RECV_INFO {
-  LPWSABUF BufferArray;
-  ULONG BufferCount;
-  ULONG AfdFlags;
-  ULONG TdiFlags;
+	LPWSABUF BufferArray;
+	ULONG BufferCount;
+	ULONG AfdFlags;
+	ULONG TdiFlags;
 } AFD_RECV_INFO, *PAFD_RECV_INFO;
 
 #define _AFD_CONTROL_CODE(operation, method)                                   \
-  ((FSCTL_AFD_BASE) << 12 | (operation << 2) | method)
+	((FSCTL_AFD_BASE) << 12 | (operation << 2) | method)
 
 #define FSCTL_AFD_BASE FILE_DEVICE_NETWORK
 
@@ -130,47 +130,47 @@ typedef struct _AFD_RECV_INFO {
 #define IOCTL_AFD_RECEIVE _AFD_CONTROL_CODE(AFD_RECEIVE, METHOD_NEITHER)
 
 #define IOCTL_AFD_RECEIVE_DATAGRAM                                             \
-  _AFD_CONTROL_CODE(AFD_RECEIVE_DATAGRAM, METHOD_NEITHER)
+	_AFD_CONTROL_CODE(AFD_RECEIVE_DATAGRAM, METHOD_NEITHER)
 
 #define IOCTL_AFD_POLL _AFD_CONTROL_CODE(AFD_POLL, METHOD_BUFFERED)
 
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
 typedef struct _IP_ADAPTER_UNICAST_ADDRESS_XP {
-  /* FIXME: __C89_NAMELESS was removed */
-  /* __C89_NAMELESS */ union {
-    ULONGLONG Alignment;
-    /* __C89_NAMELESS */ struct {
-      ULONG Length;
-      DWORD Flags;
-    };
-  };
-  struct _IP_ADAPTER_UNICAST_ADDRESS_XP *Next;
-  SOCKET_ADDRESS Address;
-  IP_PREFIX_ORIGIN PrefixOrigin;
-  IP_SUFFIX_ORIGIN SuffixOrigin;
-  IP_DAD_STATE DadState;
-  ULONG ValidLifetime;
-  ULONG PreferredLifetime;
-  ULONG LeaseLifetime;
+	/* FIXME: __C89_NAMELESS was removed */
+	/* __C89_NAMELESS */ union {
+		ULONGLONG Alignment;
+		/* __C89_NAMELESS */ struct {
+			ULONG Length;
+			DWORD Flags;
+		};
+	};
+	struct _IP_ADAPTER_UNICAST_ADDRESS_XP *Next;
+	SOCKET_ADDRESS Address;
+	IP_PREFIX_ORIGIN PrefixOrigin;
+	IP_SUFFIX_ORIGIN SuffixOrigin;
+	IP_DAD_STATE DadState;
+	ULONG ValidLifetime;
+	ULONG PreferredLifetime;
+	ULONG LeaseLifetime;
 } IP_ADAPTER_UNICAST_ADDRESS_XP, *PIP_ADAPTER_UNICAST_ADDRESS_XP;
 
 typedef struct _IP_ADAPTER_UNICAST_ADDRESS_LH {
-  union {
-    ULONGLONG Alignment;
-    struct {
-      ULONG Length;
-      DWORD Flags;
-    };
-  };
-  struct _IP_ADAPTER_UNICAST_ADDRESS_LH *Next;
-  SOCKET_ADDRESS Address;
-  IP_PREFIX_ORIGIN PrefixOrigin;
-  IP_SUFFIX_ORIGIN SuffixOrigin;
-  IP_DAD_STATE DadState;
-  ULONG ValidLifetime;
-  ULONG PreferredLifetime;
-  ULONG LeaseLifetime;
-  UINT8 OnLinkPrefixLength;
+	union {
+		ULONGLONG Alignment;
+		struct {
+			ULONG Length;
+			DWORD Flags;
+		};
+	};
+	struct _IP_ADAPTER_UNICAST_ADDRESS_LH *Next;
+	SOCKET_ADDRESS Address;
+	IP_PREFIX_ORIGIN PrefixOrigin;
+	IP_SUFFIX_ORIGIN SuffixOrigin;
+	IP_DAD_STATE DadState;
+	ULONG ValidLifetime;
+	ULONG PreferredLifetime;
+	ULONG LeaseLifetime;
+	UINT8 OnLinkPrefixLength;
 } IP_ADAPTER_UNICAST_ADDRESS_LH, *PIP_ADAPTER_UNICAST_ADDRESS_LH;
 
 #endif

@@ -411,7 +411,7 @@
 #if defined(EHOSTDOWN) && !defined(_WIN32)
 #define UV__EHOSTDOWN UV__ERR(EHOSTDOWN)
 #elif defined(__APPLE__) || defined(__DragonFly__) || defined(__FreeBSD__) ||  \
-    defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__)
+        defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__)
 #define UV__EHOSTDOWN (-64)
 #else
 #define UV__EHOSTDOWN (-4031)

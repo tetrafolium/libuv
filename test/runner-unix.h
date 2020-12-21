@@ -26,11 +26,11 @@
 #include <sys/types.h>
 
 typedef struct {
-  FILE *stdout_file;
-  pid_t pid;
-  char *name;
-  int status;
-  int terminated;
+	FILE *stdout_file;
+	pid_t pid;
+	char *name;
+	int status;
+	int terminated;
 } process_info_t;
 
 #endif /* TEST_RUNNER_UNIX_H */

@@ -31,21 +31,21 @@
 #endif
 
 TEST_IMPL(hrtime) {
-  uint64_t a, b, diff;
-  int i = 75;
-  while (i > 0) {
-    a = uv_hrtime();
-    uv_sleep(45);
-    b = uv_hrtime();
+	uint64_t a, b, diff;
+	int i = 75;
+	while (i > 0) {
+		a = uv_hrtime();
+		uv_sleep(45);
+		b = uv_hrtime();
 
-    diff = b - a;
+		diff = b - a;
 
-    /* The windows Sleep() function has only a resolution of 10-20 ms. Check
-     * that the difference between the two hrtime values has a reasonable
-     * lower bound.
-     */
-    ASSERT(diff > (uint64_t)25 * NANOSEC / MILLISEC);
-    --i;
-  }
-  return 0;
+		/* The windows Sleep() function has only a resolution of 10-20 ms. Check
+		 * that the difference between the two hrtime values has a reasonable
+		 * lower bound.
+		 */
+		ASSERT(diff > (uint64_t)25 * NANOSEC / MILLISEC);
+		--i;
+	}
+	return 0;
 }

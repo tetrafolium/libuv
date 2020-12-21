@@ -23,67 +23,67 @@
 #include "uv.h"
 
 TEST_IMPL(pipe_set_chmod) {
-  uv_pipe_t pipe_handle;
-  uv_loop_t *loop;
-  int r;
+	uv_pipe_t pipe_handle;
+	uv_loop_t *loop;
+	int r;
 #ifndef _WIN32
-  struct stat stat_buf;
+	struct stat stat_buf;
 #endif
 
-  loop = uv_default_loop();
+	loop = uv_default_loop();
 
-  r = uv_pipe_init(loop, &pipe_handle, 0);
-  ASSERT(r == 0);
+	r = uv_pipe_init(loop, &pipe_handle, 0);
+	ASSERT(r == 0);
 
-  r = uv_pipe_bind(&pipe_handle, TEST_PIPENAME);
-  ASSERT(r == 0);
+	r = uv_pipe_bind(&pipe_handle, TEST_PIPENAME);
+	ASSERT(r == 0);
 
-  /* No easy way to test if this works, we will only make sure that the call is
-   * successful. */
-  r = uv_pipe_chmod(&pipe_handle, UV_READABLE);
-  if (r == UV_EPERM) {
-    MAKE_VALGRIND_HAPPY();
-    RETURN_SKIP("Insufficient privileges to alter pipe fmode");
-  }
-  ASSERT(r == 0);
+	/* No easy way to test if this works, we will only make sure that the call is
+	 * successful. */
+	r = uv_pipe_chmod(&pipe_handle, UV_READABLE);
+	if (r == UV_EPERM) {
+		MAKE_VALGRIND_HAPPY();
+		RETURN_SKIP("Insufficient privileges to alter pipe fmode");
+	}
+	ASSERT(r == 0);
 #ifndef _WIN32
-  stat(TEST_PIPENAME, &stat_buf);
-  ASSERT(stat_buf.st_mode & S_IRUSR);
-  ASSERT(stat_buf.st_mode & S_IRGRP);
-  ASSERT(stat_buf.st_mode & S_IROTH);
+	stat(TEST_PIPENAME, &stat_buf);
+	ASSERT(stat_buf.st_mode & S_IRUSR);
+	ASSERT(stat_buf.st_mode & S_IRGRP);
+	ASSERT(stat_buf.st_mode & S_IROTH);
 #endif
 
-  r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE);
-  ASSERT(r == 0);
+	r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE);
+	ASSERT(r == 0);
 #ifndef _WIN32
-  stat(TEST_PIPENAME, &stat_buf);
-  ASSERT(stat_buf.st_mode & S_IWUSR);
-  ASSERT(stat_buf.st_mode & S_IWGRP);
-  ASSERT(stat_buf.st_mode & S_IWOTH);
+	stat(TEST_PIPENAME, &stat_buf);
+	ASSERT(stat_buf.st_mode & S_IWUSR);
+	ASSERT(stat_buf.st_mode & S_IWGRP);
+	ASSERT(stat_buf.st_mode & S_IWOTH);
 #endif
 
-  r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE | UV_READABLE);
-  ASSERT(r == 0);
+	r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE | UV_READABLE);
+	ASSERT(r == 0);
 #ifndef _WIN32
-  stat(TEST_PIPENAME, &stat_buf);
-  ASSERT(stat_buf.st_mode & S_IRUSR);
-  ASSERT(stat_buf.st_mode & S_IRGRP);
-  ASSERT(stat_buf.st_mode & S_IROTH);
-  ASSERT(stat_buf.st_mode & S_IWUSR);
-  ASSERT(stat_buf.st_mode & S_IWGRP);
-  ASSERT(stat_buf.st_mode & S_IWOTH);
+	stat(TEST_PIPENAME, &stat_buf);
+	ASSERT(stat_buf.st_mode & S_IRUSR);
+	ASSERT(stat_buf.st_mode & S_IRGRP);
+	ASSERT(stat_buf.st_mode & S_IROTH);
+	ASSERT(stat_buf.st_mode & S_IWUSR);
+	ASSERT(stat_buf.st_mode & S_IWGRP);
+	ASSERT(stat_buf.st_mode & S_IWOTH);
 #endif
 
-  r = uv_pipe_chmod(NULL, UV_WRITABLE | UV_READABLE);
-  ASSERT(r == UV_EBADF);
+	r = uv_pipe_chmod(NULL, UV_WRITABLE | UV_READABLE);
+	ASSERT(r == UV_EBADF);
 
-  r = uv_pipe_chmod(&pipe_handle, 12345678);
-  ASSERT(r == UV_EINVAL);
+	r = uv_pipe_chmod(&pipe_handle, 12345678);
+	ASSERT(r == UV_EINVAL);
 
-  uv_close((uv_handle_t *)&pipe_handle, NULL);
-  r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE | UV_READABLE);
-  ASSERT(r == UV_EBADF);
+	uv_close((uv_handle_t *)&pipe_handle, NULL);
+	r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE | UV_READABLE);
+	ASSERT(r == UV_EBADF);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

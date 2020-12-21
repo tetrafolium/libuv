@@ -78,19 +78,19 @@ int uv__pthread_sigmask(int how, const sigset_t *set, sigset_t *oset);
 #define ROUND_UP(a, b) ((a) % (b) ? ((a) + (b)) - ((a) % (b)) : (a))
 
 #define UNREACHABLE()                                                          \
-  do {                                                                         \
-    assert(0 && "unreachable code");                                           \
-    abort();                                                                   \
-  } while (0)
+	do {                                                                         \
+		assert(0 && "unreachable code");                                           \
+		abort();                                                                   \
+	} while (0)
 
 #define SAVE_ERRNO(block)                                                      \
-  do {                                                                         \
-    int _saved_errno = errno;                                                  \
-    do {                                                                       \
-      block;                                                                   \
-    } while (0);                                                               \
-    errno = _saved_errno;                                                      \
-  } while (0)
+	do {                                                                         \
+		int _saved_errno = errno;                                                  \
+		do {                                                                       \
+			block;                                                                   \
+		} while (0);                                                               \
+		errno = _saved_errno;                                                      \
+	} while (0)
 
 /* The __clang__ and __INTEL_COMPILER checks are superfluous because they
  * define __GNUC__. They are here to convey to you, dear reader, that these
@@ -134,19 +134,19 @@ enum { UV_LOOP_BLOCK_SIGPROF = 1 };
 enum { UV__EXCLUDE_IFPHYS, UV__EXCLUDE_IFADDR };
 
 typedef enum {
-  UV_CLOCK_PRECISE = 0, /* Use the highest resolution clock available. */
-  UV_CLOCK_FAST = 1     /* Use the fastest clock with <= 1ms granularity. */
+	UV_CLOCK_PRECISE = 0, /* Use the highest resolution clock available. */
+	UV_CLOCK_FAST = 1 /* Use the fastest clock with <= 1ms granularity. */
 } uv_clocktype_t;
 
 struct uv__stream_queued_fds_s {
-  unsigned int size;
-  unsigned int offset;
-  int fds[1];
+	unsigned int size;
+	unsigned int offset;
+	int fds[1];
 };
 
 #if defined(_AIX) || defined(__APPLE__) || defined(__DragonFly__) ||           \
-    defined(__FreeBSD__) || defined(__FreeBSD_kernel__) ||                     \
-    defined(__linux__) || defined(__OpenBSD__) || defined(__NetBSD__)
+        defined(__FreeBSD__) || defined(__FreeBSD_kernel__) ||                     \
+        defined(__linux__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #define uv__cloexec uv__cloexec_ioctl
 #define uv__nonblock uv__nonblock_ioctl
 #else
@@ -278,19 +278,19 @@ void uv__fsevents_loop_delete(uv_loop_t *loop);
 #endif /* defined(__APPLE__) */
 
 UV_UNUSED(static void uv__update_time(uv_loop_t *loop)) {
-  /* Use a fast time source if available.  We only need millisecond precision.
-   */
-  loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
+	/* Use a fast time source if available.  We only need millisecond precision.
+	 */
+	loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
 }
 
 UV_UNUSED(static char *uv__basename_r(const char *path)) {
-  char *s;
+	char *s;
 
-  s = strrchr(path, '/');
-  if (s == NULL)
-    return (char *)path;
+	s = strrchr(path, '/');
+	if (s == NULL)
+		return (char *)path;
 
-  return s + 1;
+	return s + 1;
 }
 
 #if defined(__linux__)

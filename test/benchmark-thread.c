@@ -30,33 +30,33 @@
 static volatile int num_threads;
 
 static void thread_entry(void *arg) {
-  ASSERT(arg == (void *)42);
-  num_threads++;
-  /* FIXME write barrier? */
+	ASSERT(arg == (void *)42);
+	num_threads++;
+	/* FIXME write barrier? */
 }
 
 BENCHMARK_IMPL(thread_create) {
-  uint64_t start_time;
-  double duration;
-  uv_thread_t tid;
-  int i, r;
+	uint64_t start_time;
+	double duration;
+	uv_thread_t tid;
+	int i, r;
 
-  start_time = uv_hrtime();
+	start_time = uv_hrtime();
 
-  for (i = 0; i < NUM_THREADS; i++) {
-    r = uv_thread_create(&tid, thread_entry, (void *)42);
-    ASSERT(r == 0);
+	for (i = 0; i < NUM_THREADS; i++) {
+		r = uv_thread_create(&tid, thread_entry, (void *)42);
+		ASSERT(r == 0);
 
-    r = uv_thread_join(&tid);
-    ASSERT(r == 0);
-  }
+		r = uv_thread_join(&tid);
+		ASSERT(r == 0);
+	}
 
-  duration = (uv_hrtime() - start_time) / 1e9;
+	duration = (uv_hrtime() - start_time) / 1e9;
 
-  ASSERT(num_threads == NUM_THREADS);
+	ASSERT(num_threads == NUM_THREADS);
 
-  printf("%d threads created in %.2f seconds (%.0f/s)\n", NUM_THREADS, duration,
-         NUM_THREADS / duration);
+	printf("%d threads created in %.2f seconds (%.0f/s)\n", NUM_THREADS, duration,
+	       NUM_THREADS / duration);
 
-  return 0;
+	return 0;
 }

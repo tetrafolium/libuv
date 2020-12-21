@@ -25,7 +25,7 @@
 #include "uv.h"
 
 #if defined(__unix__) || defined(__POSIX__) || defined(__APPLE__) ||           \
-    defined(__sun) || defined(_AIX) || defined(__MVS__) || defined(__HAIKU__)
+        defined(__sun) || defined(_AIX) || defined(__MVS__) || defined(__HAIKU__)
 #include <unistd.h> /* unlink, rmdir */
 #else
 #include <direct.h>
@@ -47,7 +47,7 @@ static char buf[32];
 static uv_buf_t iov;
 
 /* Opening the same file multiple times quickly can cause uv_fs_open to fail
- * with EBUSY, so append an identifier to the file name for each operation */
+* with EBUSY, so append an identifier to the file name for each operation */
 static int sid = 0;
 
 #define FILE_NAME_SIZE 128
@@ -57,389 +57,389 @@ static char dummy_file[FILE_NAME_SIZE];
 static char empty_dir[] = "empty_dir";
 
 static void setup(void) {
-  int r;
+	int r;
 
-  /* empty_dir */
-  r = uv_fs_rmdir(NULL, &rmdir_req, empty_dir, NULL);
-  ASSERT(r == 0 || r == UV_ENOENT);
-  ASSERT(rmdir_req.result == 0 || rmdir_req.result == UV_ENOENT);
-  uv_fs_req_cleanup(&rmdir_req);
+	/* empty_dir */
+	r = uv_fs_rmdir(NULL, &rmdir_req, empty_dir, NULL);
+	ASSERT(r == 0 || r == UV_ENOENT);
+	ASSERT(rmdir_req.result == 0 || rmdir_req.result == UV_ENOENT);
+	uv_fs_req_cleanup(&rmdir_req);
 
-  r = uv_fs_mkdir(NULL, &mkdir_req, empty_dir, 0755, NULL);
-  ASSERT(r == 0);
-  ASSERT(mkdir_req.result == 0);
-  uv_fs_req_cleanup(&mkdir_req);
+	r = uv_fs_mkdir(NULL, &mkdir_req, empty_dir, 0755, NULL);
+	ASSERT(r == 0);
+	ASSERT(mkdir_req.result == 0);
+	uv_fs_req_cleanup(&mkdir_req);
 }
 
 static void refresh(void) {
-  int r;
-  uv_os_fd_t file;
+	int r;
+	uv_os_fd_t file;
 
-  /* absent_file */
-  sprintf(absent_file, "test_file_%d", sid++);
+	/* absent_file */
+	sprintf(absent_file, "test_file_%d", sid++);
 
-  r = uv_fs_unlink(NULL, &unlink_req, absent_file, NULL);
-  ASSERT(r == 0 || r == UV_ENOENT);
-  ASSERT(unlink_req.result == 0 || unlink_req.result == UV_ENOENT);
-  uv_fs_req_cleanup(&unlink_req);
+	r = uv_fs_unlink(NULL, &unlink_req, absent_file, NULL);
+	ASSERT(r == 0 || r == UV_ENOENT);
+	ASSERT(unlink_req.result == 0 || unlink_req.result == UV_ENOENT);
+	uv_fs_req_cleanup(&unlink_req);
 
-  /* empty_file */
-  sprintf(empty_file, "test_file_%d", sid++);
+	/* empty_file */
+	sprintf(empty_file, "test_file_%d", sid++);
 
-  r = uv_fs_open(NULL, &open_req, empty_file,
-                 UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY,
-                 S_IWUSR | S_IRUSR, NULL);
-  ASSERT(r == 0);
-  ASSERT(open_req.result >= 0);
-  file = (uv_os_fd_t)open_req.result;
-  uv_fs_req_cleanup(&open_req);
+	r = uv_fs_open(NULL, &open_req, empty_file,
+	               UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY,
+	               S_IWUSR | S_IRUSR, NULL);
+	ASSERT(r == 0);
+	ASSERT(open_req.result >= 0);
+	file = (uv_os_fd_t)open_req.result;
+	uv_fs_req_cleanup(&open_req);
 
-  r = uv_fs_close(NULL, &close_req, file, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, file, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  /* dummy_file */
-  sprintf(dummy_file, "test_file_%d", sid++);
+	/* dummy_file */
+	sprintf(dummy_file, "test_file_%d", sid++);
 
-  r = uv_fs_open(NULL, &open_req, dummy_file,
-                 UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY,
-                 S_IWUSR | S_IRUSR, NULL);
-  ASSERT(r == 0);
-  ASSERT(open_req.result >= 0);
-  file = (uv_os_fd_t)open_req.result;
-  uv_fs_req_cleanup(&open_req);
+	r = uv_fs_open(NULL, &open_req, dummy_file,
+	               UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY,
+	               S_IWUSR | S_IRUSR, NULL);
+	ASSERT(r == 0);
+	ASSERT(open_req.result >= 0);
+	file = (uv_os_fd_t)open_req.result;
+	uv_fs_req_cleanup(&open_req);
 
-  iov = uv_buf_init("a", 1);
-  r = uv_fs_write(NULL, &write_req, file, &iov, 1, -1, NULL);
-  ASSERT(r == 1);
-  ASSERT(write_req.result == 1);
-  uv_fs_req_cleanup(&write_req);
+	iov = uv_buf_init("a", 1);
+	r = uv_fs_write(NULL, &write_req, file, &iov, 1, -1, NULL);
+	ASSERT(r == 1);
+	ASSERT(write_req.result == 1);
+	uv_fs_req_cleanup(&write_req);
 
-  r = uv_fs_close(NULL, &close_req, file, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, file, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 }
 
 static void cleanup(void) {
-  unlink(absent_file);
-  unlink(empty_file);
-  unlink(dummy_file);
+	unlink(absent_file);
+	unlink(empty_file);
+	unlink(dummy_file);
 }
 
 static void openFail(char *file, int error) {
-  int r;
+	int r;
 
-  refresh();
+	refresh();
 
-  r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
-  ASSERT(r == error);
-  ASSERT(open_req.result == error);
-  uv_fs_req_cleanup(&open_req);
+	r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
+	ASSERT(r == error);
+	ASSERT(open_req.result == error);
+	uv_fs_req_cleanup(&open_req);
 
-  /* Ensure the first call does not create the file */
-  r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
-  ASSERT(r == error);
-  ASSERT(open_req.result == error);
-  uv_fs_req_cleanup(&open_req);
+	/* Ensure the first call does not create the file */
+	r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
+	ASSERT(r == error);
+	ASSERT(open_req.result == error);
+	uv_fs_req_cleanup(&open_req);
 
-  cleanup();
+	cleanup();
 }
 
 static void refreshOpen(char *file) {
-  int r;
+	int r;
 
-  refresh();
+	refresh();
 
-  r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
-  ASSERT(r >= 0);
-  ASSERT(open_req.result >= 0);
-  uv_fs_req_cleanup(&open_req);
+	r = uv_fs_open(NULL, &open_req, file, flags, S_IWUSR | S_IRUSR, NULL);
+	ASSERT(r >= 0);
+	ASSERT(open_req.result >= 0);
+	uv_fs_req_cleanup(&open_req);
 }
 
 static void writeExpect(char *file, char *expected, int size) {
-  int r;
-  uv_os_fd_t fd;
+	int r;
+	uv_os_fd_t fd;
 
-  refreshOpen(file);
-  fd = (uv_os_fd_t)open_req.result;
+	refreshOpen(file);
+	fd = (uv_os_fd_t)open_req.result;
 
-  iov = uv_buf_init("b", 1);
-  r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == 1);
-  ASSERT(write_req.result == 1);
-  uv_fs_req_cleanup(&write_req);
+	iov = uv_buf_init("b", 1);
+	r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == 1);
+	ASSERT(write_req.result == 1);
+	uv_fs_req_cleanup(&write_req);
 
-  iov = uv_buf_init("c", 1);
-  r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == 1);
-  ASSERT(write_req.result == 1);
-  uv_fs_req_cleanup(&write_req);
+	iov = uv_buf_init("c", 1);
+	r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == 1);
+	ASSERT(write_req.result == 1);
+	uv_fs_req_cleanup(&write_req);
 
-  r = uv_fs_close(NULL, &close_req, fd, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, fd, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  /* Check contents */
-  r = uv_fs_open(NULL, &open_req, file, UV_FS_O_RDONLY, S_IWUSR | S_IRUSR,
-                 NULL);
-  ASSERT(r == 0);
-  ASSERT(open_req.result >= 0);
-  fd = (uv_os_fd_t)open_req.result;
-  uv_fs_req_cleanup(&open_req);
+	/* Check contents */
+	r = uv_fs_open(NULL, &open_req, file, UV_FS_O_RDONLY, S_IWUSR | S_IRUSR,
+	               NULL);
+	ASSERT(r == 0);
+	ASSERT(open_req.result >= 0);
+	fd = (uv_os_fd_t)open_req.result;
+	uv_fs_req_cleanup(&open_req);
 
-  iov = uv_buf_init(buf, sizeof(buf));
-  r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == size);
-  ASSERT(read_req.result == size);
-  ASSERT(strncmp(buf, expected, size) == 0);
-  uv_fs_req_cleanup(&read_req);
+	iov = uv_buf_init(buf, sizeof(buf));
+	r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == size);
+	ASSERT(read_req.result == size);
+	ASSERT(strncmp(buf, expected, size) == 0);
+	uv_fs_req_cleanup(&read_req);
 
-  r = uv_fs_close(NULL, &close_req, fd, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, fd, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  cleanup();
+	cleanup();
 }
 
 static void writeFail(char *file, int error) {
-  int r;
-  uv_os_fd_t fd;
+	int r;
+	uv_os_fd_t fd;
 
-  refreshOpen(file);
-  fd = (uv_os_fd_t)open_req.result;
+	refreshOpen(file);
+	fd = (uv_os_fd_t)open_req.result;
 
-  iov = uv_buf_init("z", 1);
-  r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == error);
-  ASSERT(write_req.result == error);
-  uv_fs_req_cleanup(&write_req);
+	iov = uv_buf_init("z", 1);
+	r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == error);
+	ASSERT(write_req.result == error);
+	uv_fs_req_cleanup(&write_req);
 
-  iov = uv_buf_init("z", 1);
-  r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == error);
-  ASSERT(write_req.result == error);
-  uv_fs_req_cleanup(&write_req);
+	iov = uv_buf_init("z", 1);
+	r = uv_fs_write(NULL, &write_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == error);
+	ASSERT(write_req.result == error);
+	uv_fs_req_cleanup(&write_req);
 
-  r = uv_fs_close(NULL, &close_req, fd, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, fd, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  cleanup();
+	cleanup();
 }
 
 static void readExpect(char *file, char *expected, int size) {
-  int r;
-  uv_os_fd_t fd;
+	int r;
+	uv_os_fd_t fd;
 
-  refreshOpen(file);
-  fd = (uv_os_fd_t)open_req.result;
+	refreshOpen(file);
+	fd = (uv_os_fd_t)open_req.result;
 
-  iov = uv_buf_init(buf, sizeof(buf));
-  r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == size);
-  ASSERT(read_req.result == size);
-  ASSERT(strncmp(buf, expected, size) == 0);
-  uv_fs_req_cleanup(&read_req);
+	iov = uv_buf_init(buf, sizeof(buf));
+	r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == size);
+	ASSERT(read_req.result == size);
+	ASSERT(strncmp(buf, expected, size) == 0);
+	uv_fs_req_cleanup(&read_req);
 
-  r = uv_fs_close(NULL, &close_req, fd, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, fd, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  cleanup();
+	cleanup();
 }
 
 static void readFail(char *file, int error) {
-  int r;
-  uv_os_fd_t fd;
+	int r;
+	uv_os_fd_t fd;
 
-  refreshOpen(file);
-  fd = (uv_os_fd_t)open_req.result;
+	refreshOpen(file);
+	fd = (uv_os_fd_t)open_req.result;
 
-  iov = uv_buf_init(buf, sizeof(buf));
-  r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == error);
-  ASSERT(read_req.result == error);
-  uv_fs_req_cleanup(&read_req);
+	iov = uv_buf_init(buf, sizeof(buf));
+	r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == error);
+	ASSERT(read_req.result == error);
+	uv_fs_req_cleanup(&read_req);
 
-  iov = uv_buf_init(buf, sizeof(buf));
-  r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
-  ASSERT(r == error);
-  ASSERT(read_req.result == error);
-  uv_fs_req_cleanup(&read_req);
+	iov = uv_buf_init(buf, sizeof(buf));
+	r = uv_fs_read(NULL, &read_req, fd, &iov, 1, -1, NULL);
+	ASSERT(r == error);
+	ASSERT(read_req.result == error);
+	uv_fs_req_cleanup(&read_req);
 
-  r = uv_fs_close(NULL, &close_req, fd, NULL);
-  ASSERT(r == 0);
-  ASSERT(close_req.result == 0);
-  uv_fs_req_cleanup(&close_req);
+	r = uv_fs_close(NULL, &close_req, fd, NULL);
+	ASSERT(r == 0);
+	ASSERT(close_req.result == 0);
+	uv_fs_req_cleanup(&close_req);
 
-  cleanup();
+	cleanup();
 }
 
 static void fs_open_flags(int add_flags) {
-  /* Follow the order from
-   * https://github.com/nodejs/node/blob/1a96abe849/lib/internal/fs/utils.js#L329-L354
-   */
+	/* Follow the order from
+	 * https://github.com/nodejs/node/blob/1a96abe849/lib/internal/fs/utils.js#L329-L354
+	 */
 
-  /* r */
-  flags = add_flags | UV_FS_O_RDONLY;
-  openFail(absent_file, UV_ENOENT);
-  writeFail(empty_file, UV_EACCES);
-  readExpect(empty_file, "", 0);
-  writeFail(dummy_file, UV_EACCES);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EACCES);
-  readFail(empty_dir, UV_EISDIR);
+	/* r */
+	flags = add_flags | UV_FS_O_RDONLY;
+	openFail(absent_file, UV_ENOENT);
+	writeFail(empty_file, UV_EACCES);
+	readExpect(empty_file, "", 0);
+	writeFail(dummy_file, UV_EACCES);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EACCES);
+	readFail(empty_dir, UV_EISDIR);
 
-  /* rs */
-  flags = add_flags | UV_FS_O_RDONLY | UV_FS_O_SYNC;
-  openFail(absent_file, UV_ENOENT);
-  writeFail(empty_file, UV_EACCES);
-  readExpect(empty_file, "", 0);
-  writeFail(dummy_file, UV_EACCES);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EACCES);
-  readFail(empty_dir, UV_EISDIR);
+	/* rs */
+	flags = add_flags | UV_FS_O_RDONLY | UV_FS_O_SYNC;
+	openFail(absent_file, UV_ENOENT);
+	writeFail(empty_file, UV_EACCES);
+	readExpect(empty_file, "", 0);
+	writeFail(dummy_file, UV_EACCES);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EACCES);
+	readFail(empty_dir, UV_EISDIR);
 
-  /* r+ */
-  flags = add_flags | UV_FS_O_RDWR;
-  openFail(absent_file, UV_ENOENT);
-  writeExpect(empty_file, "bc", 2);
-  readExpect(empty_file, "", 0);
-  writeExpect(dummy_file, "bc", 2);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EISDIR);
+	/* r+ */
+	flags = add_flags | UV_FS_O_RDWR;
+	openFail(absent_file, UV_ENOENT);
+	writeExpect(empty_file, "bc", 2);
+	readExpect(empty_file, "", 0);
+	writeExpect(dummy_file, "bc", 2);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EISDIR);
 
-  /* rs+ */
-  flags = add_flags | UV_FS_O_RDWR | UV_FS_O_SYNC;
-  openFail(absent_file, UV_ENOENT);
-  writeExpect(empty_file, "bc", 2);
-  readExpect(empty_file, "", 0);
-  writeExpect(dummy_file, "bc", 2);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EISDIR);
+	/* rs+ */
+	flags = add_flags | UV_FS_O_RDWR | UV_FS_O_SYNC;
+	openFail(absent_file, UV_ENOENT);
+	writeExpect(empty_file, "bc", 2);
+	readExpect(empty_file, "", 0);
+	writeExpect(dummy_file, "bc", 2);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EISDIR);
 
-  /* w */
-  flags = add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY;
-  writeExpect(absent_file, "bc", 2);
-  readFail(absent_file, UV_EACCES);
-  writeExpect(empty_file, "bc", 2);
-  readFail(empty_file, UV_EACCES);
-  writeExpect(dummy_file, "bc", 2);
-  readFail(dummy_file, UV_EACCES);
-  openFail(empty_dir, UV_EISDIR);
+	/* w */
+	flags = add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY;
+	writeExpect(absent_file, "bc", 2);
+	readFail(absent_file, UV_EACCES);
+	writeExpect(empty_file, "bc", 2);
+	readFail(empty_file, UV_EACCES);
+	writeExpect(dummy_file, "bc", 2);
+	readFail(dummy_file, UV_EACCES);
+	openFail(empty_dir, UV_EISDIR);
 
-  /* wx */
-  flags =
-      add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY | UV_FS_O_EXCL;
-  writeExpect(absent_file, "bc", 2);
-  readFail(absent_file, UV_EACCES);
-  openFail(empty_file, UV_EEXIST);
-  openFail(dummy_file, UV_EEXIST);
-  openFail(empty_dir, UV_EEXIST);
+	/* wx */
+	flags =
+		add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_WRONLY | UV_FS_O_EXCL;
+	writeExpect(absent_file, "bc", 2);
+	readFail(absent_file, UV_EACCES);
+	openFail(empty_file, UV_EEXIST);
+	openFail(dummy_file, UV_EEXIST);
+	openFail(empty_dir, UV_EEXIST);
 
-  /* w+ */
-  flags = add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_RDWR;
-  writeExpect(absent_file, "bc", 2);
-  readExpect(absent_file, "", 0);
-  writeExpect(empty_file, "bc", 2);
-  readExpect(empty_file, "", 0);
-  writeExpect(dummy_file, "bc", 2);
-  readExpect(dummy_file, "", 0);
-  openFail(empty_dir, UV_EISDIR);
+	/* w+ */
+	flags = add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_RDWR;
+	writeExpect(absent_file, "bc", 2);
+	readExpect(absent_file, "", 0);
+	writeExpect(empty_file, "bc", 2);
+	readExpect(empty_file, "", 0);
+	writeExpect(dummy_file, "bc", 2);
+	readExpect(dummy_file, "", 0);
+	openFail(empty_dir, UV_EISDIR);
 
-  /* wx+ */
-  flags =
-      add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_EXCL;
-  writeExpect(absent_file, "bc", 2);
-  readExpect(absent_file, "", 0);
-  openFail(empty_file, UV_EEXIST);
-  openFail(dummy_file, UV_EEXIST);
-  openFail(empty_dir, UV_EEXIST);
+	/* wx+ */
+	flags =
+		add_flags | UV_FS_O_TRUNC | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_EXCL;
+	writeExpect(absent_file, "bc", 2);
+	readExpect(absent_file, "", 0);
+	openFail(empty_file, UV_EEXIST);
+	openFail(dummy_file, UV_EEXIST);
+	openFail(empty_dir, UV_EEXIST);
 
-  /* a */
-  flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY;
-  writeExpect(absent_file, "bc", 2);
-  readFail(absent_file, UV_EACCES);
-  writeExpect(empty_file, "bc", 2);
-  readFail(empty_file, UV_EACCES);
-  writeExpect(dummy_file, "abc", 3);
-  readFail(dummy_file, UV_EACCES);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EACCES);
+	/* a */
+	flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY;
+	writeExpect(absent_file, "bc", 2);
+	readFail(absent_file, UV_EACCES);
+	writeExpect(empty_file, "bc", 2);
+	readFail(empty_file, UV_EACCES);
+	writeExpect(dummy_file, "abc", 3);
+	readFail(dummy_file, UV_EACCES);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EACCES);
 
-  /* ax */
-  flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY |
-          UV_FS_O_EXCL;
-  writeExpect(absent_file, "bc", 2);
-  readFail(absent_file, UV_EACCES);
-  openFail(empty_file, UV_EEXIST);
-  openFail(dummy_file, UV_EEXIST);
-  openFail(empty_dir, UV_EEXIST);
+	/* ax */
+	flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY |
+	        UV_FS_O_EXCL;
+	writeExpect(absent_file, "bc", 2);
+	readFail(absent_file, UV_EACCES);
+	openFail(empty_file, UV_EEXIST);
+	openFail(dummy_file, UV_EEXIST);
+	openFail(empty_dir, UV_EEXIST);
 
-  /* as */
-  flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY |
-          UV_FS_O_SYNC;
-  writeExpect(absent_file, "bc", 2);
-  readFail(absent_file, UV_EACCES);
-  writeExpect(empty_file, "bc", 2);
-  readFail(empty_file, UV_EACCES);
-  writeExpect(dummy_file, "abc", 3);
-  readFail(dummy_file, UV_EACCES);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EACCES);
+	/* as */
+	flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_WRONLY |
+	        UV_FS_O_SYNC;
+	writeExpect(absent_file, "bc", 2);
+	readFail(absent_file, UV_EACCES);
+	writeExpect(empty_file, "bc", 2);
+	readFail(empty_file, UV_EACCES);
+	writeExpect(dummy_file, "abc", 3);
+	readFail(dummy_file, UV_EACCES);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EACCES);
 
-  /* a+ */
-  flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR;
-  writeExpect(absent_file, "bc", 2);
-  readExpect(absent_file, "", 0);
-  writeExpect(empty_file, "bc", 2);
-  readExpect(empty_file, "", 0);
-  writeExpect(dummy_file, "abc", 3);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EISDIR);
+	/* a+ */
+	flags = add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR;
+	writeExpect(absent_file, "bc", 2);
+	readExpect(absent_file, "", 0);
+	writeExpect(empty_file, "bc", 2);
+	readExpect(empty_file, "", 0);
+	writeExpect(dummy_file, "abc", 3);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EISDIR);
 
-  /* ax+ */
-  flags =
-      add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_EXCL;
-  writeExpect(absent_file, "bc", 2);
-  readExpect(absent_file, "", 0);
-  openFail(empty_file, UV_EEXIST);
-  openFail(dummy_file, UV_EEXIST);
-  openFail(empty_dir, UV_EEXIST);
+	/* ax+ */
+	flags =
+		add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_EXCL;
+	writeExpect(absent_file, "bc", 2);
+	readExpect(absent_file, "", 0);
+	openFail(empty_file, UV_EEXIST);
+	openFail(dummy_file, UV_EEXIST);
+	openFail(empty_dir, UV_EEXIST);
 
-  /* as+ */
-  flags =
-      add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_SYNC;
-  writeExpect(absent_file, "bc", 2);
-  readExpect(absent_file, "", 0);
-  writeExpect(empty_file, "bc", 2);
-  readExpect(empty_file, "", 0);
-  writeExpect(dummy_file, "abc", 3);
-  readExpect(dummy_file, "a", 1);
-  writeFail(empty_dir, UV_EISDIR);
-  readFail(empty_dir, UV_EISDIR);
+	/* as+ */
+	flags =
+		add_flags | UV_FS_O_APPEND | UV_FS_O_CREAT | UV_FS_O_RDWR | UV_FS_O_SYNC;
+	writeExpect(absent_file, "bc", 2);
+	readExpect(absent_file, "", 0);
+	writeExpect(empty_file, "bc", 2);
+	readExpect(empty_file, "", 0);
+	writeExpect(dummy_file, "abc", 3);
+	readExpect(dummy_file, "a", 1);
+	writeFail(empty_dir, UV_EISDIR);
+	readFail(empty_dir, UV_EISDIR);
 }
 
 TEST_IMPL(fs_open_flags) {
-  setup();
+	setup();
 
-  fs_open_flags(0);
-  fs_open_flags(UV_FS_O_FILEMAP);
+	fs_open_flags(0);
+	fs_open_flags(UV_FS_O_FILEMAP);
 
-  /* Cleanup. */
-  rmdir(empty_dir);
+	/* Cleanup. */
+	rmdir(empty_dir);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 #else

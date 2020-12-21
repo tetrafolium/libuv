@@ -37,15 +37,15 @@
 #define UV__O_CLOEXEC 0x80000
 
 struct epoll_event {
-  int events;
-  int fd;
+	int events;
+	int fd;
 };
 
 typedef struct {
-  QUEUE member;
-  struct pollfd *items;
-  unsigned long size;
-  int msg_queue;
+	QUEUE member;
+	struct pollfd *items;
+	unsigned long size;
+	int msg_queue;
 } uv__os390_epoll;
 
 /* epoll api */
