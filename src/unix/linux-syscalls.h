@@ -81,46 +81,46 @@
 #define UV__IN_MOVE_SELF      0x800
 
 struct uv__statx_timestamp {
-  int64_t tv_sec;
-  uint32_t tv_nsec;
-  int32_t unused0;
+    int64_t tv_sec;
+    uint32_t tv_nsec;
+    int32_t unused0;
 };
 
 struct uv__statx {
-  uint32_t stx_mask;
-  uint32_t stx_blksize;
-  uint64_t stx_attributes;
-  uint32_t stx_nlink;
-  uint32_t stx_uid;
-  uint32_t stx_gid;
-  uint16_t stx_mode;
-  uint16_t unused0;
-  uint64_t stx_ino;
-  uint64_t stx_size;
-  uint64_t stx_blocks;
-  uint64_t stx_attributes_mask;
-  struct uv__statx_timestamp stx_atime;
-  struct uv__statx_timestamp stx_btime;
-  struct uv__statx_timestamp stx_ctime;
-  struct uv__statx_timestamp stx_mtime;
-  uint32_t stx_rdev_major;
-  uint32_t stx_rdev_minor;
-  uint32_t stx_dev_major;
-  uint32_t stx_dev_minor;
-  uint64_t unused1[14];
+    uint32_t stx_mask;
+    uint32_t stx_blksize;
+    uint64_t stx_attributes;
+    uint32_t stx_nlink;
+    uint32_t stx_uid;
+    uint32_t stx_gid;
+    uint16_t stx_mode;
+    uint16_t unused0;
+    uint64_t stx_ino;
+    uint64_t stx_size;
+    uint64_t stx_blocks;
+    uint64_t stx_attributes_mask;
+    struct uv__statx_timestamp stx_atime;
+    struct uv__statx_timestamp stx_btime;
+    struct uv__statx_timestamp stx_ctime;
+    struct uv__statx_timestamp stx_mtime;
+    uint32_t stx_rdev_major;
+    uint32_t stx_rdev_minor;
+    uint32_t stx_dev_major;
+    uint32_t stx_dev_minor;
+    uint64_t unused1[14];
 };
 
 struct uv__inotify_event {
-  int32_t wd;
-  uint32_t mask;
-  uint32_t cookie;
-  uint32_t len;
-  /* char name[0]; */
+    int32_t wd;
+    uint32_t mask;
+    uint32_t cookie;
+    uint32_t len;
+    /* char name[0]; */
 };
 
 struct uv__mmsghdr {
-  struct msghdr msg_hdr;
-  unsigned int msg_len;
+    struct msghdr msg_hdr;
+    unsigned int msg_len;
 };
 
 int uv__accept4(int fd, struct sockaddr* addr, socklen_t* addrlen, int flags);

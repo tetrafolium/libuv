@@ -37,63 +37,63 @@ static int close_cb_called;
 
 
 static void close_cb(uv_handle_t* handle) {
-  CHECK_HANDLE(handle);
-  close_cb_called++;
+    CHECK_HANDLE(handle);
+    close_cb_called++;
 }
 
 
 static void sv_send_cb(uv_udp_send_t* req, int status) {
-  ASSERT(req != NULL);
-  ASSERT(status == 0 || status == UV_ENETUNREACH || status == UV_EPERM);
-  CHECK_HANDLE(req->handle);
+    ASSERT(req != NULL);
+    ASSERT(status == 0 || status == UV_ENETUNREACH || status == UV_EPERM);
+    CHECK_HANDLE(req->handle);
 
-  sv_send_cb_called++;
+    sv_send_cb_called++;
 
-  uv_close((uv_handle_t*) req->handle, close_cb);
+    uv_close((uv_handle_t*) req->handle, close_cb);
 }
 
 
 TEST_IMPL(udp_multicast_interface) {
-  int r;
-  uv_udp_send_t req;
-  uv_buf_t buf;
-  struct sockaddr_in addr;
-  struct sockaddr_in baddr;
+    int r;
+    uv_udp_send_t req;
+    uv_buf_t buf;
+    struct sockaddr_in addr;
+    struct sockaddr_in baddr;
 
-  ASSERT(0 == uv_ip4_addr("239.255.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("239.255.0.1", TEST_PORT, &addr));
 
-  r = uv_udp_init(uv_default_loop(), &server);
-  ASSERT(r == 0);
+    r = uv_udp_init(uv_default_loop(), &server);
+    ASSERT(r == 0);
 
-  ASSERT(0 == uv_ip4_addr("0.0.0.0", 0, &baddr));
-  r = uv_udp_bind(&server, (const struct sockaddr*)&baddr, 0);
-  ASSERT(r == 0);
+    ASSERT(0 == uv_ip4_addr("0.0.0.0", 0, &baddr));
+    r = uv_udp_bind(&server, (const struct sockaddr*)&baddr, 0);
+    ASSERT(r == 0);
 
-  r = uv_udp_set_multicast_interface(&server, "0.0.0.0");
-  ASSERT(r == 0);
+    r = uv_udp_set_multicast_interface(&server, "0.0.0.0");
+    ASSERT(r == 0);
 
-  /* server sends "PING" */
-  buf = uv_buf_init("PING", 4);
-  r = uv_udp_send(&req,
-                  &server,
-                  &buf,
-                  1,
-                  (const struct sockaddr*)&addr,
-                  sv_send_cb);
-  ASSERT(r == 0);
+    /* server sends "PING" */
+    buf = uv_buf_init("PING", 4);
+    r = uv_udp_send(&req,
+                    &server,
+                    &buf,
+                    1,
+                    (const struct sockaddr*)&addr,
+                    sv_send_cb);
+    ASSERT(r == 0);
 
-  ASSERT(close_cb_called == 0);
-  ASSERT(sv_send_cb_called == 0);
+    ASSERT(close_cb_called == 0);
+    ASSERT(sv_send_cb_called == 0);
 
-  /* run the loop till all events are processed */
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    /* run the loop till all events are processed */
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(sv_send_cb_called == 1);
-  ASSERT(close_cb_called == 1);
+    ASSERT(sv_send_cb_called == 1);
+    ASSERT(close_cb_called == 1);
 
-  ASSERT(client.send_queue_size == 0);
-  ASSERT(server.send_queue_size == 0);
+    ASSERT(client.send_queue_size == 0);
+    ASSERT(server.send_queue_size == 0);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

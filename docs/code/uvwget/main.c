@@ -64,7 +64,7 @@ void check_multi_info(void) {
         switch (message->msg) {
         case CURLMSG_DONE:
             curl_easy_getinfo(message->easy_handle, CURLINFO_EFFECTIVE_URL,
-                            &done_url);
+                              &done_url);
             printf("%s DONE\n", done_url);
 
             curl_multi_remove_handle(curl_handle, message->easy_handle);
@@ -91,7 +91,7 @@ void curl_perform(uv_poll_t *req, int status, int events) {
     context = (curl_context_t*)req;
 
     curl_multi_socket_action(curl_handle, context->sockfd, flags, &running_handles);
-    check_multi_info();   
+    check_multi_info();
 }
 
 void on_timeout(uv_timer_t *req) {
@@ -119,21 +119,21 @@ int handle_socket(CURL *easy, curl_socket_t s, int action, void *userp, void *so
     }
 
     switch (action) {
-        case CURL_POLL_IN:
-            uv_poll_start(&curl_context->poll_handle, UV_READABLE, curl_perform);
-            break;
-        case CURL_POLL_OUT:
-            uv_poll_start(&curl_context->poll_handle, UV_WRITABLE, curl_perform);
-            break;
-        case CURL_POLL_REMOVE:
-            if (socketp) {
-                uv_poll_stop(&((curl_context_t*)socketp)->poll_handle);
-                destroy_curl_context((curl_context_t*) socketp);                
-                curl_multi_assign(curl_handle, s, NULL);
-            }
-            break;
-        default:
-            abort();
+    case CURL_POLL_IN:
+        uv_poll_start(&curl_context->poll_handle, UV_READABLE, curl_perform);
+        break;
+    case CURL_POLL_OUT:
+        uv_poll_start(&curl_context->poll_handle, UV_WRITABLE, curl_perform);
+        break;
+    case CURL_POLL_REMOVE:
+        if (socketp) {
+            uv_poll_stop(&((curl_context_t*)socketp)->poll_handle);
+            destroy_curl_context((curl_context_t*) socketp);
+            curl_multi_assign(curl_handle, s, NULL);
+        }
+        break;
+    default:
+        abort();
     }
 
     return 0;

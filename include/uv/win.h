@@ -69,45 +69,45 @@ typedef intptr_t ssize_t;
 #endif
 
 typedef int (WSAAPI* LPFN_WSARECV)
-            (SOCKET socket,
-             LPWSABUF buffers,
-             DWORD buffer_count,
-             LPDWORD bytes,
-             LPDWORD flags,
-             LPWSAOVERLAPPED overlapped,
-             LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
+(SOCKET socket,
+ LPWSABUF buffers,
+ DWORD buffer_count,
+ LPDWORD bytes,
+ LPDWORD flags,
+ LPWSAOVERLAPPED overlapped,
+ LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
 
 typedef int (WSAAPI* LPFN_WSARECVFROM)
-            (SOCKET socket,
-             LPWSABUF buffers,
-             DWORD buffer_count,
-             LPDWORD bytes,
-             LPDWORD flags,
-             struct sockaddr* addr,
-             LPINT addr_len,
-             LPWSAOVERLAPPED overlapped,
-             LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
+(SOCKET socket,
+ LPWSABUF buffers,
+ DWORD buffer_count,
+ LPDWORD bytes,
+ LPDWORD flags,
+ struct sockaddr* addr,
+ LPINT addr_len,
+ LPWSAOVERLAPPED overlapped,
+ LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
 
 #ifndef _NTDEF_
-  typedef LONG NTSTATUS;
-  typedef NTSTATUS *PNTSTATUS;
+typedef LONG NTSTATUS;
+typedef NTSTATUS *PNTSTATUS;
 #endif
 
 #ifndef RTL_CONDITION_VARIABLE_INIT
-  typedef PVOID CONDITION_VARIABLE, *PCONDITION_VARIABLE;
+typedef PVOID CONDITION_VARIABLE, *PCONDITION_VARIABLE;
 #endif
 
 typedef struct _AFD_POLL_HANDLE_INFO {
-  HANDLE Handle;
-  ULONG Events;
-  NTSTATUS Status;
+    HANDLE Handle;
+    ULONG Events;
+    NTSTATUS Status;
 } AFD_POLL_HANDLE_INFO, *PAFD_POLL_HANDLE_INFO;
 
 typedef struct _AFD_POLL_INFO {
-  LARGE_INTEGER Timeout;
-  ULONG NumberOfHandles;
-  ULONG Exclusive;
-  AFD_POLL_HANDLE_INFO Handles[1];
+    LARGE_INTEGER Timeout;
+    ULONG NumberOfHandles;
+    ULONG Exclusive;
+    AFD_POLL_HANDLE_INFO Handles[1];
 } AFD_POLL_INFO, *PAFD_POLL_INFO;
 
 #define UV_MSAFD_PROVIDER_COUNT 3
@@ -118,8 +118,8 @@ typedef struct _AFD_POLL_INFO {
  * see http://msdn.microsoft.com/en-us/library/ms741542(v=vs.85).aspx
  */
 typedef struct uv_buf_t {
-  ULONG len;
-  char* base;
+    ULONG len;
+    char* base;
 } uv_buf_t;
 
 typedef SOCKET uv_os_sock_t;
@@ -135,28 +135,28 @@ typedef CRITICAL_SECTION uv_mutex_t;
 typedef CONDITION_VARIABLE uv_cond_t;
 
 typedef struct {
-  unsigned int num_readers_;
-  CRITICAL_SECTION num_readers_lock_;
-  HANDLE write_semaphore_;
+    unsigned int num_readers_;
+    CRITICAL_SECTION num_readers_lock_;
+    HANDLE write_semaphore_;
 } uv_rwlock_t;
 
 typedef struct {
-  unsigned int n;
-  unsigned int count;
-  uv_mutex_t mutex;
-  uv_sem_t turnstile1;
-  uv_sem_t turnstile2;
+    unsigned int n;
+    unsigned int count;
+    uv_mutex_t mutex;
+    uv_sem_t turnstile1;
+    uv_sem_t turnstile2;
 } uv_barrier_t;
 
 typedef struct {
-  DWORD tls_index;
+    DWORD tls_index;
 } uv_key_t;
 
 #define UV_ONCE_INIT { 0, NULL }
 
 typedef struct uv_once_s {
-  unsigned char ran;
-  HANDLE event;
+    unsigned char ran;
+    HANDLE event;
 } uv_once_t;
 
 /* Platform-specific definitions for uv_spawn support. */
@@ -164,8 +164,8 @@ typedef unsigned char uv_uid_t;
 typedef unsigned char uv_gid_t;
 
 typedef struct uv__dirent_s {
-  int d_type;
-  char d_name[1];
+    int d_type;
+    char d_name[1];
 } uv__dirent_t;
 
 #define UV_DIR_PRIVATE_FIELDS \
@@ -185,8 +185,8 @@ typedef struct uv__dirent_s {
 /* Platform-specific definitions for uv_dlopen support. */
 #define UV_DYNAMIC FAR WINAPI
 typedef struct {
-  HMODULE handle;
-  char* errmsg;
+    HMODULE handle;
+    char* errmsg;
 } uv_lib_t;
 
 #define UV_LOOP_PRIVATE_FIELDS                                                \

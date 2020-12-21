@@ -39,97 +39,97 @@ static int bytes_written;
 
 
 static void close_cb(uv_handle_t* handle) {
-  close_cb_called++;
+    close_cb_called++;
 }
 
 
 static void connect_cb(uv_connect_t* req, int status) {
-  int r;
-  uv_buf_t buf;
-  ASSERT(status == 0);
-  connect_cb_called++;
+    int r;
+    uv_buf_t buf;
+    ASSERT(status == 0);
+    connect_cb_called++;
 
-  do {
-    buf = uv_buf_init("PING", 4);
-    r = uv_try_write((uv_stream_t*) &client, &buf, 1);
-    ASSERT(r > 0 || r == UV_EAGAIN);
-    if (r > 0) {
-      bytes_written += r;
-      break;
-    }
-  } while (1);
+    do {
+        buf = uv_buf_init("PING", 4);
+        r = uv_try_write((uv_stream_t*) &client, &buf, 1);
+        ASSERT(r > 0 || r == UV_EAGAIN);
+        if (r > 0) {
+            bytes_written += r;
+            break;
+        }
+    } while (1);
 
-  do {
-    buf = uv_buf_init("", 0);
-    r = uv_try_write((uv_stream_t*) &client, &buf, 1);
-  } while (r != 0);
-  uv_close((uv_handle_t*) &client, close_cb);
+    do {
+        buf = uv_buf_init("", 0);
+        r = uv_try_write((uv_stream_t*) &client, &buf, 1);
+    } while (r != 0);
+    uv_close((uv_handle_t*) &client, close_cb);
 }
 
 
 static void alloc_cb(uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-  static char base[1024];
+    static char base[1024];
 
-  buf->base = base;
-  buf->len = sizeof(base);
+    buf->base = base;
+    buf->len = sizeof(base);
 }
 
 
 static void read_cb(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
-  if (nread < 0) {
-    uv_close((uv_handle_t*) tcp, close_cb);
-    uv_close((uv_handle_t*) &server, close_cb);
-    return;
-  }
+    if (nread < 0) {
+        uv_close((uv_handle_t*) tcp, close_cb);
+        uv_close((uv_handle_t*) &server, close_cb);
+        return;
+    }
 
-  bytes_read += nread;
+    bytes_read += nread;
 }
 
 
 static void connection_cb(uv_stream_t* tcp, int status) {
-  ASSERT(status == 0);
+    ASSERT(status == 0);
 
-  ASSERT(0 == uv_tcp_init(tcp->loop, &incoming));
-  ASSERT(0 == uv_accept(tcp, (uv_stream_t*) &incoming));
+    ASSERT(0 == uv_tcp_init(tcp->loop, &incoming));
+    ASSERT(0 == uv_accept(tcp, (uv_stream_t*) &incoming));
 
-  connection_cb_called++;
-  ASSERT(0 == uv_read_start((uv_stream_t*) &incoming, alloc_cb, read_cb));
+    connection_cb_called++;
+    ASSERT(0 == uv_read_start((uv_stream_t*) &incoming, alloc_cb, read_cb));
 }
 
 
 static void start_server(void) {
-  struct sockaddr_in addr;
+    struct sockaddr_in addr;
 
-  ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &addr));
 
-  ASSERT(0 == uv_tcp_init(uv_default_loop(), &server));
-  ASSERT(0 == uv_tcp_bind(&server, (struct sockaddr*) &addr, 0));
-  ASSERT(0 == uv_listen((uv_stream_t*) &server, 128, connection_cb));
+    ASSERT(0 == uv_tcp_init(uv_default_loop(), &server));
+    ASSERT(0 == uv_tcp_bind(&server, (struct sockaddr*) &addr, 0));
+    ASSERT(0 == uv_listen((uv_stream_t*) &server, 128, connection_cb));
 }
 
 
 TEST_IMPL(tcp_try_write) {
-  uv_connect_t connect_req;
-  struct sockaddr_in addr;
+    uv_connect_t connect_req;
+    struct sockaddr_in addr;
 
-  start_server();
+    start_server();
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  ASSERT(0 == uv_tcp_init(uv_default_loop(), &client));
-  ASSERT(0 == uv_tcp_connect(&connect_req,
-                             &client,
-                             (struct sockaddr*) &addr,
-                             connect_cb));
+    ASSERT(0 == uv_tcp_init(uv_default_loop(), &client));
+    ASSERT(0 == uv_tcp_connect(&connect_req,
+                               &client,
+                               (struct sockaddr*) &addr,
+                               connect_cb));
 
-  ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
+    ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
 
-  ASSERT(connect_cb_called == 1);
-  ASSERT(close_cb_called == 3);
-  ASSERT(connection_cb_called == 1);
-  ASSERT(bytes_read == bytes_written);
-  ASSERT(bytes_written > 0);
+    ASSERT(connect_cb_called == 1);
+    ASSERT(close_cb_called == 3);
+    ASSERT(connection_cb_called == 1);
+    ASSERT(bytes_read == bytes_written);
+    ASSERT(bytes_written > 0);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

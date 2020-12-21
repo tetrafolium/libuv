@@ -49,7 +49,7 @@
 
 
 int uv__platform_loop_init(uv_loop_t* loop) {
-  return uv__kqueue_init(loop);
+    return uv__kqueue_init(loop);
 }
 
 
@@ -59,232 +59,232 @@ void uv__platform_loop_delete(uv_loop_t* loop) {
 
 #ifdef __DragonFly__
 int uv_exepath(char* buffer, size_t* size) {
-  char abspath[PATH_MAX * 2 + 1];
-  ssize_t abspath_size;
+    char abspath[PATH_MAX * 2 + 1];
+    ssize_t abspath_size;
 
-  if (buffer == NULL || size == NULL || *size == 0)
-    return UV_EINVAL;
+    if (buffer == NULL || size == NULL || *size == 0)
+        return UV_EINVAL;
 
-  abspath_size = readlink("/proc/curproc/file", abspath, sizeof(abspath));
-  if (abspath_size < 0)
-    return UV__ERR(errno);
+    abspath_size = readlink("/proc/curproc/file", abspath, sizeof(abspath));
+    if (abspath_size < 0)
+        return UV__ERR(errno);
 
-  assert(abspath_size > 0);
-  *size -= 1;
+    assert(abspath_size > 0);
+    *size -= 1;
 
-  if (*size > abspath_size)
-    *size = abspath_size;
+    if (*size > abspath_size)
+        *size = abspath_size;
 
-  memcpy(buffer, abspath, *size);
-  buffer[*size] = '\0';
+    memcpy(buffer, abspath, *size);
+    buffer[*size] = '\0';
 
-  return 0;
+    return 0;
 }
 #else
 int uv_exepath(char* buffer, size_t* size) {
-  char abspath[PATH_MAX * 2 + 1];
-  int mib[4];
-  size_t abspath_size;
+    char abspath[PATH_MAX * 2 + 1];
+    int mib[4];
+    size_t abspath_size;
 
-  if (buffer == NULL || size == NULL || *size == 0)
-    return UV_EINVAL;
+    if (buffer == NULL || size == NULL || *size == 0)
+        return UV_EINVAL;
 
-  mib[0] = CTL_KERN;
-  mib[1] = KERN_PROC;
-  mib[2] = KERN_PROC_PATHNAME;
-  mib[3] = -1;
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PATHNAME;
+    mib[3] = -1;
 
-  abspath_size = sizeof abspath;
-  if (sysctl(mib, ARRAY_SIZE(mib), abspath, &abspath_size, NULL, 0))
-    return UV__ERR(errno);
+    abspath_size = sizeof abspath;
+    if (sysctl(mib, ARRAY_SIZE(mib), abspath, &abspath_size, NULL, 0))
+        return UV__ERR(errno);
 
-  assert(abspath_size > 0);
-  abspath_size -= 1;
-  *size -= 1;
+    assert(abspath_size > 0);
+    abspath_size -= 1;
+    *size -= 1;
 
-  if (*size > abspath_size)
-    *size = abspath_size;
+    if (*size > abspath_size)
+        *size = abspath_size;
 
-  memcpy(buffer, abspath, *size);
-  buffer[*size] = '\0';
+    memcpy(buffer, abspath, *size);
+    buffer[*size] = '\0';
 
-  return 0;
+    return 0;
 }
 #endif
 
 uint64_t uv_get_free_memory(void) {
-  int freecount;
-  size_t size = sizeof(freecount);
+    int freecount;
+    size_t size = sizeof(freecount);
 
-  if (sysctlbyname("vm.stats.vm.v_free_count", &freecount, &size, NULL, 0))
-    return UV__ERR(errno);
+    if (sysctlbyname("vm.stats.vm.v_free_count", &freecount, &size, NULL, 0))
+        return UV__ERR(errno);
 
-  return (uint64_t) freecount * sysconf(_SC_PAGESIZE);
+    return (uint64_t) freecount * sysconf(_SC_PAGESIZE);
 
 }
 
 
 uint64_t uv_get_total_memory(void) {
-  unsigned long info;
-  int which[] = {CTL_HW, HW_PHYSMEM};
+    unsigned long info;
+    int which[] = {CTL_HW, HW_PHYSMEM};
 
-  size_t size = sizeof(info);
+    size_t size = sizeof(info);
 
-  if (sysctl(which, ARRAY_SIZE(which), &info, &size, NULL, 0))
-    return UV__ERR(errno);
+    if (sysctl(which, ARRAY_SIZE(which), &info, &size, NULL, 0))
+        return UV__ERR(errno);
 
-  return (uint64_t) info;
+    return (uint64_t) info;
 }
 
 
 uint64_t uv_get_constrained_memory(void) {
-  return 0;  /* Memory constraints are unknown. */
+    return 0;  /* Memory constraints are unknown. */
 }
 
 
 void uv_loadavg(double avg[3]) {
-  struct loadavg info;
-  size_t size = sizeof(info);
-  int which[] = {CTL_VM, VM_LOADAVG};
+    struct loadavg info;
+    size_t size = sizeof(info);
+    int which[] = {CTL_VM, VM_LOADAVG};
 
-  if (sysctl(which, ARRAY_SIZE(which), &info, &size, NULL, 0) < 0) return;
+    if (sysctl(which, ARRAY_SIZE(which), &info, &size, NULL, 0) < 0) return;
 
-  avg[0] = (double) info.ldavg[0] / info.fscale;
-  avg[1] = (double) info.ldavg[1] / info.fscale;
-  avg[2] = (double) info.ldavg[2] / info.fscale;
+    avg[0] = (double) info.ldavg[0] / info.fscale;
+    avg[1] = (double) info.ldavg[1] / info.fscale;
+    avg[2] = (double) info.ldavg[2] / info.fscale;
 }
 
 
 int uv_resident_set_memory(size_t* rss) {
-  struct kinfo_proc kinfo;
-  size_t page_size;
-  size_t kinfo_size;
-  int mib[4];
+    struct kinfo_proc kinfo;
+    size_t page_size;
+    size_t kinfo_size;
+    int mib[4];
 
-  mib[0] = CTL_KERN;
-  mib[1] = KERN_PROC;
-  mib[2] = KERN_PROC_PID;
-  mib[3] = getpid();
+    mib[0] = CTL_KERN;
+    mib[1] = KERN_PROC;
+    mib[2] = KERN_PROC_PID;
+    mib[3] = getpid();
 
-  kinfo_size = sizeof(kinfo);
+    kinfo_size = sizeof(kinfo);
 
-  if (sysctl(mib, ARRAY_SIZE(mib), &kinfo, &kinfo_size, NULL, 0))
-    return UV__ERR(errno);
+    if (sysctl(mib, ARRAY_SIZE(mib), &kinfo, &kinfo_size, NULL, 0))
+        return UV__ERR(errno);
 
-  page_size = getpagesize();
+    page_size = getpagesize();
 
 #ifdef __DragonFly__
-  *rss = kinfo.kp_vm_rssize * page_size;
+    *rss = kinfo.kp_vm_rssize * page_size;
 #else
-  *rss = kinfo.ki_rssize * page_size;
+    *rss = kinfo.ki_rssize * page_size;
 #endif
 
-  return 0;
+    return 0;
 }
 
 
 int uv_uptime(double* uptime) {
-  int r;
-  struct timespec sp;
-  r = clock_gettime(CLOCK_MONOTONIC, &sp);
-  if (r)
-    return UV__ERR(errno);
+    int r;
+    struct timespec sp;
+    r = clock_gettime(CLOCK_MONOTONIC, &sp);
+    if (r)
+        return UV__ERR(errno);
 
-  *uptime = sp.tv_sec;
-  return 0;
+    *uptime = sp.tv_sec;
+    return 0;
 }
 
 
 int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
-  unsigned int ticks = (unsigned int)sysconf(_SC_CLK_TCK),
-               multiplier = ((uint64_t)1000L / ticks), cpuspeed, maxcpus,
-               cur = 0;
-  uv_cpu_info_t* cpu_info;
-  const char* maxcpus_key;
-  const char* cptimes_key;
-  const char* model_key;
-  char model[512];
-  long* cp_times;
-  int numcpus;
-  size_t size;
-  int i;
+    unsigned int ticks = (unsigned int)sysconf(_SC_CLK_TCK),
+                 multiplier = ((uint64_t)1000L / ticks), cpuspeed, maxcpus,
+                 cur = 0;
+    uv_cpu_info_t* cpu_info;
+    const char* maxcpus_key;
+    const char* cptimes_key;
+    const char* model_key;
+    char model[512];
+    long* cp_times;
+    int numcpus;
+    size_t size;
+    int i;
 
 #if defined(__DragonFly__)
-  /* This is not quite correct but DragonFlyBSD doesn't seem to have anything
-   * comparable to kern.smp.maxcpus or kern.cp_times (kern.cp_time is a total,
-   * not per CPU). At least this stops uv_cpu_info() from failing completely.
-   */
-  maxcpus_key = "hw.ncpu";
-  cptimes_key = "kern.cp_time";
+    /* This is not quite correct but DragonFlyBSD doesn't seem to have anything
+     * comparable to kern.smp.maxcpus or kern.cp_times (kern.cp_time is a total,
+     * not per CPU). At least this stops uv_cpu_info() from failing completely.
+     */
+    maxcpus_key = "hw.ncpu";
+    cptimes_key = "kern.cp_time";
 #else
-  maxcpus_key = "kern.smp.maxcpus";
-  cptimes_key = "kern.cp_times";
+    maxcpus_key = "kern.smp.maxcpus";
+    cptimes_key = "kern.cp_times";
 #endif
 
 #if defined(__arm__) || defined(__aarch64__)
-  /* The key hw.model and hw.clockrate are not available on FreeBSD ARM. */
-  model_key = "hw.machine";
-  cpuspeed = 0;
+    /* The key hw.model and hw.clockrate are not available on FreeBSD ARM. */
+    model_key = "hw.machine";
+    cpuspeed = 0;
 #else
-  model_key = "hw.model";
+    model_key = "hw.model";
 
-  size = sizeof(cpuspeed);
-  if (sysctlbyname("hw.clockrate", &cpuspeed, &size, NULL, 0))
-    return -errno;
+    size = sizeof(cpuspeed);
+    if (sysctlbyname("hw.clockrate", &cpuspeed, &size, NULL, 0))
+        return -errno;
 #endif
 
-  size = sizeof(model);
-  if (sysctlbyname(model_key, &model, &size, NULL, 0))
-    return UV__ERR(errno);
+    size = sizeof(model);
+    if (sysctlbyname(model_key, &model, &size, NULL, 0))
+        return UV__ERR(errno);
 
-  size = sizeof(numcpus);
-  if (sysctlbyname("hw.ncpu", &numcpus, &size, NULL, 0))
-    return UV__ERR(errno);
+    size = sizeof(numcpus);
+    if (sysctlbyname("hw.ncpu", &numcpus, &size, NULL, 0))
+        return UV__ERR(errno);
 
-  *cpu_infos = uv__malloc(numcpus * sizeof(**cpu_infos));
-  if (!(*cpu_infos))
-    return UV_ENOMEM;
+    *cpu_infos = uv__malloc(numcpus * sizeof(**cpu_infos));
+    if (!(*cpu_infos))
+        return UV_ENOMEM;
 
-  *count = numcpus;
+    *count = numcpus;
 
-  /* kern.cp_times on FreeBSD i386 gives an array up to maxcpus instead of
-   * ncpu.
-   */
-  size = sizeof(maxcpus);
-  if (sysctlbyname(maxcpus_key, &maxcpus, &size, NULL, 0)) {
-    uv__free(*cpu_infos);
-    return UV__ERR(errno);
-  }
+    /* kern.cp_times on FreeBSD i386 gives an array up to maxcpus instead of
+     * ncpu.
+     */
+    size = sizeof(maxcpus);
+    if (sysctlbyname(maxcpus_key, &maxcpus, &size, NULL, 0)) {
+        uv__free(*cpu_infos);
+        return UV__ERR(errno);
+    }
 
-  size = maxcpus * CPUSTATES * sizeof(long);
+    size = maxcpus * CPUSTATES * sizeof(long);
 
-  cp_times = uv__malloc(size);
-  if (cp_times == NULL) {
-    uv__free(*cpu_infos);
-    return UV_ENOMEM;
-  }
+    cp_times = uv__malloc(size);
+    if (cp_times == NULL) {
+        uv__free(*cpu_infos);
+        return UV_ENOMEM;
+    }
 
-  if (sysctlbyname(cptimes_key, cp_times, &size, NULL, 0)) {
+    if (sysctlbyname(cptimes_key, cp_times, &size, NULL, 0)) {
+        uv__free(cp_times);
+        uv__free(*cpu_infos);
+        return UV__ERR(errno);
+    }
+
+    for (i = 0; i < numcpus; i++) {
+        cpu_info = &(*cpu_infos)[i];
+
+        cpu_info->cpu_times.user = (uint64_t)(cp_times[CP_USER+cur]) * multiplier;
+        cpu_info->cpu_times.nice = (uint64_t)(cp_times[CP_NICE+cur]) * multiplier;
+        cpu_info->cpu_times.sys = (uint64_t)(cp_times[CP_SYS+cur]) * multiplier;
+        cpu_info->cpu_times.idle = (uint64_t)(cp_times[CP_IDLE+cur]) * multiplier;
+        cpu_info->cpu_times.irq = (uint64_t)(cp_times[CP_INTR+cur]) * multiplier;
+
+        cpu_info->model = uv__strdup(model);
+        cpu_info->speed = cpuspeed;
+
+        cur+=CPUSTATES;
+    }
+
     uv__free(cp_times);
-    uv__free(*cpu_infos);
-    return UV__ERR(errno);
-  }
-
-  for (i = 0; i < numcpus; i++) {
-    cpu_info = &(*cpu_infos)[i];
-
-    cpu_info->cpu_times.user = (uint64_t)(cp_times[CP_USER+cur]) * multiplier;
-    cpu_info->cpu_times.nice = (uint64_t)(cp_times[CP_NICE+cur]) * multiplier;
-    cpu_info->cpu_times.sys = (uint64_t)(cp_times[CP_SYS+cur]) * multiplier;
-    cpu_info->cpu_times.idle = (uint64_t)(cp_times[CP_IDLE+cur]) * multiplier;
-    cpu_info->cpu_times.irq = (uint64_t)(cp_times[CP_INTR+cur]) * multiplier;
-
-    cpu_info->model = uv__strdup(model);
-    cpu_info->speed = cpuspeed;
-
-    cur+=CPUSTATES;
-  }
-
-  uv__free(cp_times);
-  return 0;
+    return 0;
 }

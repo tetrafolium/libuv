@@ -51,130 +51,130 @@ static uv_write_t write_reqs[WRITES];
 
 
 static void alloc_cb(uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-  buf->base = malloc(size);
-  buf->len = size;
+    buf->base = malloc(size);
+    buf->len = size;
 }
 
 
 static void close_cb(uv_handle_t* handle) {
-  ASSERT(handle != NULL);
-  close_cb_called++;
+    ASSERT(handle != NULL);
+    close_cb_called++;
 }
 
 
 static void shutdown_cb(uv_shutdown_t* req, int status) {
-  uv_tcp_t* tcp;
+    uv_tcp_t* tcp;
 
-  ASSERT(req == &shutdown_req);
-  ASSERT(status == 0);
+    ASSERT(req == &shutdown_req);
+    ASSERT(status == 0);
 
-  tcp = (uv_tcp_t*)(req->handle);
+    tcp = (uv_tcp_t*)(req->handle);
 
-  /* The write buffer should be empty by now. */
-  ASSERT(tcp->write_queue_size == 0);
+    /* The write buffer should be empty by now. */
+    ASSERT(tcp->write_queue_size == 0);
 
-  /* Now we wait for the EOF */
-  shutdown_cb_called++;
+    /* Now we wait for the EOF */
+    shutdown_cb_called++;
 
-  /* We should have had all the writes called already. */
-  ASSERT(write_cb_called == WRITES);
+    /* We should have had all the writes called already. */
+    ASSERT(write_cb_called == WRITES);
 }
 
 
 static void read_cb(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
-  ASSERT(tcp != NULL);
+    ASSERT(tcp != NULL);
 
-  if (nread >= 0) {
-    bytes_received_done += nread;
-  }
-  else {
-    ASSERT(nread == UV_EOF);
-    printf("GOT EOF\n");
-    uv_close((uv_handle_t*)tcp, close_cb);
-  }
+    if (nread >= 0) {
+        bytes_received_done += nread;
+    }
+    else {
+        ASSERT(nread == UV_EOF);
+        printf("GOT EOF\n");
+        uv_close((uv_handle_t*)tcp, close_cb);
+    }
 
-  free(buf->base);
+    free(buf->base);
 }
 
 
 static void write_cb(uv_write_t* req, int status) {
-  ASSERT(req != NULL);
+    ASSERT(req != NULL);
 
-  if (status) {
-    fprintf(stderr, "uv_write error: %s\n", uv_strerror(status));
-    ASSERT(0);
-  }
+    if (status) {
+        fprintf(stderr, "uv_write error: %s\n", uv_strerror(status));
+        ASSERT(0);
+    }
 
-  bytes_sent_done += CHUNKS_PER_WRITE * CHUNK_SIZE;
-  write_cb_called++;
+    bytes_sent_done += CHUNKS_PER_WRITE * CHUNK_SIZE;
+    write_cb_called++;
 }
 
 
 static void connect_cb(uv_connect_t* req, int status) {
-  uv_buf_t send_bufs[CHUNKS_PER_WRITE];
-  uv_stream_t* stream;
-  int i, j, r;
+    uv_buf_t send_bufs[CHUNKS_PER_WRITE];
+    uv_stream_t* stream;
+    int i, j, r;
 
-  ASSERT(req == &connect_req);
-  ASSERT(status == 0);
+    ASSERT(req == &connect_req);
+    ASSERT(status == 0);
 
-  stream = req->handle;
-  connect_cb_called++;
+    stream = req->handle;
+    connect_cb_called++;
 
-  /* Write a lot of data */
-  for (i = 0; i < WRITES; i++) {
-    uv_write_t* write_req = write_reqs + i;
+    /* Write a lot of data */
+    for (i = 0; i < WRITES; i++) {
+        uv_write_t* write_req = write_reqs + i;
 
-    for (j = 0; j < CHUNKS_PER_WRITE; j++) {
-      send_bufs[j] = uv_buf_init(send_buffer + bytes_sent, CHUNK_SIZE);
-      bytes_sent += CHUNK_SIZE;
+        for (j = 0; j < CHUNKS_PER_WRITE; j++) {
+            send_bufs[j] = uv_buf_init(send_buffer + bytes_sent, CHUNK_SIZE);
+            bytes_sent += CHUNK_SIZE;
+        }
+
+        r = uv_write(write_req, stream, send_bufs, CHUNKS_PER_WRITE, write_cb);
+        ASSERT(r == 0);
     }
 
-    r = uv_write(write_req, stream, send_bufs, CHUNKS_PER_WRITE, write_cb);
+    /* Shutdown on drain. */
+    r = uv_shutdown(&shutdown_req, stream, shutdown_cb);
     ASSERT(r == 0);
-  }
 
-  /* Shutdown on drain. */
-  r = uv_shutdown(&shutdown_req, stream, shutdown_cb);
-  ASSERT(r == 0);
-
-  /* Start reading */
-  r = uv_read_start(stream, alloc_cb, read_cb);
-  ASSERT(r == 0);
+    /* Start reading */
+    r = uv_read_start(stream, alloc_cb, read_cb);
+    ASSERT(r == 0);
 }
 
 
 TEST_IMPL(tcp_writealot) {
-  struct sockaddr_in addr;
-  uv_tcp_t client;
-  int r;
+    struct sockaddr_in addr;
+    uv_tcp_t client;
+    int r;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  send_buffer = calloc(1, TOTAL_BYTES);
-  ASSERT(send_buffer != NULL);
+    send_buffer = calloc(1, TOTAL_BYTES);
+    ASSERT(send_buffer != NULL);
 
-  r = uv_tcp_init(uv_default_loop(), &client);
-  ASSERT(r == 0);
+    r = uv_tcp_init(uv_default_loop(), &client);
+    ASSERT(r == 0);
 
-  r = uv_tcp_connect(&connect_req,
-                     &client,
-                     (const struct sockaddr*) &addr,
-                     connect_cb);
-  ASSERT(r == 0);
+    r = uv_tcp_connect(&connect_req,
+                       &client,
+                       (const struct sockaddr*) &addr,
+                       connect_cb);
+    ASSERT(r == 0);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(shutdown_cb_called == 1);
-  ASSERT(connect_cb_called == 1);
-  ASSERT(write_cb_called == WRITES);
-  ASSERT(close_cb_called == 1);
-  ASSERT(bytes_sent == TOTAL_BYTES);
-  ASSERT(bytes_sent_done == TOTAL_BYTES);
-  ASSERT(bytes_received_done == TOTAL_BYTES);
+    ASSERT(shutdown_cb_called == 1);
+    ASSERT(connect_cb_called == 1);
+    ASSERT(write_cb_called == WRITES);
+    ASSERT(close_cb_called == 1);
+    ASSERT(bytes_sent == TOTAL_BYTES);
+    ASSERT(bytes_sent_done == TOTAL_BYTES);
+    ASSERT(bytes_received_done == TOTAL_BYTES);
 
-  free(send_buffer);
+    free(send_buffer);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

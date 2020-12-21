@@ -32,8 +32,8 @@ static int connect_cb_called = 0;
 #define NUM_CLIENTS 4
 
 typedef struct {
-  uv_pipe_t pipe_handle;
-  uv_connect_t conn_req;
+    uv_pipe_t pipe_handle;
+    uv_connect_t conn_req;
 } client_t;
 
 static uv_pipe_t server_handle;
@@ -42,66 +42,66 @@ static uv_pipe_t connections[NUM_CLIENTS];
 
 
 static void connection_cb(uv_stream_t* server, int status) {
-  int r;
-  uv_pipe_t* conn;
-  ASSERT(status == 0);
+    int r;
+    uv_pipe_t* conn;
+    ASSERT(status == 0);
 
-  conn = &connections[connection_cb_called];
-  r = uv_pipe_init(server->loop, conn, 0);
-  ASSERT(r == 0);
+    conn = &connections[connection_cb_called];
+    r = uv_pipe_init(server->loop, conn, 0);
+    ASSERT(r == 0);
 
-  r = uv_accept(server, (uv_stream_t*)conn);
-  ASSERT(r == 0);
+    r = uv_accept(server, (uv_stream_t*)conn);
+    ASSERT(r == 0);
 
-  if (++connection_cb_called == NUM_CLIENTS &&
-      connect_cb_called == NUM_CLIENTS) {
-    uv_stop(server->loop);
-  }
+    if (++connection_cb_called == NUM_CLIENTS &&
+            connect_cb_called == NUM_CLIENTS) {
+        uv_stop(server->loop);
+    }
 }
 
 
 static void connect_cb(uv_connect_t* connect_req, int status) {
-  ASSERT(status == 0);
-  if (++connect_cb_called == NUM_CLIENTS &&
-      connection_cb_called == NUM_CLIENTS) {
-    uv_stop(connect_req->handle->loop);
-  }
+    ASSERT(status == 0);
+    if (++connect_cb_called == NUM_CLIENTS &&
+            connection_cb_called == NUM_CLIENTS) {
+        uv_stop(connect_req->handle->loop);
+    }
 }
 
 
 TEST_IMPL(pipe_connect_multiple) {
 #if defined(NO_SELF_CONNECT)
-  RETURN_SKIP(NO_SELF_CONNECT);
+    RETURN_SKIP(NO_SELF_CONNECT);
 #endif
-  int i;
-  int r;
-  uv_loop_t* loop;
+    int i;
+    int r;
+    uv_loop_t* loop;
 
-  loop = uv_default_loop();
+    loop = uv_default_loop();
 
-  r = uv_pipe_init(loop, &server_handle, 0);
-  ASSERT(r == 0);
-
-  r = uv_pipe_bind(&server_handle, TEST_PIPENAME);
-  ASSERT(r == 0);
-
-  r = uv_listen((uv_stream_t*)&server_handle, 128, connection_cb);
-  ASSERT(r == 0);
-
-  for (i = 0; i < NUM_CLIENTS; i++) {
-    r = uv_pipe_init(loop, &clients[i].pipe_handle, 0);
+    r = uv_pipe_init(loop, &server_handle, 0);
     ASSERT(r == 0);
-    uv_pipe_connect(&clients[i].conn_req,
-                    &clients[i].pipe_handle,
-                    TEST_PIPENAME,
-                    connect_cb);
-  }
 
-  uv_run(loop, UV_RUN_DEFAULT);
+    r = uv_pipe_bind(&server_handle, TEST_PIPENAME);
+    ASSERT(r == 0);
 
-  ASSERT(connection_cb_called == NUM_CLIENTS);
-  ASSERT(connect_cb_called == NUM_CLIENTS);
+    r = uv_listen((uv_stream_t*)&server_handle, 128, connection_cb);
+    ASSERT(r == 0);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    for (i = 0; i < NUM_CLIENTS; i++) {
+        r = uv_pipe_init(loop, &clients[i].pipe_handle, 0);
+        ASSERT(r == 0);
+        uv_pipe_connect(&clients[i].conn_req,
+                        &clients[i].pipe_handle,
+                        TEST_PIPENAME,
+                        connect_cb);
+    }
+
+    uv_run(loop, UV_RUN_DEFAULT);
+
+    ASSERT(connection_cb_called == NUM_CLIENTS);
+    ASSERT(connect_cb_called == NUM_CLIENTS);
+
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

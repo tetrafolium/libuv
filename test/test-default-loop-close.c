@@ -27,33 +27,33 @@ static int timer_cb_called;
 
 
 static void timer_cb(uv_timer_t* timer) {
-  timer_cb_called++;
-  uv_close((uv_handle_t*) timer, NULL);
+    timer_cb_called++;
+    uv_close((uv_handle_t*) timer, NULL);
 }
 
 
 TEST_IMPL(default_loop_close) {
-  uv_loop_t* loop;
-  uv_timer_t timer_handle;
+    uv_loop_t* loop;
+    uv_timer_t timer_handle;
 
-  loop = uv_default_loop();
-  ASSERT(loop != NULL);
+    loop = uv_default_loop();
+    ASSERT(loop != NULL);
 
-  ASSERT(0 == uv_timer_init(loop, &timer_handle));
-  ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 1, 0));
-  ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
-  ASSERT(1 == timer_cb_called);
-  ASSERT(0 == uv_loop_close(loop));
+    ASSERT(0 == uv_timer_init(loop, &timer_handle));
+    ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 1, 0));
+    ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+    ASSERT(1 == timer_cb_called);
+    ASSERT(0 == uv_loop_close(loop));
 
-  loop = uv_default_loop();
-  ASSERT(loop != NULL);
+    loop = uv_default_loop();
+    ASSERT(loop != NULL);
 
-  ASSERT(0 == uv_timer_init(loop, &timer_handle));
-  ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 1, 0));
-  ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
-  ASSERT(2 == timer_cb_called);
-  ASSERT(0 == uv_loop_close(loop));
+    ASSERT(0 == uv_timer_init(loop, &timer_handle));
+    ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 1, 0));
+    ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+    ASSERT(2 == timer_cb_called);
+    ASSERT(0 == uv_loop_close(loop));
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

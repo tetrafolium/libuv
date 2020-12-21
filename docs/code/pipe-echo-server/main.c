@@ -23,8 +23,8 @@ void free_write_req(uv_write_t *req) {
 }
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
-  buf->base = malloc(suggested_size);
-  buf->len = suggested_size;
+    buf->base = malloc(suggested_size);
+    buf->len = suggested_size;
 }
 
 void echo_write(uv_write_t *req, int status) {

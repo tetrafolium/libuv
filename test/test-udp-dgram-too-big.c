@@ -40,52 +40,52 @@ static int close_cb_called;
 
 
 static void close_cb(uv_handle_t* handle) {
-  CHECK_HANDLE(handle);
-  close_cb_called++;
+    CHECK_HANDLE(handle);
+    close_cb_called++;
 }
 
 
 static void send_cb(uv_udp_send_t* req, int status) {
-  CHECK_REQ(req);
-  CHECK_HANDLE(req->handle);
+    CHECK_REQ(req);
+    CHECK_HANDLE(req->handle);
 
-  ASSERT(status == UV_EMSGSIZE);
+    ASSERT(status == UV_EMSGSIZE);
 
-  uv_close((uv_handle_t*)req->handle, close_cb);
-  send_cb_called++;
+    uv_close((uv_handle_t*)req->handle, close_cb);
+    send_cb_called++;
 }
 
 
 TEST_IMPL(udp_dgram_too_big) {
-  char dgram[65536]; /* 64K MTU is unlikely, even on localhost */
-  struct sockaddr_in addr;
-  uv_buf_t buf;
-  int r;
+    char dgram[65536]; /* 64K MTU is unlikely, even on localhost */
+    struct sockaddr_in addr;
+    uv_buf_t buf;
+    int r;
 
-  memset(dgram, 42, sizeof dgram); /* silence valgrind */
+    memset(dgram, 42, sizeof dgram); /* silence valgrind */
 
-  r = uv_udp_init(uv_default_loop(), &handle_);
-  ASSERT(r == 0);
+    r = uv_udp_init(uv_default_loop(), &handle_);
+    ASSERT(r == 0);
 
-  buf = uv_buf_init(dgram, sizeof dgram);
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    buf = uv_buf_init(dgram, sizeof dgram);
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  r = uv_udp_send(&req_,
-                  &handle_,
-                  &buf,
-                  1,
-                  (const struct sockaddr*) &addr,
-                  send_cb);
-  ASSERT(r == 0);
+    r = uv_udp_send(&req_,
+                    &handle_,
+                    &buf,
+                    1,
+                    (const struct sockaddr*) &addr,
+                    send_cb);
+    ASSERT(r == 0);
 
-  ASSERT(close_cb_called == 0);
-  ASSERT(send_cb_called == 0);
+    ASSERT(close_cb_called == 0);
+    ASSERT(send_cb_called == 0);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(send_cb_called == 1);
-  ASSERT(close_cb_called == 1);
+    ASSERT(send_cb_called == 1);
+    ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

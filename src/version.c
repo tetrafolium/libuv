@@ -36,10 +36,10 @@
 
 
 unsigned int uv_version(void) {
-  return UV_VERSION_HEX;
+    return UV_VERSION_HEX;
 }
 
 
 const char* uv_version_string(void) {
-  return UV_VERSION_STRING;
+    return UV_VERSION_STRING;
 }

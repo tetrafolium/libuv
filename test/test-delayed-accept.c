@@ -31,159 +31,159 @@ static int connect_cb_called = 0;
 
 
 static void alloc_cb(uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-  buf->base = malloc(size);
-  buf->len = size;
+    buf->base = malloc(size);
+    buf->len = size;
 }
 
 
 static void close_cb(uv_handle_t* handle) {
-  ASSERT(handle != NULL);
+    ASSERT(handle != NULL);
 
-  free(handle);
+    free(handle);
 
-  close_cb_called++;
+    close_cb_called++;
 }
 
 
 static void do_accept(uv_timer_t* timer_handle) {
-  uv_tcp_t* server;
-  uv_tcp_t* accepted_handle = (uv_tcp_t*)malloc(sizeof *accepted_handle);
-  int r;
+    uv_tcp_t* server;
+    uv_tcp_t* accepted_handle = (uv_tcp_t*)malloc(sizeof *accepted_handle);
+    int r;
 
-  ASSERT(timer_handle != NULL);
-  ASSERT(accepted_handle != NULL);
+    ASSERT(timer_handle != NULL);
+    ASSERT(accepted_handle != NULL);
 
-  r = uv_tcp_init(uv_default_loop(), accepted_handle);
-  ASSERT(r == 0);
+    r = uv_tcp_init(uv_default_loop(), accepted_handle);
+    ASSERT(r == 0);
 
-  server = (uv_tcp_t*)timer_handle->data;
-  r = uv_accept((uv_stream_t*)server, (uv_stream_t*)accepted_handle);
-  ASSERT(r == 0);
+    server = (uv_tcp_t*)timer_handle->data;
+    r = uv_accept((uv_stream_t*)server, (uv_stream_t*)accepted_handle);
+    ASSERT(r == 0);
 
-  do_accept_called++;
+    do_accept_called++;
 
-  /* Immediately close the accepted handle. */
-  uv_close((uv_handle_t*)accepted_handle, close_cb);
+    /* Immediately close the accepted handle. */
+    uv_close((uv_handle_t*)accepted_handle, close_cb);
 
-  /* After accepting the two clients close the server handle */
-  if (do_accept_called == 2) {
-    uv_close((uv_handle_t*)server, close_cb);
-  }
+    /* After accepting the two clients close the server handle */
+    if (do_accept_called == 2) {
+        uv_close((uv_handle_t*)server, close_cb);
+    }
 
-  /* Dispose the timer. */
-  uv_close((uv_handle_t*)timer_handle, close_cb);
+    /* Dispose the timer. */
+    uv_close((uv_handle_t*)timer_handle, close_cb);
 }
 
 
 static void connection_cb(uv_stream_t* tcp, int status) {
-  int r;
-  uv_timer_t* timer_handle;
+    int r;
+    uv_timer_t* timer_handle;
 
-  ASSERT(status == 0);
+    ASSERT(status == 0);
 
-  timer_handle = (uv_timer_t*)malloc(sizeof *timer_handle);
-  ASSERT(timer_handle != NULL);
+    timer_handle = (uv_timer_t*)malloc(sizeof *timer_handle);
+    ASSERT(timer_handle != NULL);
 
-  /* Accept the client after 1 second */
-  r = uv_timer_init(uv_default_loop(), timer_handle);
-  ASSERT(r == 0);
+    /* Accept the client after 1 second */
+    r = uv_timer_init(uv_default_loop(), timer_handle);
+    ASSERT(r == 0);
 
-  timer_handle->data = tcp;
+    timer_handle->data = tcp;
 
-  r = uv_timer_start(timer_handle, do_accept, 1000, 0);
-  ASSERT(r == 0);
+    r = uv_timer_start(timer_handle, do_accept, 1000, 0);
+    ASSERT(r == 0);
 
-  connection_cb_called++;
+    connection_cb_called++;
 }
 
 
 static void start_server(void) {
-  struct sockaddr_in addr;
-  uv_tcp_t* server = (uv_tcp_t*)malloc(sizeof *server);
-  int r;
+    struct sockaddr_in addr;
+    uv_tcp_t* server = (uv_tcp_t*)malloc(sizeof *server);
+    int r;
 
-  ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &addr));
-  ASSERT(server != NULL);
+    ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &addr));
+    ASSERT(server != NULL);
 
-  r = uv_tcp_init(uv_default_loop(), server);
-  ASSERT(r == 0);
-  r = uv_tcp_bind(server, (const struct sockaddr*) &addr, 0);
-  ASSERT(r == 0);
+    r = uv_tcp_init(uv_default_loop(), server);
+    ASSERT(r == 0);
+    r = uv_tcp_bind(server, (const struct sockaddr*) &addr, 0);
+    ASSERT(r == 0);
 
-  r = uv_listen((uv_stream_t*)server, 128, connection_cb);
-  ASSERT(r == 0);
+    r = uv_listen((uv_stream_t*)server, 128, connection_cb);
+    ASSERT(r == 0);
 }
 
 
 static void read_cb(uv_stream_t* tcp, ssize_t nread, const uv_buf_t* buf) {
-  /* The server will not send anything, it should close gracefully. */
+    /* The server will not send anything, it should close gracefully. */
 
-  if (buf->base) {
-    free(buf->base);
-  }
+    if (buf->base) {
+        free(buf->base);
+    }
 
-  if (nread >= 0) {
-    ASSERT(nread == 0);
-  } else {
-    ASSERT(tcp != NULL);
-    ASSERT(nread == UV_EOF);
-    uv_close((uv_handle_t*)tcp, close_cb);
-  }
+    if (nread >= 0) {
+        ASSERT(nread == 0);
+    } else {
+        ASSERT(tcp != NULL);
+        ASSERT(nread == UV_EOF);
+        uv_close((uv_handle_t*)tcp, close_cb);
+    }
 }
 
 
 static void connect_cb(uv_connect_t* req, int status) {
-  int r;
+    int r;
 
-  ASSERT(req != NULL);
-  ASSERT(status == 0);
+    ASSERT(req != NULL);
+    ASSERT(status == 0);
 
-  /* Not that the server will send anything, but otherwise we'll never know
-   * when the server closes the connection. */
-  r = uv_read_start((uv_stream_t*)(req->handle), alloc_cb, read_cb);
-  ASSERT(r == 0);
+    /* Not that the server will send anything, but otherwise we'll never know
+     * when the server closes the connection. */
+    r = uv_read_start((uv_stream_t*)(req->handle), alloc_cb, read_cb);
+    ASSERT(r == 0);
 
-  connect_cb_called++;
+    connect_cb_called++;
 
-  free(req);
+    free(req);
 }
 
 
 static void client_connect(void) {
-  struct sockaddr_in addr;
-  uv_tcp_t* client = (uv_tcp_t*)malloc(sizeof *client);
-  uv_connect_t* connect_req = malloc(sizeof *connect_req);
-  int r;
+    struct sockaddr_in addr;
+    uv_tcp_t* client = (uv_tcp_t*)malloc(sizeof *client);
+    uv_connect_t* connect_req = malloc(sizeof *connect_req);
+    int r;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
-  ASSERT(client != NULL);
-  ASSERT(connect_req != NULL);
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(client != NULL);
+    ASSERT(connect_req != NULL);
 
-  r = uv_tcp_init(uv_default_loop(), client);
-  ASSERT(r == 0);
+    r = uv_tcp_init(uv_default_loop(), client);
+    ASSERT(r == 0);
 
-  r = uv_tcp_connect(connect_req,
-                     client,
-                     (const struct sockaddr*) &addr,
-                     connect_cb);
-  ASSERT(r == 0);
+    r = uv_tcp_connect(connect_req,
+                       client,
+                       (const struct sockaddr*) &addr,
+                       connect_cb);
+    ASSERT(r == 0);
 }
 
 
 
 TEST_IMPL(delayed_accept) {
-  start_server();
+    start_server();
 
-  client_connect();
-  client_connect();
+    client_connect();
+    client_connect();
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(connection_cb_called == 2);
-  ASSERT(do_accept_called == 2);
-  ASSERT(connect_cb_called == 2);
-  ASSERT(close_cb_called == 7);
+    ASSERT(connection_cb_called == 2);
+    ASSERT(do_accept_called == 2);
+    ASSERT(connect_cb_called == 2);
+    ASSERT(close_cb_called == 7);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

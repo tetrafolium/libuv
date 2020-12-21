@@ -27,60 +27,60 @@
 extern char executable_path[];
 
 TEST_IMPL(get_currentexe) {
-  char buffer[PATHMAX];
-  size_t size;
-  char* match;
-  char* path;
-  int r;
+    char buffer[PATHMAX];
+    size_t size;
+    char* match;
+    char* path;
+    int r;
 
-  size = sizeof(buffer) / sizeof(buffer[0]);
-  r = uv_exepath(buffer, &size);
-  ASSERT(!r);
+    size = sizeof(buffer) / sizeof(buffer[0]);
+    r = uv_exepath(buffer, &size);
+    ASSERT(!r);
 
-  /* uv_exepath can return an absolute path on darwin, so if the test runner
-   * was run with a relative prefix of "./", we need to strip that prefix off
-   * executable_path or we'll fail. */
-  if (executable_path[0] == '.' && executable_path[1] == '/') {
-    path = executable_path + 2;
-  } else {
-    path = executable_path;
-  }
+    /* uv_exepath can return an absolute path on darwin, so if the test runner
+     * was run with a relative prefix of "./", we need to strip that prefix off
+     * executable_path or we'll fail. */
+    if (executable_path[0] == '.' && executable_path[1] == '/') {
+        path = executable_path + 2;
+    } else {
+        path = executable_path;
+    }
 
-  match = strstr(buffer, path);
-  /* Verify that the path returned from uv_exepath is a subdirectory of
-   * executable_path.
-   */
-  ASSERT(match && !strcmp(match, path));
-  ASSERT(size == strlen(buffer));
+    match = strstr(buffer, path);
+    /* Verify that the path returned from uv_exepath is a subdirectory of
+     * executable_path.
+     */
+    ASSERT(match && !strcmp(match, path));
+    ASSERT(size == strlen(buffer));
 
-  /* Negative tests */
-  size = sizeof(buffer) / sizeof(buffer[0]);
-  r = uv_exepath(NULL, &size);
-  ASSERT(r == UV_EINVAL);
+    /* Negative tests */
+    size = sizeof(buffer) / sizeof(buffer[0]);
+    r = uv_exepath(NULL, &size);
+    ASSERT(r == UV_EINVAL);
 
-  r = uv_exepath(buffer, NULL);
-  ASSERT(r == UV_EINVAL);
+    r = uv_exepath(buffer, NULL);
+    ASSERT(r == UV_EINVAL);
 
-  size = 0;
-  r = uv_exepath(buffer, &size);
-  ASSERT(r == UV_EINVAL);
+    size = 0;
+    r = uv_exepath(buffer, &size);
+    ASSERT(r == UV_EINVAL);
 
-  memset(buffer, -1, sizeof(buffer));
+    memset(buffer, -1, sizeof(buffer));
 
-  size = 1;
-  r = uv_exepath(buffer, &size);
-  ASSERT(r == 0);
-  ASSERT(size == 0);
-  ASSERT(buffer[0] == '\0');
+    size = 1;
+    r = uv_exepath(buffer, &size);
+    ASSERT(r == 0);
+    ASSERT(size == 0);
+    ASSERT(buffer[0] == '\0');
 
-  memset(buffer, -1, sizeof(buffer));
+    memset(buffer, -1, sizeof(buffer));
 
-  size = 2;
-  r = uv_exepath(buffer, &size);
-  ASSERT(r == 0);
-  ASSERT(size == 1);
-  ASSERT(buffer[0] != '\0');
-  ASSERT(buffer[1] == '\0');
+    size = 2;
+    r = uv_exepath(buffer, &size);
+    ASSERT(r == 0);
+    ASSERT(size == 1);
+    ASSERT(buffer[0] != '\0');
+    ASSERT(buffer[1] == '\0');
 
-  return 0;
+    return 0;
 }

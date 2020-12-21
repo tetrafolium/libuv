@@ -25,35 +25,35 @@
 static uv_timer_t timer_handle;
 
 static void timer_cb(uv_timer_t* handle) {
-  ASSERT(handle);
-  uv_stop(handle->loop);
+    ASSERT(handle);
+    uv_stop(handle->loop);
 }
 
 
 TEST_IMPL(loop_close) {
-  int r;
-  uv_loop_t loop;
+    int r;
+    uv_loop_t loop;
 
-  loop.data = &loop;
-  ASSERT(0 == uv_loop_init(&loop));
-  ASSERT(loop.data == (void*) &loop);
+    loop.data = &loop;
+    ASSERT(0 == uv_loop_init(&loop));
+    ASSERT(loop.data == (void*) &loop);
 
-  uv_timer_init(&loop, &timer_handle);
-  uv_timer_start(&timer_handle, timer_cb, 100, 100);
+    uv_timer_init(&loop, &timer_handle);
+    uv_timer_start(&timer_handle, timer_cb, 100, 100);
 
-  ASSERT(UV_EBUSY == uv_loop_close(&loop));
+    ASSERT(UV_EBUSY == uv_loop_close(&loop));
 
-  uv_run(&loop, UV_RUN_DEFAULT);
+    uv_run(&loop, UV_RUN_DEFAULT);
 
-  uv_close((uv_handle_t*) &timer_handle, NULL);
-  r = uv_run(&loop, UV_RUN_DEFAULT);
-  ASSERT(r == 0);
+    uv_close((uv_handle_t*) &timer_handle, NULL);
+    r = uv_run(&loop, UV_RUN_DEFAULT);
+    ASSERT(r == 0);
 
-  ASSERT(loop.data == (void*) &loop);
-  ASSERT(0 == uv_loop_close(&loop));
-  ASSERT(loop.data == (void*) &loop);
+    ASSERT(loop.data == (void*) &loop);
+    ASSERT(0 == uv_loop_close(&loop));
+    ASSERT(loop.data == (void*) &loop);
 
-  return 0;
+    return 0;
 }
 
 static void loop_instant_close_work_cb(uv_work_t* req) {
@@ -63,13 +63,13 @@ static void loop_instant_close_after_work_cb(uv_work_t* req, int status) {
 }
 
 TEST_IMPL(loop_instant_close) {
-  static uv_loop_t loop;
-  static uv_work_t req;
-  ASSERT(0 == uv_loop_init(&loop));
-  ASSERT(0 == uv_queue_work(&loop,
-                            &req,
-                            loop_instant_close_work_cb,
-                            loop_instant_close_after_work_cb));
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    static uv_loop_t loop;
+    static uv_work_t req;
+    ASSERT(0 == uv_loop_init(&loop));
+    ASSERT(0 == uv_queue_work(&loop,
+                              &req,
+                              loop_instant_close_work_cb,
+                              loop_instant_close_after_work_cb));
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

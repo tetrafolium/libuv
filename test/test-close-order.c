@@ -32,49 +32,49 @@ static uv_timer_t timer_handle2;
 
 
 static void close_cb(uv_handle_t* handle) {
-  ASSERT(handle != NULL);
-  close_cb_called++;
+    ASSERT(handle != NULL);
+    close_cb_called++;
 }
 
 
 /* check_cb should run before any close_cb */
 static void check_cb(uv_check_t* handle) {
-  ASSERT(check_cb_called == 0);
-  ASSERT(timer_cb_called == 1);
-  ASSERT(close_cb_called == 0);
-  uv_close((uv_handle_t*) handle, close_cb);
-  uv_close((uv_handle_t*) &timer_handle2, close_cb);
-  check_cb_called++;
+    ASSERT(check_cb_called == 0);
+    ASSERT(timer_cb_called == 1);
+    ASSERT(close_cb_called == 0);
+    uv_close((uv_handle_t*) handle, close_cb);
+    uv_close((uv_handle_t*) &timer_handle2, close_cb);
+    check_cb_called++;
 }
 
 
 static void timer_cb(uv_timer_t* handle) {
-  uv_close((uv_handle_t*) handle, close_cb);
-  timer_cb_called++;
+    uv_close((uv_handle_t*) handle, close_cb);
+    timer_cb_called++;
 }
 
 
 TEST_IMPL(close_order) {
-  uv_loop_t* loop;
-  loop = uv_default_loop();
+    uv_loop_t* loop;
+    loop = uv_default_loop();
 
-  uv_check_init(loop, &check_handle);
-  uv_check_start(&check_handle, check_cb);
-  uv_timer_init(loop, &timer_handle1);
-  uv_timer_start(&timer_handle1, timer_cb, 0, 0);
-  uv_timer_init(loop, &timer_handle2);
-  uv_timer_start(&timer_handle2, timer_cb, 100000, 0);
+    uv_check_init(loop, &check_handle);
+    uv_check_start(&check_handle, check_cb);
+    uv_timer_init(loop, &timer_handle1);
+    uv_timer_start(&timer_handle1, timer_cb, 0, 0);
+    uv_timer_init(loop, &timer_handle2);
+    uv_timer_start(&timer_handle2, timer_cb, 100000, 0);
 
-  ASSERT(check_cb_called == 0);
-  ASSERT(close_cb_called == 0);
-  ASSERT(timer_cb_called == 0);
+    ASSERT(check_cb_called == 0);
+    ASSERT(close_cb_called == 0);
+    ASSERT(timer_cb_called == 0);
 
-  uv_run(loop, UV_RUN_DEFAULT);
+    uv_run(loop, UV_RUN_DEFAULT);
 
-  ASSERT(check_cb_called == 1);
-  ASSERT(close_cb_called == 3);
-  ASSERT(timer_cb_called == 1);
+    ASSERT(check_cb_called == 1);
+    ASSERT(close_cb_called == 3);
+    ASSERT(timer_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

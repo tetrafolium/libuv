@@ -25,35 +25,35 @@
 
 
 static void connection_cb(uv_stream_t* server, int status) {
-  ASSERT(0 && "this will never be called");
+    ASSERT(0 && "this will never be called");
 }
 
 
 TEST_IMPL(pipe_pending_instances) {
-  int r;
-  uv_pipe_t pipe_handle;
-  uv_loop_t* loop;
+    int r;
+    uv_pipe_t pipe_handle;
+    uv_loop_t* loop;
 
-  loop = uv_default_loop();
+    loop = uv_default_loop();
 
-  r = uv_pipe_init(loop, &pipe_handle, 0);
-  ASSERT(r == 0);
+    r = uv_pipe_init(loop, &pipe_handle, 0);
+    ASSERT(r == 0);
 
-  uv_pipe_pending_instances(&pipe_handle, 8);
+    uv_pipe_pending_instances(&pipe_handle, 8);
 
-  r = uv_pipe_bind(&pipe_handle, TEST_PIPENAME);
-  ASSERT(r == 0);
+    r = uv_pipe_bind(&pipe_handle, TEST_PIPENAME);
+    ASSERT(r == 0);
 
-  uv_pipe_pending_instances(&pipe_handle, 16);
+    uv_pipe_pending_instances(&pipe_handle, 16);
 
-  r = uv_listen((uv_stream_t*)&pipe_handle, 128, connection_cb);
-  ASSERT(r == 0);
+    r = uv_listen((uv_stream_t*)&pipe_handle, 128, connection_cb);
+    ASSERT(r == 0);
 
-  uv_close((uv_handle_t*)&pipe_handle, NULL);
+    uv_close((uv_handle_t*)&pipe_handle, NULL);
 
-  r = uv_run(loop, UV_RUN_DEFAULT);
-  ASSERT(r == 0);
+    r = uv_run(loop, UV_RUN_DEFAULT);
+    ASSERT(r == 0);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

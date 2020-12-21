@@ -26,8 +26,8 @@
 #include <string.h>
 
 #if defined(__linux__)
-  #include <sys/socket.h>
-  #include <sys/un.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #endif
 
 #ifndef _WIN32
@@ -45,219 +45,219 @@ static int pipe_client_connect_cb_called = 0;
 
 
 static void pipe_close_cb(uv_handle_t* handle) {
-  ASSERT(handle == (uv_handle_t*) &pipe_client ||
-         handle == (uv_handle_t*) &pipe_server);
-  pipe_close_cb_called++;
+    ASSERT(handle == (uv_handle_t*) &pipe_client ||
+           handle == (uv_handle_t*) &pipe_server);
+    pipe_close_cb_called++;
 }
 
 
 static void pipe_client_connect_cb(uv_connect_t* req, int status) {
-  char buf[1024];
-  size_t len;
-  int r;
+    char buf[1024];
+    size_t len;
+    int r;
 
-  ASSERT(req == &connect_req);
-  ASSERT(status == 0);
+    ASSERT(req == &connect_req);
+    ASSERT(status == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getpeername(&pipe_client, buf, &len);
-  ASSERT(r == 0);
+    len = sizeof buf;
+    r = uv_pipe_getpeername(&pipe_client, buf, &len);
+    ASSERT(r == 0);
 
-  ASSERT(buf[len - 1] != 0);
-  ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
+    ASSERT(buf[len - 1] != 0);
+    ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_client, buf, &len);
-  ASSERT(r == 0 && len == 0);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_client, buf, &len);
+    ASSERT(r == 0 && len == 0);
 
-  pipe_client_connect_cb_called++;
+    pipe_client_connect_cb_called++;
 
 
-  uv_close((uv_handle_t*) &pipe_client, pipe_close_cb);
-  uv_close((uv_handle_t*) &pipe_server, pipe_close_cb);
+    uv_close((uv_handle_t*) &pipe_client, pipe_close_cb);
+    uv_close((uv_handle_t*) &pipe_server, pipe_close_cb);
 }
 
 
 static void pipe_server_connection_cb(uv_stream_t* handle, int status) {
-  /* This function *may* be called, depending on whether accept or the
-   * connection callback is called first.
-   */
-  ASSERT(status == 0);
+    /* This function *may* be called, depending on whether accept or the
+     * connection callback is called first.
+     */
+    ASSERT(status == 0);
 }
 
 
 TEST_IMPL(pipe_getsockname) {
 #if defined(NO_SELF_CONNECT)
-  RETURN_SKIP(NO_SELF_CONNECT);
+    RETURN_SKIP(NO_SELF_CONNECT);
 #endif
-  uv_loop_t* loop;
-  char buf[1024];
-  size_t len;
-  int r;
+    uv_loop_t* loop;
+    char buf[1024];
+    size_t len;
+    int r;
 
-  loop = uv_default_loop();
-  ASSERT(loop != NULL);
+    loop = uv_default_loop();
+    ASSERT(loop != NULL);
 
-  r = uv_pipe_init(loop, &pipe_server, 0);
-  ASSERT(r == 0);
+    r = uv_pipe_init(loop, &pipe_server, 0);
+    ASSERT(r == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_server, buf, &len);
-  ASSERT(r == UV_EBADF);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_server, buf, &len);
+    ASSERT(r == UV_EBADF);
 
-  len = sizeof buf;
-  r = uv_pipe_getpeername(&pipe_server, buf, &len);
-  ASSERT(r == UV_EBADF);
+    len = sizeof buf;
+    r = uv_pipe_getpeername(&pipe_server, buf, &len);
+    ASSERT(r == UV_EBADF);
 
-  r = uv_pipe_bind(&pipe_server, TEST_PIPENAME);
-  ASSERT(r == 0);
+    r = uv_pipe_bind(&pipe_server, TEST_PIPENAME);
+    ASSERT(r == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_server, buf, &len);
-  ASSERT(r == 0);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_server, buf, &len);
+    ASSERT(r == 0);
 
-  ASSERT(buf[len - 1] != 0);
-  ASSERT(buf[len] == '\0');
-  ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
+    ASSERT(buf[len - 1] != 0);
+    ASSERT(buf[len] == '\0');
+    ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getpeername(&pipe_server, buf, &len);
-  ASSERT(r == UV_ENOTCONN);
+    len = sizeof buf;
+    r = uv_pipe_getpeername(&pipe_server, buf, &len);
+    ASSERT(r == UV_ENOTCONN);
 
-  r = uv_listen((uv_stream_t*) &pipe_server, 0, pipe_server_connection_cb);
-  ASSERT(r == 0);
+    r = uv_listen((uv_stream_t*) &pipe_server, 0, pipe_server_connection_cb);
+    ASSERT(r == 0);
 
-  r = uv_pipe_init(loop, &pipe_client, 0);
-  ASSERT(r == 0);
+    r = uv_pipe_init(loop, &pipe_client, 0);
+    ASSERT(r == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_client, buf, &len);
-  ASSERT(r == UV_EBADF);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_client, buf, &len);
+    ASSERT(r == UV_EBADF);
 
-  len = sizeof buf;
-  r = uv_pipe_getpeername(&pipe_client, buf, &len);
-  ASSERT(r == UV_EBADF);
+    len = sizeof buf;
+    r = uv_pipe_getpeername(&pipe_client, buf, &len);
+    ASSERT(r == UV_EBADF);
 
-  uv_pipe_connect(&connect_req, &pipe_client, TEST_PIPENAME, pipe_client_connect_cb);
+    uv_pipe_connect(&connect_req, &pipe_client, TEST_PIPENAME, pipe_client_connect_cb);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_client, buf, &len);
-  ASSERT(r == 0 && len == 0);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_client, buf, &len);
+    ASSERT(r == 0 && len == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getpeername(&pipe_client, buf, &len);
-  ASSERT(r == 0);
+    len = sizeof buf;
+    r = uv_pipe_getpeername(&pipe_client, buf, &len);
+    ASSERT(r == 0);
 
-  ASSERT(buf[len - 1] != 0);
-  ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
+    ASSERT(buf[len - 1] != 0);
+    ASSERT(memcmp(buf, TEST_PIPENAME, len) == 0);
 
-  r = uv_run(loop, UV_RUN_DEFAULT);
-  ASSERT(r == 0);
-  ASSERT(pipe_client_connect_cb_called == 1);
-  ASSERT(pipe_close_cb_called == 2);
+    r = uv_run(loop, UV_RUN_DEFAULT);
+    ASSERT(r == 0);
+    ASSERT(pipe_client_connect_cb_called == 1);
+    ASSERT(pipe_close_cb_called == 2);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 
 TEST_IMPL(pipe_getsockname_abstract) {
 #if defined(__linux__)
-  char buf[1024];
-  size_t len;
-  int r;
-  int sock;
-  struct sockaddr_un sun;
-  socklen_t sun_len;
-  char abstract_pipe[] = "\0test-pipe";
+    char buf[1024];
+    size_t len;
+    int r;
+    int sock;
+    struct sockaddr_un sun;
+    socklen_t sun_len;
+    char abstract_pipe[] = "\0test-pipe";
 
-  sock = socket(AF_UNIX, SOCK_STREAM, 0);
-  ASSERT(sock != -1);
+    sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    ASSERT(sock != -1);
 
-  sun_len = sizeof sun;
-  memset(&sun, 0, sun_len);
-  sun.sun_family = AF_UNIX;
-  memcpy(sun.sun_path, abstract_pipe, sizeof abstract_pipe);
+    sun_len = sizeof sun;
+    memset(&sun, 0, sun_len);
+    sun.sun_family = AF_UNIX;
+    memcpy(sun.sun_path, abstract_pipe, sizeof abstract_pipe);
 
-  r = bind(sock, (struct sockaddr*)&sun, sun_len);
-  ASSERT(r == 0);
+    r = bind(sock, (struct sockaddr*)&sun, sun_len);
+    ASSERT(r == 0);
 
-  r = uv_pipe_init(uv_default_loop(), &pipe_server, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_open(&pipe_server, sock);
-  ASSERT(r == 0);
+    r = uv_pipe_init(uv_default_loop(), &pipe_server, 0);
+    ASSERT(r == 0);
+    r = uv_pipe_open(&pipe_server, sock);
+    ASSERT(r == 0);
 
-  len = sizeof buf;
-  r = uv_pipe_getsockname(&pipe_server, buf, &len);
-  ASSERT(r == 0);
+    len = sizeof buf;
+    r = uv_pipe_getsockname(&pipe_server, buf, &len);
+    ASSERT(r == 0);
 
-  ASSERT(memcmp(buf, abstract_pipe, sizeof abstract_pipe) == 0);
+    ASSERT(memcmp(buf, abstract_pipe, sizeof abstract_pipe) == 0);
 
-  uv_close((uv_handle_t*)&pipe_server, pipe_close_cb);
+    uv_close((uv_handle_t*)&pipe_server, pipe_close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  close(sock);
+    close(sock);
 
-  ASSERT(pipe_close_cb_called == 1);
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    ASSERT(pipe_close_cb_called == 1);
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 #else
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 #endif
 }
 
 TEST_IMPL(pipe_getsockname_blocking) {
 #ifdef _WIN32
-  HANDLE readh, writeh;
-  char buf1[1024], buf2[1024];
-  size_t len1, len2;
-  int r;
+    HANDLE readh, writeh;
+    char buf1[1024], buf2[1024];
+    size_t len1, len2;
+    int r;
 
-  r = CreatePipe(&readh, &writeh, NULL, 65536);
-  ASSERT(r != 0);
+    r = CreatePipe(&readh, &writeh, NULL, 65536);
+    ASSERT(r != 0);
 
-  r = uv_pipe_init(uv_default_loop(), &pipe_client, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_open(&pipe_client, readh);
-  ASSERT(r == 0);
-  r = uv_read_start((uv_stream_t*)&pipe_client, NULL, NULL);
-  ASSERT(r == 0);
-  Sleep(100);
-  r = uv_read_stop((uv_stream_t*)&pipe_client);
-  ASSERT(r == 0);
+    r = uv_pipe_init(uv_default_loop(), &pipe_client, 0);
+    ASSERT(r == 0);
+    r = uv_pipe_open(&pipe_client, readh);
+    ASSERT(r == 0);
+    r = uv_read_start((uv_stream_t*)&pipe_client, NULL, NULL);
+    ASSERT(r == 0);
+    Sleep(100);
+    r = uv_read_stop((uv_stream_t*)&pipe_client);
+    ASSERT(r == 0);
 
-  len1 = sizeof buf1;
-  r = uv_pipe_getsockname(&pipe_client, buf1, &len1);
-  ASSERT(r == 0);
-  ASSERT(len1 == 0);  /* It's an annonymous pipe. */
+    len1 = sizeof buf1;
+    r = uv_pipe_getsockname(&pipe_client, buf1, &len1);
+    ASSERT(r == 0);
+    ASSERT(len1 == 0);  /* It's an annonymous pipe. */
 
-  r = uv_read_start((uv_stream_t*)&pipe_client, NULL, NULL);
-  ASSERT(r == 0);
-  Sleep(100);
+    r = uv_read_start((uv_stream_t*)&pipe_client, NULL, NULL);
+    ASSERT(r == 0);
+    Sleep(100);
 
-  len2 = sizeof buf2;
-  r = uv_pipe_getsockname(&pipe_client, buf2, &len2);
-  ASSERT(r == 0);
-  ASSERT(len2 == 0);  /* It's an annonymous pipe. */
+    len2 = sizeof buf2;
+    r = uv_pipe_getsockname(&pipe_client, buf2, &len2);
+    ASSERT(r == 0);
+    ASSERT(len2 == 0);  /* It's an annonymous pipe. */
 
-  r = uv_read_stop((uv_stream_t*)&pipe_client);
-  ASSERT(r == 0);
+    r = uv_read_stop((uv_stream_t*)&pipe_client);
+    ASSERT(r == 0);
 
-  ASSERT(len1 == len2);
-  ASSERT(memcmp(buf1, buf2, len1) == 0);
+    ASSERT(len1 == len2);
+    ASSERT(memcmp(buf1, buf2, len1) == 0);
 
-  pipe_close_cb_called = 0;
-  uv_close((uv_handle_t*)&pipe_client, pipe_close_cb);
+    pipe_close_cb_called = 0;
+    uv_close((uv_handle_t*)&pipe_client, pipe_close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(pipe_close_cb_called == 1);
+    ASSERT(pipe_close_cb_called == 1);
 
-  CloseHandle(writeh);
+    CloseHandle(writeh);
 #endif
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

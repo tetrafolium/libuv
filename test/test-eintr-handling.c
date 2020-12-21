@@ -25,7 +25,7 @@
 #ifdef _WIN32
 
 TEST_IMPL(eintr_handling) {
-  RETURN_SKIP("Test not implemented on Windows.");
+    RETURN_SKIP("Test not implemented on Windows.");
 }
 
 #else  /* !_WIN32 */
@@ -42,53 +42,53 @@ static char test_buf[] = "test-buffer\n";
 int pipe_fds[2];
 
 struct thread_ctx {
-  uv_barrier_t barrier;
-  int fd;
+    uv_barrier_t barrier;
+    int fd;
 };
 
 static void thread_main(void* arg) {
-  int nwritten;
-  ASSERT(0 == kill(getpid(), SIGUSR1));
+    int nwritten;
+    ASSERT(0 == kill(getpid(), SIGUSR1));
 
-  do
-    nwritten = write(pipe_fds[1], test_buf, sizeof(test_buf));
-  while (nwritten == -1 && errno == EINTR);
+    do
+        nwritten = write(pipe_fds[1], test_buf, sizeof(test_buf));
+    while (nwritten == -1 && errno == EINTR);
 
-  ASSERT(nwritten == sizeof(test_buf));
+    ASSERT(nwritten == sizeof(test_buf));
 }
 
 static void sig_func(uv_signal_t* handle, int signum) {
-  uv_signal_stop(handle);
+    uv_signal_stop(handle);
 }
 
 TEST_IMPL(eintr_handling) {
-  struct thread_ctx ctx;
-  uv_thread_t thread;
-  uv_signal_t signal;
-  int nread;
+    struct thread_ctx ctx;
+    uv_thread_t thread;
+    uv_signal_t signal;
+    int nread;
 
-  iov = uv_buf_init(buf, sizeof(buf));
-  loop = uv_default_loop();
+    iov = uv_buf_init(buf, sizeof(buf));
+    loop = uv_default_loop();
 
-  ASSERT(0 == uv_signal_init(loop, &signal));
-  ASSERT(0 == uv_signal_start(&signal, sig_func, SIGUSR1));
+    ASSERT(0 == uv_signal_init(loop, &signal));
+    ASSERT(0 == uv_signal_start(&signal, sig_func, SIGUSR1));
 
-  ASSERT(0 == pipe(pipe_fds));
-  ASSERT(0 == uv_thread_create(&thread, thread_main, &ctx));
+    ASSERT(0 == pipe(pipe_fds));
+    ASSERT(0 == uv_thread_create(&thread, thread_main, &ctx));
 
-  nread = uv_fs_read(loop, &read_req, pipe_fds[0], &iov, 1, -1, NULL);
+    nread = uv_fs_read(loop, &read_req, pipe_fds[0], &iov, 1, -1, NULL);
 
-  ASSERT(nread == sizeof(test_buf));
-  ASSERT(0 == strcmp(buf, test_buf));
+    ASSERT(nread == sizeof(test_buf));
+    ASSERT(0 == strcmp(buf, test_buf));
 
-  ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+    ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
 
-  ASSERT(0 == close(pipe_fds[0]));
-  ASSERT(0 == close(pipe_fds[1]));
-  uv_close((uv_handle_t*) &signal, NULL);
+    ASSERT(0 == close(pipe_fds[0]));
+    ASSERT(0 == close(pipe_fds[1]));
+    uv_close((uv_handle_t*) &signal, NULL);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 #endif  /* !_WIN32 */
