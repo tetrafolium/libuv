@@ -224,7 +224,7 @@ TEST_IMPL(spawn_empty_env) {
 	char *env[1];
 
 	/* The autotools dynamic library build requires the presence of
-	 * DYLD_LIBARY_PATH (macOS) or LD_LIBRARY_PATH (other Unices)
+	 * DYLD_LIBRARY_PATH (macOS) or LD_LIBRARY_PATH (other Unices)
 	 * in the environment, but of course that doesn't work with
 	 * the empty environment that we're testing here.
 	 */
@@ -1882,7 +1882,7 @@ TEST_IMPL(spawn_quoted_path) {
 	options.flags = 0;
 	/* We test if search_path works correctly with semicolons in quoted path. We
 	 * will use an invalid drive, so we are sure no executable is spawned. */
-	quoted_path_env[0] = "PATH=\"xyz:\\test;\";xyz:\\other";
+	quoted_path_env[0] = "PATH=\"xyz:\\test;\";xyz:\\othere";
 	quoted_path_env[1] = NULL;
 	options.env = quoted_path_env;
 
