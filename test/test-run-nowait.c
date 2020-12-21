@@ -19,27 +19,25 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 static uv_timer_t timer_handle;
 static int timer_called = 0;
 
-
-static void timer_cb(uv_timer_t* handle) {
-    ASSERT(handle == &timer_handle);
-    timer_called = 1;
+static void timer_cb(uv_timer_t *handle) {
+  ASSERT(handle == &timer_handle);
+  timer_called = 1;
 }
 
-
 TEST_IMPL(run_nowait) {
-    int r;
-    uv_timer_init(uv_default_loop(), &timer_handle);
-    uv_timer_start(&timer_handle, timer_cb, 100, 100);
+  int r;
+  uv_timer_init(uv_default_loop(), &timer_handle);
+  uv_timer_start(&timer_handle, timer_cb, 100, 100);
 
-    r = uv_run(uv_default_loop(), UV_RUN_NOWAIT);
-    ASSERT(r != 0);
-    ASSERT(timer_called == 0);
+  r = uv_run(uv_default_loop(), UV_RUN_NOWAIT);
+  ASSERT(r != 0);
+  ASSERT(timer_called == 0);
 
-    return 0;
+  return 0;
 }

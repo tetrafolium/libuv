@@ -19,17 +19,17 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 TEST_IMPL(get_loadavg) {
 
-    double avg[3] = {-1, -1, -1};
-    uv_loadavg(avg);
+  double avg[3] = {-1, -1, -1};
+  uv_loadavg(avg);
 
-    ASSERT(avg[0] >= 0);
-    ASSERT(avg[1] >= 0);
-    ASSERT(avg[2] >= 0);
+  ASSERT(avg[0] >= 0);
+  ASSERT(avg[1] >= 0);
+  ASSERT(avg[2] >= 0);
 
-    return 0;
+  return 0;
 }

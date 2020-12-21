@@ -22,128 +22,124 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "uv.h"
-#include "internal.h"
 #include "handle-inl.h"
-
+#include "internal.h"
+#include "uv.h"
 
 uv_handle_type uv_guess_handle(uv_os_fd_t handle) {
-    DWORD mode;
+  DWORD mode;
 
-    if (handle == INVALID_HANDLE_VALUE) {
-        return UV_UNKNOWN_HANDLE;
+  if (handle == INVALID_HANDLE_VALUE) {
+    return UV_UNKNOWN_HANDLE;
+  }
+
+  switch (GetFileType(handle)) {
+  case FILE_TYPE_CHAR:
+    if (GetConsoleMode(handle, &mode)) {
+      return UV_TTY;
+    } else {
+      return UV_FILE;
     }
 
-    switch (GetFileType(handle)) {
-    case FILE_TYPE_CHAR:
-        if (GetConsoleMode(handle, &mode)) {
-            return UV_TTY;
-        } else {
-            return UV_FILE;
-        }
+  case FILE_TYPE_PIPE:
+    return UV_NAMED_PIPE;
 
-    case FILE_TYPE_PIPE:
-        return UV_NAMED_PIPE;
+  case FILE_TYPE_DISK:
+    return UV_FILE;
 
-    case FILE_TYPE_DISK:
-        return UV_FILE;
-
-    default:
-        return UV_UNKNOWN_HANDLE;
-    }
+  default:
+    return UV_UNKNOWN_HANDLE;
+  }
 }
 
-
-int uv_is_active(const uv_handle_t* handle) {
-    return (handle->flags & UV_HANDLE_ACTIVE) &&
-           !(handle->flags & UV_HANDLE_CLOSING);
+int uv_is_active(const uv_handle_t *handle) {
+  return (handle->flags & UV_HANDLE_ACTIVE) &&
+         !(handle->flags & UV_HANDLE_CLOSING);
 }
 
+void uv_close(uv_handle_t *handle, uv_close_cb cb) {
+  uv_loop_t *loop = handle->loop;
 
-void uv_close(uv_handle_t* handle, uv_close_cb cb) {
-    uv_loop_t* loop = handle->loop;
+  if (handle->flags & UV_HANDLE_CLOSING) {
+    assert(0);
+    return;
+  }
 
-    if (handle->flags & UV_HANDLE_CLOSING) {
-        assert(0);
-        return;
-    }
+  handle->close_cb = cb;
 
-    handle->close_cb = cb;
+  /* Handle-specific close actions */
+  switch (handle->type) {
+  case UV_TCP:
+    uv_tcp_close(loop, (uv_tcp_t *)handle);
+    return;
 
-    /* Handle-specific close actions */
-    switch (handle->type) {
-    case UV_TCP:
-        uv_tcp_close(loop, (uv_tcp_t*)handle);
-        return;
+  case UV_NAMED_PIPE:
+    uv_pipe_close(loop, (uv_pipe_t *)handle);
+    return;
 
-    case UV_NAMED_PIPE:
-        uv_pipe_close(loop, (uv_pipe_t*) handle);
-        return;
+  case UV_TTY:
+    uv_tty_close((uv_tty_t *)handle);
+    return;
 
-    case UV_TTY:
-        uv_tty_close((uv_tty_t*) handle);
-        return;
+  case UV_UDP:
+    uv_udp_close(loop, (uv_udp_t *)handle);
+    return;
 
-    case UV_UDP:
-        uv_udp_close(loop, (uv_udp_t*) handle);
-        return;
+  case UV_POLL:
+    uv_poll_close(loop, (uv_poll_t *)handle);
+    return;
 
-    case UV_POLL:
-        uv_poll_close(loop, (uv_poll_t*) handle);
-        return;
+  case UV_TIMER:
+    uv__timer_close((uv_timer_t *)handle);
+    uv__handle_closing(handle);
+    uv_want_endgame(loop, handle);
+    return;
 
-    case UV_TIMER:
-        uv__timer_close((uv_timer_t*)handle);
-        uv__handle_closing(handle);
-        uv_want_endgame(loop, handle);
-        return;
+  case UV_PREPARE:
+    uv__prepare_close((uv_prepare_t *)handle);
+    uv__handle_closing(handle);
+    uv_want_endgame(loop, handle);
+    return;
 
-    case UV_PREPARE:
-        uv__prepare_close((uv_prepare_t*) handle);
-        uv__handle_closing(handle);
-        uv_want_endgame(loop, handle);
-        return;
+  case UV_CHECK:
+    uv__check_close((uv_check_t *)handle);
+    uv__handle_closing(handle);
+    uv_want_endgame(loop, handle);
+    return;
 
-    case UV_CHECK:
-        uv__check_close((uv_check_t*) handle);
-        uv__handle_closing(handle);
-        uv_want_endgame(loop, handle);
-        return;
+  case UV_IDLE:
+    uv__idle_close((uv_idle_t *)handle);
+    uv__handle_closing(handle);
+    uv_want_endgame(loop, handle);
+    return;
 
-    case UV_IDLE:
-        uv__idle_close((uv_idle_t*) handle);
-        uv__handle_closing(handle);
-        uv_want_endgame(loop, handle);
-        return;
+  case UV_ASYNC:
+    uv_async_close(loop, (uv_async_t *)handle);
+    return;
 
-    case UV_ASYNC:
-        uv_async_close(loop, (uv_async_t*) handle);
-        return;
+  case UV_SIGNAL:
+    uv_signal_close(loop, (uv_signal_t *)handle);
+    return;
 
-    case UV_SIGNAL:
-        uv_signal_close(loop, (uv_signal_t*) handle);
-        return;
+  case UV_PROCESS:
+    uv_process_close(loop, (uv_process_t *)handle);
+    return;
 
-    case UV_PROCESS:
-        uv_process_close(loop, (uv_process_t*) handle);
-        return;
+  case UV_FS_EVENT:
+    uv_fs_event_close(loop, (uv_fs_event_t *)handle);
+    return;
 
-    case UV_FS_EVENT:
-        uv_fs_event_close(loop, (uv_fs_event_t*) handle);
-        return;
+  case UV_FS_POLL:
+    uv__fs_poll_close((uv_fs_poll_t *)handle);
+    uv__handle_closing(handle);
+    return;
 
-    case UV_FS_POLL:
-        uv__fs_poll_close((uv_fs_poll_t*) handle);
-        uv__handle_closing(handle);
-        return;
-
-    default:
-        /* Not supported */
-        abort();
-    }
+  default:
+    /* Not supported */
+    abort();
+  }
 }
 
-
-int uv_is_closing(const uv_handle_t* handle) {
-    return !!(handle->flags & (UV_HANDLE_CLOSING | UV_HANDLE_CLOSED));
+int uv_is_closing(const uv_handle_t *handle) {
+  return !!(handle->flags & (UV_HANDLE_CLOSING | UV_HANDLE_CLOSED));
 }

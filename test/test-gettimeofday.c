@@ -19,21 +19,21 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 TEST_IMPL(gettimeofday) {
-    uv_timeval64_t tv;
-    int r;
+  uv_timeval64_t tv;
+  int r;
 
-    tv.tv_sec = 0;
-    r = uv_gettimeofday(&tv);
-    ASSERT(r == 0);
-    ASSERT(tv.tv_sec != 0);
+  tv.tv_sec = 0;
+  r = uv_gettimeofday(&tv);
+  ASSERT(r == 0);
+  ASSERT(tv.tv_sec != 0);
 
-    /* Test invalid input. */
-    r = uv_gettimeofday(NULL);
-    ASSERT(r == UV_EINVAL);
+  /* Test invalid input. */
+  r = uv_gettimeofday(NULL);
+  ASSERT(r == UV_EINVAL);
 
-    return 0;
+  return 0;
 }

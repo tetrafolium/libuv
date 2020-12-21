@@ -19,66 +19,62 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-
 static int close_cb_called = 0;
 
-
-static void close_cb(uv_handle_t* handle) {
-    ASSERT(handle != NULL);
-    close_cb_called++;
+static void close_cb(uv_handle_t *handle) {
+  ASSERT(handle != NULL);
+  close_cb_called++;
 }
 
-
-static void timer_cb(uv_timer_t* handle) {
-    ASSERT(0 && "timer_cb should not have been called");
+static void timer_cb(uv_timer_t *handle) {
+  ASSERT(0 && "timer_cb should not have been called");
 }
-
 
 TEST_IMPL(active) {
-    int r;
-    uv_timer_t timer;
+  int r;
+  uv_timer_t timer;
 
-    r = uv_timer_init(uv_default_loop(), &timer);
-    ASSERT(r == 0);
+  r = uv_timer_init(uv_default_loop(), &timer);
+  ASSERT(r == 0);
 
-    /* uv_is_active() and uv_is_closing() should always return either 0 or 1. */
-    ASSERT(0 == uv_is_active((uv_handle_t*) &timer));
-    ASSERT(0 == uv_is_closing((uv_handle_t*) &timer));
+  /* uv_is_active() and uv_is_closing() should always return either 0 or 1. */
+  ASSERT(0 == uv_is_active((uv_handle_t *)&timer));
+  ASSERT(0 == uv_is_closing((uv_handle_t *)&timer));
 
-    r = uv_timer_start(&timer, timer_cb, 1000, 0);
-    ASSERT(r == 0);
+  r = uv_timer_start(&timer, timer_cb, 1000, 0);
+  ASSERT(r == 0);
 
-    ASSERT(1 == uv_is_active((uv_handle_t*) &timer));
-    ASSERT(0 == uv_is_closing((uv_handle_t*) &timer));
+  ASSERT(1 == uv_is_active((uv_handle_t *)&timer));
+  ASSERT(0 == uv_is_closing((uv_handle_t *)&timer));
 
-    r = uv_timer_stop(&timer);
-    ASSERT(r == 0);
+  r = uv_timer_stop(&timer);
+  ASSERT(r == 0);
 
-    ASSERT(0 == uv_is_active((uv_handle_t*) &timer));
-    ASSERT(0 == uv_is_closing((uv_handle_t*) &timer));
+  ASSERT(0 == uv_is_active((uv_handle_t *)&timer));
+  ASSERT(0 == uv_is_closing((uv_handle_t *)&timer));
 
-    r = uv_timer_start(&timer, timer_cb, 1000, 0);
-    ASSERT(r == 0);
+  r = uv_timer_start(&timer, timer_cb, 1000, 0);
+  ASSERT(r == 0);
 
-    ASSERT(1 == uv_is_active((uv_handle_t*) &timer));
-    ASSERT(0 == uv_is_closing((uv_handle_t*) &timer));
+  ASSERT(1 == uv_is_active((uv_handle_t *)&timer));
+  ASSERT(0 == uv_is_closing((uv_handle_t *)&timer));
 
-    uv_close((uv_handle_t*) &timer, close_cb);
+  uv_close((uv_handle_t *)&timer, close_cb);
 
-    ASSERT(0 == uv_is_active((uv_handle_t*) &timer));
-    ASSERT(1 == uv_is_closing((uv_handle_t*) &timer));
+  ASSERT(0 == uv_is_active((uv_handle_t *)&timer));
+  ASSERT(1 == uv_is_closing((uv_handle_t *)&timer));
 
-    r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-    ASSERT(r == 0);
+  r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  ASSERT(r == 0);
 
-    ASSERT(close_cb_called == 1);
+  ASSERT(close_cb_called == 1);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

@@ -19,9 +19,8 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
-
+#include "uv.h"
 
 static int close_cb_called = 0;
 static int repeat_1_cb_called = 0;
@@ -33,113 +32,109 @@ static uv_timer_t dummy, repeat_1, repeat_2;
 
 static uint64_t start_time;
 
+static void close_cb(uv_handle_t *handle) {
+  ASSERT(handle != NULL);
 
-static void close_cb(uv_handle_t* handle) {
-    ASSERT(handle != NULL);
-
-    close_cb_called++;
+  close_cb_called++;
 }
 
+static void repeat_1_cb(uv_timer_t *handle) {
+  int r;
 
-static void repeat_1_cb(uv_timer_t* handle) {
-    int r;
+  ASSERT(handle == &repeat_1);
+  ASSERT(uv_timer_get_repeat((uv_timer_t *)handle) == 50);
 
-    ASSERT(handle == &repeat_1);
-    ASSERT(uv_timer_get_repeat((uv_timer_t*)handle) == 50);
+  fprintf(stderr, "repeat_1_cb called after %ld ms\n",
+          (long int)(uv_now(uv_default_loop()) - start_time));
+  fflush(stderr);
 
-    fprintf(stderr, "repeat_1_cb called after %ld ms\n",
-            (long int)(uv_now(uv_default_loop()) - start_time));
-    fflush(stderr);
+  repeat_1_cb_called++;
 
-    repeat_1_cb_called++;
+  r = uv_timer_again(&repeat_2);
+  ASSERT(r == 0);
 
-    r = uv_timer_again(&repeat_2);
-    ASSERT(r == 0);
-
-    if (repeat_1_cb_called == 10) {
-        uv_close((uv_handle_t*)handle, close_cb);
-        /* We're not calling uv_timer_again on repeat_2 any more, so after this
-         * timer_2_cb is expected. */
-        repeat_2_cb_allowed = 1;
-        return;
-    }
+  if (repeat_1_cb_called == 10) {
+    uv_close((uv_handle_t *)handle, close_cb);
+    /* We're not calling uv_timer_again on repeat_2 any more, so after this
+     * timer_2_cb is expected. */
+    repeat_2_cb_allowed = 1;
+    return;
+  }
 }
 
+static void repeat_2_cb(uv_timer_t *handle) {
+  ASSERT(handle == &repeat_2);
+  ASSERT(repeat_2_cb_allowed);
 
-static void repeat_2_cb(uv_timer_t* handle) {
-    ASSERT(handle == &repeat_2);
-    ASSERT(repeat_2_cb_allowed);
+  fprintf(stderr, "repeat_2_cb called after %ld ms\n",
+          (long int)(uv_now(uv_default_loop()) - start_time));
+  fflush(stderr);
 
-    fprintf(stderr, "repeat_2_cb called after %ld ms\n",
-            (long int)(uv_now(uv_default_loop()) - start_time));
-    fflush(stderr);
+  repeat_2_cb_called++;
 
-    repeat_2_cb_called++;
+  if (uv_timer_get_repeat(&repeat_2) == 0) {
+    ASSERT(0 == uv_is_active((uv_handle_t *)handle));
+    uv_close((uv_handle_t *)handle, close_cb);
+    return;
+  }
 
-    if (uv_timer_get_repeat(&repeat_2) == 0) {
-        ASSERT(0 == uv_is_active((uv_handle_t*) handle));
-        uv_close((uv_handle_t*)handle, close_cb);
-        return;
-    }
+  fprintf(stderr, "uv_timer_get_repeat %ld ms\n",
+          (long int)uv_timer_get_repeat(&repeat_2));
+  fflush(stderr);
+  ASSERT(uv_timer_get_repeat(&repeat_2) == 100);
 
-    fprintf(stderr, "uv_timer_get_repeat %ld ms\n",
-            (long int)uv_timer_get_repeat(&repeat_2));
-    fflush(stderr);
-    ASSERT(uv_timer_get_repeat(&repeat_2) == 100);
-
-    /* This shouldn't take effect immediately. */
-    uv_timer_set_repeat(&repeat_2, 0);
+  /* This shouldn't take effect immediately. */
+  uv_timer_set_repeat(&repeat_2, 0);
 }
-
 
 TEST_IMPL(timer_again) {
-    int r;
+  int r;
 
-    start_time = uv_now(uv_default_loop());
-    ASSERT(0 < start_time);
+  start_time = uv_now(uv_default_loop());
+  ASSERT(0 < start_time);
 
-    /* Verify that it is not possible to uv_timer_again a never-started timer. */
-    r = uv_timer_init(uv_default_loop(), &dummy);
-    ASSERT(r == 0);
-    r = uv_timer_again(&dummy);
-    ASSERT(r == UV_EINVAL);
-    uv_unref((uv_handle_t*)&dummy);
+  /* Verify that it is not possible to uv_timer_again a never-started timer. */
+  r = uv_timer_init(uv_default_loop(), &dummy);
+  ASSERT(r == 0);
+  r = uv_timer_again(&dummy);
+  ASSERT(r == UV_EINVAL);
+  uv_unref((uv_handle_t *)&dummy);
 
-    /* Start timer repeat_1. */
-    r = uv_timer_init(uv_default_loop(), &repeat_1);
-    ASSERT(r == 0);
-    r = uv_timer_start(&repeat_1, repeat_1_cb, 50, 0);
-    ASSERT(r == 0);
-    ASSERT(uv_timer_get_repeat(&repeat_1) == 0);
+  /* Start timer repeat_1. */
+  r = uv_timer_init(uv_default_loop(), &repeat_1);
+  ASSERT(r == 0);
+  r = uv_timer_start(&repeat_1, repeat_1_cb, 50, 0);
+  ASSERT(r == 0);
+  ASSERT(uv_timer_get_repeat(&repeat_1) == 0);
 
-    /* Verify that it is not possible to uv_timer_again a non-repeating timer. */
-    r = uv_timer_again(&repeat_1);
-    ASSERT(r == UV_EINVAL);
+  /* Verify that it is not possible to uv_timer_again a non-repeating timer. */
+  r = uv_timer_again(&repeat_1);
+  ASSERT(r == UV_EINVAL);
 
-    /* Actually make repeat_1 repeating. */
-    uv_timer_set_repeat(&repeat_1, 50);
-    ASSERT(uv_timer_get_repeat(&repeat_1) == 50);
+  /* Actually make repeat_1 repeating. */
+  uv_timer_set_repeat(&repeat_1, 50);
+  ASSERT(uv_timer_get_repeat(&repeat_1) == 50);
 
-    /*
-     * Start another repeating timer. It'll be again()ed by the repeat_1 so
-     * it should not time out until repeat_1 stops.
-     */
-    r = uv_timer_init(uv_default_loop(), &repeat_2);
-    ASSERT(r == 0);
-    r = uv_timer_start(&repeat_2, repeat_2_cb, 100, 100);
-    ASSERT(r == 0);
-    ASSERT(uv_timer_get_repeat(&repeat_2) == 100);
+  /*
+   * Start another repeating timer. It'll be again()ed by the repeat_1 so
+   * it should not time out until repeat_1 stops.
+   */
+  r = uv_timer_init(uv_default_loop(), &repeat_2);
+  ASSERT(r == 0);
+  r = uv_timer_start(&repeat_2, repeat_2_cb, 100, 100);
+  ASSERT(r == 0);
+  ASSERT(uv_timer_get_repeat(&repeat_2) == 100);
 
-    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-    ASSERT(repeat_1_cb_called == 10);
-    ASSERT(repeat_2_cb_called == 2);
-    ASSERT(close_cb_called == 2);
+  ASSERT(repeat_1_cb_called == 10);
+  ASSERT(repeat_2_cb_called == 2);
+  ASSERT(close_cb_called == 2);
 
-    fprintf(stderr, "Test took %ld ms (expected ~700 ms)\n",
-            (long int)(uv_now(uv_default_loop()) - start_time));
-    fflush(stderr);
+  fprintf(stderr, "Test took %ld ms (expected ~700 ms)\n",
+          (long int)(uv_now(uv_default_loop()) - start_time));
+  fflush(stderr);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

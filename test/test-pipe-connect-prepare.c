@@ -20,18 +20,16 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-
 #ifdef _WIN32
-# define BAD_PIPENAME "bad-pipe"
+#define BAD_PIPENAME "bad-pipe"
 #else
-# define BAD_PIPENAME "/path/to/unix/socket/that/really/should/not/be/there"
+#define BAD_PIPENAME "/path/to/unix/socket/that/really/should/not/be/there"
 #endif
-
 
 static int close_cb_called = 0;
 static int connect_cb_called = 0;
@@ -40,44 +38,40 @@ static uv_pipe_t pipe_handle;
 static uv_prepare_t prepare_handle;
 static uv_connect_t conn_req;
 
-
-static void close_cb(uv_handle_t* handle) {
-    ASSERT(handle != NULL);
-    close_cb_called++;
+static void close_cb(uv_handle_t *handle) {
+  ASSERT(handle != NULL);
+  close_cb_called++;
 }
 
-
-static void connect_cb(uv_connect_t* connect_req, int status) {
-    ASSERT(status == UV_ENOENT);
-    connect_cb_called++;
-    uv_close((uv_handle_t*)&prepare_handle, close_cb);
-    uv_close((uv_handle_t*)&pipe_handle, close_cb);
+static void connect_cb(uv_connect_t *connect_req, int status) {
+  ASSERT(status == UV_ENOENT);
+  connect_cb_called++;
+  uv_close((uv_handle_t *)&prepare_handle, close_cb);
+  uv_close((uv_handle_t *)&pipe_handle, close_cb);
 }
 
-
-static void prepare_cb(uv_prepare_t* handle) {
-    ASSERT(handle == &prepare_handle);
-    uv_pipe_connect(&conn_req, &pipe_handle, BAD_PIPENAME, connect_cb);
+static void prepare_cb(uv_prepare_t *handle) {
+  ASSERT(handle == &prepare_handle);
+  uv_pipe_connect(&conn_req, &pipe_handle, BAD_PIPENAME, connect_cb);
 }
-
 
 TEST_IMPL(pipe_connect_on_prepare) {
-    int r;
+  int r;
 
-    r = uv_pipe_init(uv_default_loop(), &pipe_handle, 0);
-    ASSERT(r == 0);
+  r = uv_pipe_init(uv_default_loop(), &pipe_handle, 0);
+  ASSERT(r == 0);
 
-    r = uv_prepare_init(uv_default_loop(), &prepare_handle);
-    ASSERT(r == 0);
-    r = uv_prepare_start(&prepare_handle, prepare_cb);
-    ASSERT(r == 0);
+  r = uv_prepare_init(uv_default_loop(), &prepare_handle);
+  ASSERT(r == 0);
+  r = uv_prepare_start(&prepare_handle, prepare_cb);
+  ASSERT(r == 0);
 
-    r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-    ASSERT(r == 0);
+  r = uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  ASSERT(r == 0);
 
-    ASSERT(close_cb_called == 2);
-    ASSERT(connect_cb_called == 1);
+  ASSERT(close_cb_called == 2);
+  ASSERT(connect_cb_called == 1);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

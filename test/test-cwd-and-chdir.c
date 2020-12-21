@@ -19,40 +19,40 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 #include <string.h>
 
 #define PATHMAX 1024
 extern char executable_path[];
 
 TEST_IMPL(cwd_and_chdir) {
-    char buffer_orig[PATHMAX];
-    char buffer_new[PATHMAX];
-    size_t size1;
-    size_t size2;
-    int err;
+  char buffer_orig[PATHMAX];
+  char buffer_new[PATHMAX];
+  size_t size1;
+  size_t size2;
+  int err;
 
-    size1 = 1;
-    err = uv_cwd(buffer_orig, &size1);
-    ASSERT(err == UV_ENOBUFS);
-    ASSERT(size1 > 1);
+  size1 = 1;
+  err = uv_cwd(buffer_orig, &size1);
+  ASSERT(err == UV_ENOBUFS);
+  ASSERT(size1 > 1);
 
-    size1 = sizeof buffer_orig;
-    err = uv_cwd(buffer_orig, &size1);
-    ASSERT(err == 0);
-    ASSERT(size1 > 0);
-    ASSERT(buffer_orig[size1] != '/');
+  size1 = sizeof buffer_orig;
+  err = uv_cwd(buffer_orig, &size1);
+  ASSERT(err == 0);
+  ASSERT(size1 > 0);
+  ASSERT(buffer_orig[size1] != '/');
 
-    err = uv_chdir(buffer_orig);
-    ASSERT(err == 0);
+  err = uv_chdir(buffer_orig);
+  ASSERT(err == 0);
 
-    size2 = sizeof buffer_new;
-    err = uv_cwd(buffer_new, &size2);
-    ASSERT(err == 0);
+  size2 = sizeof buffer_new;
+  err = uv_cwd(buffer_new, &size2);
+  ASSERT(err == 0);
 
-    ASSERT(size1 == size2);
-    ASSERT(strcmp(buffer_orig, buffer_new) == 0);
+  ASSERT(size1 == size2);
+  ASSERT(strcmp(buffer_orig, buffer_new) == 0);
 
-    return 0;
+  return 0;
 }

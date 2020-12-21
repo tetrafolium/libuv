@@ -19,34 +19,33 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-
 TEST_IMPL(tcp_flags) {
-    uv_loop_t* loop;
-    uv_tcp_t handle;
-    int r;
+  uv_loop_t *loop;
+  uv_tcp_t handle;
+  int r;
 
-    loop = uv_default_loop();
+  loop = uv_default_loop();
 
-    r = uv_tcp_init(loop, &handle);
-    ASSERT(r == 0);
+  r = uv_tcp_init(loop, &handle);
+  ASSERT(r == 0);
 
-    r = uv_tcp_nodelay(&handle, 1);
-    ASSERT(r == 0);
+  r = uv_tcp_nodelay(&handle, 1);
+  ASSERT(r == 0);
 
-    r = uv_tcp_keepalive(&handle, 1, 60);
-    ASSERT(r == 0);
+  r = uv_tcp_keepalive(&handle, 1, 60);
+  ASSERT(r == 0);
 
-    uv_close((uv_handle_t*)&handle, NULL);
+  uv_close((uv_handle_t *)&handle, NULL);
 
-    r = uv_run(loop, UV_RUN_DEFAULT);
-    ASSERT(r == 0);
+  r = uv_run(loop, UV_RUN_DEFAULT);
+  ASSERT(r == 0);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

@@ -25,9 +25,8 @@
 #include <string.h>
 
 /* See test-ipc.c */
-void spawn_helper(uv_pipe_t* channel,
-                  uv_process_t* process,
-                  const char* helper);
+void spawn_helper(uv_pipe_t *channel, uv_process_t *process,
+                  const char *helper);
 
 #define NUM_WRITES 256
 #define BUFFERS_PER_WRITE 3
@@ -37,8 +36,8 @@ void spawn_helper(uv_pipe_t* channel,
 #define XFER_SIZE (NUM_WRITES * BUFFERS_PER_WRITE * BUFFER_SIZE)
 
 struct write_info {
-    uv_write_t write_req;
-    char buffers[BUFFER_SIZE][BUFFERS_PER_WRITE];
+  uv_write_t write_req;
+  char buffers[BUFFER_SIZE][BUFFERS_PER_WRITE];
 };
 
 static uv_shutdown_t shutdown_req;
@@ -46,43 +45,42 @@ static uv_shutdown_t shutdown_req;
 static size_t bytes_written;
 static size_t bytes_read;
 
-static void write_cb(uv_write_t* req, int status) {
-    struct write_info* write_info =
-        container_of(req, struct write_info, write_req);
-    ASSERT(status == 0);
-    bytes_written += BUFFERS_PER_WRITE * BUFFER_SIZE;
-    free(write_info);
+static void write_cb(uv_write_t *req, int status) {
+  struct write_info *write_info =
+      container_of(req, struct write_info, write_req);
+  ASSERT(status == 0);
+  bytes_written += BUFFERS_PER_WRITE * BUFFER_SIZE;
+  free(write_info);
 }
 
-static void shutdown_cb(uv_shutdown_t* req, int status) {
-    ASSERT(status == 0 || status == UV_ENOTCONN);
-    uv_close((uv_handle_t*) req->handle, NULL);
+static void shutdown_cb(uv_shutdown_t *req, int status) {
+  ASSERT(status == 0 || status == UV_ENOTCONN);
+  uv_close((uv_handle_t *)req->handle, NULL);
 }
 
-static void do_write(uv_stream_t* handle) {
-    struct write_info* write_info;
-    uv_buf_t bufs[BUFFERS_PER_WRITE];
-    size_t i;
-    int r;
+static void do_write(uv_stream_t *handle) {
+  struct write_info *write_info;
+  uv_buf_t bufs[BUFFERS_PER_WRITE];
+  size_t i;
+  int r;
 
-    write_info = malloc(sizeof *write_info);
-    ASSERT(write_info != NULL);
+  write_info = malloc(sizeof *write_info);
+  ASSERT(write_info != NULL);
 
-    for (i = 0; i < BUFFERS_PER_WRITE; i++) {
-        memset(&write_info->buffers[i], BUFFER_CONTENT, BUFFER_SIZE);
-        bufs[i] = uv_buf_init(write_info->buffers[i], BUFFER_SIZE);
-    }
+  for (i = 0; i < BUFFERS_PER_WRITE; i++) {
+    memset(&write_info->buffers[i], BUFFER_CONTENT, BUFFER_SIZE);
+    bufs[i] = uv_buf_init(write_info->buffers[i], BUFFER_SIZE);
+  }
 
-    r = uv_write(
-            &write_info->write_req, handle, bufs, BUFFERS_PER_WRITE, write_cb);
-    ASSERT(r == 0);
+  r = uv_write(&write_info->write_req, handle, bufs, BUFFERS_PER_WRITE,
+               write_cb);
+  ASSERT(r == 0);
 }
 
-static void alloc_cb(uv_handle_t* handle,
-                     size_t suggested_size,
-                     uv_buf_t* buf) {
-    buf->base = malloc(suggested_size);
-    buf->len = (int) suggested_size;
+static void alloc_cb(uv_handle_t *handle, size_t suggested_size,
+                     uv_buf_t *buf) {
+  buf->base = malloc(suggested_size);
+  buf->len = (int)suggested_size;
 }
 
 #ifndef _WIN32
@@ -90,70 +88,70 @@ static void alloc_cb(uv_handle_t* handle,
 #include <unistd.h>
 #endif
 
-static void read_cb(uv_stream_t* handle, ssize_t nread, const uv_buf_t* buf) {
-    ssize_t i;
-    int r;
+static void read_cb(uv_stream_t *handle, ssize_t nread, const uv_buf_t *buf) {
+  ssize_t i;
+  int r;
 
-    ASSERT(nread >= 0);
-    bytes_read += nread;
+  ASSERT(nread >= 0);
+  bytes_read += nread;
 
-    for (i = 0; i < nread; i++)
-        ASSERT(buf->base[i] == BUFFER_CONTENT);
-    free(buf->base);
+  for (i = 0; i < nread; i++)
+    ASSERT(buf->base[i] == BUFFER_CONTENT);
+  free(buf->base);
 
-    if (bytes_read >= XFER_SIZE) {
-        r = uv_read_stop(handle);
-        ASSERT(r == 0);
-        r = uv_shutdown(&shutdown_req, handle, shutdown_cb);
-        ASSERT(r == 0);
-    }
+  if (bytes_read >= XFER_SIZE) {
+    r = uv_read_stop(handle);
+    ASSERT(r == 0);
+    r = uv_shutdown(&shutdown_req, handle, shutdown_cb);
+    ASSERT(r == 0);
+  }
 }
 
-static void do_writes_and_reads(uv_stream_t* handle) {
-    size_t i;
-    int r;
+static void do_writes_and_reads(uv_stream_t *handle) {
+  size_t i;
+  int r;
 
-    bytes_written = 0;
-    bytes_read = 0;
+  bytes_written = 0;
+  bytes_read = 0;
 
-    for (i = 0; i < NUM_WRITES; i++) {
-        do_write(handle);
-    }
+  for (i = 0; i < NUM_WRITES; i++) {
+    do_write(handle);
+  }
 
-    r = uv_read_start(handle, alloc_cb, read_cb);
-    ASSERT(r == 0);
+  r = uv_read_start(handle, alloc_cb, read_cb);
+  ASSERT(r == 0);
 
-    r = uv_run(handle->loop, UV_RUN_DEFAULT);
-    ASSERT(r == 0);
+  r = uv_run(handle->loop, UV_RUN_DEFAULT);
+  ASSERT(r == 0);
 
-    ASSERT(bytes_written == XFER_SIZE);
-    ASSERT(bytes_read == XFER_SIZE);
+  ASSERT(bytes_written == XFER_SIZE);
+  ASSERT(bytes_read == XFER_SIZE);
 }
 
 TEST_IMPL(ipc_heavy_traffic_deadlock_bug) {
-    uv_pipe_t pipe;
-    uv_process_t process;
+  uv_pipe_t pipe;
+  uv_process_t process;
 
-    spawn_helper(&pipe, &process, "ipc_helper_heavy_traffic_deadlock_bug");
-    do_writes_and_reads((uv_stream_t*) &pipe);
+  spawn_helper(&pipe, &process, "ipc_helper_heavy_traffic_deadlock_bug");
+  do_writes_and_reads((uv_stream_t *)&pipe);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }
 
 int ipc_helper_heavy_traffic_deadlock_bug(void) {
-    uv_pipe_t pipe;
-    int r;
+  uv_pipe_t pipe;
+  int r;
 
-    r = uv_pipe_init(uv_default_loop(), &pipe, 1);
-    ASSERT(r == 0);
-    r = uv_pipe_open(&pipe, uv_convert_fd_to_handle(0));
-    ASSERT(r == 0);
+  r = uv_pipe_init(uv_default_loop(), &pipe, 1);
+  ASSERT(r == 0);
+  r = uv_pipe_open(&pipe, uv_convert_fd_to_handle(0));
+  ASSERT(r == 0);
 
-    notify_parent_process();
-    do_writes_and_reads((uv_stream_t*) &pipe);
-    uv_sleep(100);
+  notify_parent_process();
+  do_writes_and_reads((uv_stream_t *)&pipe);
+  uv_sleep(100);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

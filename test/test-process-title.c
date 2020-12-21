@@ -19,58 +19,55 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 #include <string.h>
 
+static void set_title(const char *title) {
+  char buffer[512];
+  int err;
 
-static void set_title(const char* title) {
-    char buffer[512];
-    int err;
+  err = uv_get_process_title(buffer, sizeof(buffer));
+  ASSERT(err == 0);
 
-    err = uv_get_process_title(buffer, sizeof(buffer));
-    ASSERT(err == 0);
+  err = uv_set_process_title(title);
+  ASSERT(err == 0);
 
-    err = uv_set_process_title(title);
-    ASSERT(err == 0);
+  err = uv_get_process_title(buffer, sizeof(buffer));
+  ASSERT(err == 0);
 
-    err = uv_get_process_title(buffer, sizeof(buffer));
-    ASSERT(err == 0);
-
-    ASSERT(strcmp(buffer, title) == 0);
+  ASSERT(strcmp(buffer, title) == 0);
 }
-
 
 static void uv_get_process_title_edge_cases(void) {
-    char buffer[512];
-    int r;
+  char buffer[512];
+  int r;
 
-    /* Test a NULL buffer */
-    r = uv_get_process_title(NULL, 100);
-    ASSERT(r == UV_EINVAL);
+  /* Test a NULL buffer */
+  r = uv_get_process_title(NULL, 100);
+  ASSERT(r == UV_EINVAL);
 
-    /* Test size of zero */
-    r = uv_get_process_title(buffer, 0);
-    ASSERT(r == UV_EINVAL);
+  /* Test size of zero */
+  r = uv_get_process_title(buffer, 0);
+  ASSERT(r == UV_EINVAL);
 
-    /* Test for insufficient buffer size */
-    r = uv_get_process_title(buffer, 1);
-    ASSERT(r == UV_ENOBUFS);
+  /* Test for insufficient buffer size */
+  r = uv_get_process_title(buffer, 1);
+  ASSERT(r == UV_ENOBUFS);
 }
 
-
 TEST_IMPL(process_title) {
-#if defined(__sun) || defined(__CYGWIN__) || defined(__MSYS__) || \
+#if defined(__sun) || defined(__CYGWIN__) || defined(__MSYS__) ||              \
     defined(__PASE__)
-    RETURN_SKIP("uv_(get|set)_process_title is not implemented.");
+  RETURN_SKIP("uv_(get|set)_process_title is not implemented.");
 #endif
 
-    /* Check for format string vulnerabilities. */
-    set_title("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s");
-    set_title("new title");
+  /* Check for format string vulnerabilities. */
+  set_title("%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s");
+  set_title("new title");
 
-    /* Check uv_get_process_title() edge cases */
-    uv_get_process_title_edge_cases();
+  /* Check uv_get_process_title() edge cases */
+  uv_get_process_title_edge_cases();
 
-    return 0;
+  return 0;
 }
