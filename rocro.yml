@@ -1,62 +1,68 @@
 inspecode:
 
-  astyle:
-    auto-fix: true
-    thresholds: { num-issues: 300 }
+  global:
 
-  clang-format:
-    auto-fix: true
-    thresholds: { num-issues: 333 }
+  tools:
 
-  cpd:
-    thresholds: { num-issues: 78 }
+    astyle:
+      auto-fix: true
+      thresholds: { num-issues: 300 }
 
-  cppcheck:
-    thresholds: { num-issues: 7 }
+    clang-format:
+      auto-fix: true
+      thresholds: { num-issues: 333 }
 
-  cpplint:
-    options:
-      --filter:
-        - -readability/casting    # 1635
-        - -whitespace/parens      # 1000
-        - -build/include_order    #  629
-        - -build/include_subdir   #  591
-      --linelength: 100
-    thresholds: { num-issues: 742 }
+    # coverity:
 
-  #### not supported yet. (codelift#1883)
-  #fortify:
-  #  thresholds: { num-issues: 999 }
+    cpd:
+      thresholds: { num-issues: 78 }
 
-  fossology:
-    thresholds: { num-issues: 22 }
+    cppcheck:
+      thresholds: { num-issues: 7 }
 
-  grep:
-    thresholds: { num-issues: 54 }
+    cpplint:
+      options:
+        --filter:
+          - -readability/casting    # 1635
+          - -whitespace/parens      # 1000
+          - -build/include_order    #  629
+          - -build/include_subdir   #  591
+        --linelength: 100
+      thresholds: { num-issues: 742 }
 
-  infer:
-    thresholds: { num-issues: 124 }
+    #### not supported yet. (codelift#1883)
+    #fortify:
+    #  thresholds: { num-issues: 999 }
 
-  jscpd:
-    thresholds: { num-issues: 134 }
+    fossology:
+      thresholds: { num-issues: 22 }
 
-  misspell:
-    auto-fix: true
-    thresholds: { num-issues: 8 }
+    grep:
+      thresholds: { num-issues: 54 }
 
-  scan-build:
-    thresholds: { num-issues: 11 }
+    infer:
+      thresholds: { num-issues: 124 }
 
-  uncrustify:
-    auto-fix: true
-    thresholds: { num-issues: 331 }
-      # 331 issues on SaaS/staging (uncrustify 0.70.1)
-      # 331 issues on SaaS/prod    (uncrustify 0.70.1)
-      # 332 issues on Enterprise   (uncrustify 0.68.1)
+    jscpd:
+      thresholds: { num-issues: 134 }
 
-  #### not supported yet. (codelift#1884)
-  #understand:
-  #  thresholds: { num-issues: 999 }
+    misspell:
+      auto-fix: true
+      thresholds: { num-issues: 8 }
 
-  unused:
-    thresholds: { num-issues: 448 }
+    scan-build:
+      thresholds: { num-issues: 11 }
+
+    uncrustify:
+      auto-fix: true
+      thresholds: { num-issues: 331 }
+        # 331 issues on SaaS/staging (uncrustify 0.70.1)
+        # 331 issues on SaaS/prod    (uncrustify 0.70.1)
+        # 332 issues on Enterprise   (uncrustify 0.68.1)
+
+    #### not supported yet. (codelift#1884)
+    #understand:
+    #  thresholds: { num-issues: 999 }
+
+    unused:
+      thresholds: { num-issues: 448 }
