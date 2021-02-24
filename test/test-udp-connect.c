@@ -19,15 +19,15 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define CHECK_HANDLE(handle) \
-  ASSERT((uv_udp_t*)(handle) == &server || (uv_udp_t*)(handle) == &client)
+#define CHECK_HANDLE(handle)                                                   \
+  ASSERT((uv_udp_t *)(handle) == &server || (uv_udp_t *)(handle) == &client)
 
 static uv_udp_t server;
 static uv_udp_t client;
@@ -39,144 +39,125 @@ static int sv_recv_cb_called;
 
 static int close_cb_called;
 
-
-static void alloc_cb(uv_handle_t* handle,
-                     size_t suggested_size,
-                     uv_buf_t* buf) {
-    static char slab[65536];
-    CHECK_HANDLE(handle);
-    ASSERT(suggested_size <= sizeof(slab));
-    buf->base = slab;
-    buf->len = sizeof(slab);
+static void alloc_cb(uv_handle_t *handle, size_t suggested_size,
+                     uv_buf_t *buf) {
+  static char slab[65536];
+  CHECK_HANDLE(handle);
+  ASSERT(suggested_size <= sizeof(slab));
+  buf->base = slab;
+  buf->len = sizeof(slab);
 }
 
-
-static void close_cb(uv_handle_t* handle) {
-    CHECK_HANDLE(handle);
-    ASSERT(uv_is_closing(handle));
-    close_cb_called++;
+static void close_cb(uv_handle_t *handle) {
+  CHECK_HANDLE(handle);
+  ASSERT(uv_is_closing(handle));
+  close_cb_called++;
 }
 
+static void cl_send_cb(uv_udp_send_t *req, int status) {
+  int r;
 
-static void cl_send_cb(uv_udp_send_t* req, int status) {
-    int r;
+  ASSERT(req != NULL);
+  ASSERT(status == 0);
+  CHECK_HANDLE(req->handle);
+  if (++cl_send_cb_called == 1) {
+    uv_udp_connect(&client, NULL);
+    r = uv_udp_send(req, &client, &buf, 1, NULL, cl_send_cb);
+    ASSERT(r == UV_EDESTADDRREQ);
+    r = uv_udp_send(req, &client, &buf, 1, (const struct sockaddr *)&lo_addr,
+                    cl_send_cb);
+    ASSERT(r == 0);
+  }
+}
 
-    ASSERT(req != NULL);
-    ASSERT(status == 0);
-    CHECK_HANDLE(req->handle);
-    if (++cl_send_cb_called == 1) {
-        uv_udp_connect(&client, NULL);
-        r = uv_udp_send(req, &client, &buf, 1, NULL, cl_send_cb);
-        ASSERT(r == UV_EDESTADDRREQ);
-        r = uv_udp_send(req,
-                        &client,
-                        &buf,
-                        1,
-                        (const struct sockaddr*) &lo_addr,
-                        cl_send_cb);
-        ASSERT(r == 0);
+static void sv_recv_cb(uv_udp_t *handle, ssize_t nread, const uv_buf_t *rcvbuf,
+                       const struct sockaddr *addr, unsigned flags) {
+  if (nread > 0) {
+    ASSERT(nread == 4);
+    ASSERT(addr != NULL);
+    ASSERT(memcmp("EXIT", rcvbuf->base, nread) == 0);
+    if (++sv_recv_cb_called == 4) {
+      uv_close((uv_handle_t *)&server, close_cb);
+      uv_close((uv_handle_t *)&client, close_cb);
     }
-
+  }
 }
-
-
-static void sv_recv_cb(uv_udp_t* handle,
-                       ssize_t nread,
-                       const uv_buf_t* rcvbuf,
-                       const struct sockaddr* addr,
-                       unsigned flags) {
-    if (nread > 0) {
-        ASSERT(nread == 4);
-        ASSERT(addr != NULL);
-        ASSERT(memcmp("EXIT", rcvbuf->base, nread) == 0);
-        if (++sv_recv_cb_called == 4) {
-            uv_close((uv_handle_t*) &server, close_cb);
-            uv_close((uv_handle_t*) &client, close_cb);
-        }
-    }
-}
-
 
 TEST_IMPL(udp_connect) {
-    uv_udp_send_t req;
-    struct sockaddr_in ext_addr;
-    struct sockaddr_in tmp_addr;
-    int r;
-    int addrlen;
+  uv_udp_send_t req;
+  struct sockaddr_in ext_addr;
+  struct sockaddr_in tmp_addr;
+  int r;
+  int addrlen;
 
-    ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &lo_addr));
+  ASSERT(0 == uv_ip4_addr("0.0.0.0", TEST_PORT, &lo_addr));
 
-    r = uv_udp_init(uv_default_loop(), &server);
-    ASSERT(r == 0);
+  r = uv_udp_init(uv_default_loop(), &server);
+  ASSERT(r == 0);
 
-    r = uv_udp_bind(&server, (const struct sockaddr*) &lo_addr, 0);
-    ASSERT(r == 0);
+  r = uv_udp_bind(&server, (const struct sockaddr *)&lo_addr, 0);
+  ASSERT(r == 0);
 
-    r = uv_udp_recv_start(&server, alloc_cb, sv_recv_cb);
-    ASSERT(r == 0);
+  r = uv_udp_recv_start(&server, alloc_cb, sv_recv_cb);
+  ASSERT(r == 0);
 
-    r = uv_udp_init(uv_default_loop(), &client);
-    ASSERT(r == 0);
+  r = uv_udp_init(uv_default_loop(), &client);
+  ASSERT(r == 0);
 
-    buf = uv_buf_init("EXIT", 4);
+  buf = uv_buf_init("EXIT", 4);
 
-    ASSERT(0 == uv_ip4_addr("8.8.8.8", TEST_PORT, &ext_addr));
-    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &lo_addr));
+  ASSERT(0 == uv_ip4_addr("8.8.8.8", TEST_PORT, &ext_addr));
+  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &lo_addr));
 
-    r = uv_udp_connect(&client, (const struct sockaddr*) &lo_addr);
-    ASSERT(r == 0);
-    r = uv_udp_connect(&client, (const struct sockaddr*) &ext_addr);
-    ASSERT(r == UV_EISCONN);
+  r = uv_udp_connect(&client, (const struct sockaddr *)&lo_addr);
+  ASSERT(r == 0);
+  r = uv_udp_connect(&client, (const struct sockaddr *)&ext_addr);
+  ASSERT(r == UV_EISCONN);
 
-    addrlen = sizeof(tmp_addr);
-    r = uv_udp_getpeername(&client, (struct sockaddr*) &tmp_addr, &addrlen);
-    ASSERT(r == 0);
+  addrlen = sizeof(tmp_addr);
+  r = uv_udp_getpeername(&client, (struct sockaddr *)&tmp_addr, &addrlen);
+  ASSERT(r == 0);
 
-    /* To send messages in connected UDP sockets addr must be NULL */
-    r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr*) &lo_addr);
-    ASSERT(r == UV_EISCONN);
-    r = uv_udp_try_send(&client, &buf, 1, NULL);
-    ASSERT(r == 4);
-    r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr*) &ext_addr);
-    ASSERT(r == UV_EISCONN);
+  /* To send messages in connected UDP sockets addr must be NULL */
+  r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr *)&lo_addr);
+  ASSERT(r == UV_EISCONN);
+  r = uv_udp_try_send(&client, &buf, 1, NULL);
+  ASSERT(r == 4);
+  r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr *)&ext_addr);
+  ASSERT(r == UV_EISCONN);
 
-    r = uv_udp_connect(&client, NULL);
-    ASSERT(r == 0);
-    r = uv_udp_connect(&client, NULL);
-    ASSERT(r == UV_ENOTCONN);
+  r = uv_udp_connect(&client, NULL);
+  ASSERT(r == 0);
+  r = uv_udp_connect(&client, NULL);
+  ASSERT(r == UV_ENOTCONN);
 
-    addrlen = sizeof(tmp_addr);
-    r = uv_udp_getpeername(&client, (struct sockaddr*) &tmp_addr, &addrlen);
-    ASSERT(r == UV_ENOTCONN);
+  addrlen = sizeof(tmp_addr);
+  r = uv_udp_getpeername(&client, (struct sockaddr *)&tmp_addr, &addrlen);
+  ASSERT(r == UV_ENOTCONN);
 
-    /* To send messages in disconnected UDP sockets addr must be set */
-    r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr*) &lo_addr);
-    ASSERT(r == 4);
-    r = uv_udp_try_send(&client, &buf, 1, NULL);
-    ASSERT(r == UV_EDESTADDRREQ);
+  /* To send messages in disconnected UDP sockets addr must be set */
+  r = uv_udp_try_send(&client, &buf, 1, (const struct sockaddr *)&lo_addr);
+  ASSERT(r == 4);
+  r = uv_udp_try_send(&client, &buf, 1, NULL);
+  ASSERT(r == UV_EDESTADDRREQ);
 
+  r = uv_udp_connect(&client, (const struct sockaddr *)&lo_addr);
+  ASSERT(r == 0);
+  r = uv_udp_send(&req, &client, &buf, 1, (const struct sockaddr *)&lo_addr,
+                  cl_send_cb);
+  ASSERT(r == UV_EISCONN);
+  r = uv_udp_send(&req, &client, &buf, 1, NULL, cl_send_cb);
+  ASSERT(r == 0);
 
-    r = uv_udp_connect(&client, (const struct sockaddr*) &lo_addr);
-    ASSERT(r == 0);
-    r = uv_udp_send(&req,
-                    &client,
-                    &buf,
-                    1,
-                    (const struct sockaddr*) &lo_addr,
-                    cl_send_cb);
-    ASSERT(r == UV_EISCONN);
-    r = uv_udp_send(&req, &client, &buf, 1, NULL, cl_send_cb);
-    ASSERT(r == 0);
+  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  ASSERT(close_cb_called == 2);
+  ASSERT(sv_recv_cb_called == 4);
+  ASSERT(cl_send_cb_called == 2);
 
-    ASSERT(close_cb_called == 2);
-    ASSERT(sv_recv_cb_called == 4);
-    ASSERT(cl_send_cb_called == 2);
+  ASSERT(client.send_queue_size == 0);
+  ASSERT(server.send_queue_size == 0);
 
-    ASSERT(client.send_queue_size == 0);
-    ASSERT(server.send_queue_size == 0);
-
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

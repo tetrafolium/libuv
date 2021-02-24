@@ -13,35 +13,35 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
 #include <stdint.h>
 
 TEST_IMPL(buf_large) {
-    uv_buf_t buf;
+  uv_buf_t buf;
 
-    buf = uv_buf_init(NULL, SIZE_MAX);
-    ASSERT(buf.len == SIZE_MAX);
+  buf = uv_buf_init(NULL, SIZE_MAX);
+  ASSERT(buf.len == SIZE_MAX);
 #ifdef _WIN32
-    WSABUF* wbuf;
+  WSABUF *wbuf;
 
-    wbuf = (WSABUF*) &buf;
-    ASSERT(wbuf->len == buf.len);
+  wbuf = (WSABUF *)&buf;
+  ASSERT(wbuf->len == buf.len);
 #else
-    struct iovec* iobuf;
+  struct iovec *iobuf;
 
-    iobuf = (struct iovec*) &buf;
-    ASSERT(iobuf->iov_len == buf.len);
+  iobuf = (struct iovec *)&buf;
+  ASSERT(iobuf->iov_len == buf.len);
 
-    /* Verify that uv_buf_t is ABI-compatible with struct iovec. */
-    ASSERT(sizeof(uv_buf_t) == sizeof(struct iovec));
-    ASSERT(sizeof(&((uv_buf_t*) 0)->base) ==
-           sizeof(((struct iovec*) 0)->iov_base));
-    ASSERT(sizeof(&((uv_buf_t*) 0)->len) == sizeof(((struct iovec*) 0)->iov_len));
-    ASSERT(offsetof(uv_buf_t, base) == offsetof(struct iovec, iov_base));
-    ASSERT(offsetof(uv_buf_t, len) == offsetof(struct iovec, iov_len));
+  /* Verify that uv_buf_t is ABI-compatible with struct iovec. */
+  ASSERT(sizeof(uv_buf_t) == sizeof(struct iovec));
+  ASSERT(sizeof(&((uv_buf_t *)0)->base) ==
+         sizeof(((struct iovec *)0)->iov_base));
+  ASSERT(sizeof(&((uv_buf_t *)0)->len) == sizeof(((struct iovec *)0)->iov_len));
+  ASSERT(offsetof(uv_buf_t, base) == offsetof(struct iovec, iov_base));
+  ASSERT(offsetof(uv_buf_t, len) == offsetof(struct iovec, iov_len));
 #endif
 
-    return 0;
+  return 0;
 }

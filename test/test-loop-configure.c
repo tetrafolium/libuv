@@ -13,26 +13,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 
-static void timer_cb(uv_timer_t* handle) {
-    uv_close((uv_handle_t*) handle, NULL);
+static void timer_cb(uv_timer_t *handle) {
+  uv_close((uv_handle_t *)handle, NULL);
 }
 
-
 TEST_IMPL(loop_configure) {
-    uv_timer_t timer_handle;
-    uv_loop_t loop;
-    ASSERT(0 == uv_loop_init(&loop));
+  uv_timer_t timer_handle;
+  uv_loop_t loop;
+  ASSERT(0 == uv_loop_init(&loop));
 #ifdef _WIN32
-    ASSERT(UV_ENOSYS == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, 0));
+  ASSERT(UV_ENOSYS == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, 0));
 #else
-    ASSERT(0 == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF));
+  ASSERT(0 == uv_loop_configure(&loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF));
 #endif
-    ASSERT(0 == uv_timer_init(&loop, &timer_handle));
-    ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 10, 0));
-    ASSERT(0 == uv_run(&loop, UV_RUN_DEFAULT));
-    ASSERT(0 == uv_loop_close(&loop));
-    return 0;
+  ASSERT(0 == uv_timer_init(&loop, &timer_handle));
+  ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 10, 0));
+  ASSERT(0 == uv_run(&loop, UV_RUN_DEFAULT));
+  ASSERT(0 == uv_loop_close(&loop));
+  return 0;
 }

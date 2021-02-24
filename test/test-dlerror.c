@@ -19,43 +19,42 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 #include <string.h>
 
-
 TEST_IMPL(dlerror) {
-    const char* path = "test/fixtures/load_error.node";
-    const char* dlerror_no_error = "no error";
-    const char* msg;
-    uv_lib_t lib;
-    int r;
+  const char *path = "test/fixtures/load_error.node";
+  const char *dlerror_no_error = "no error";
+  const char *msg;
+  uv_lib_t lib;
+  int r;
 
-    lib.errmsg = NULL;
-    lib.handle = NULL;
-    msg = uv_dlerror(&lib);
-    ASSERT(msg != NULL);
-    ASSERT(strstr(msg, dlerror_no_error) != NULL);
+  lib.errmsg = NULL;
+  lib.handle = NULL;
+  msg = uv_dlerror(&lib);
+  ASSERT(msg != NULL);
+  ASSERT(strstr(msg, dlerror_no_error) != NULL);
 
-    r = uv_dlopen(path, &lib);
-    ASSERT(r == -1);
+  r = uv_dlopen(path, &lib);
+  ASSERT(r == -1);
 
-    msg = uv_dlerror(&lib);
-    ASSERT(msg != NULL);
+  msg = uv_dlerror(&lib);
+  ASSERT(msg != NULL);
 #ifndef __OpenBSD__
-    ASSERT(strstr(msg, path) != NULL);
+  ASSERT(strstr(msg, path) != NULL);
 #endif
-    ASSERT(strstr(msg, dlerror_no_error) == NULL);
+  ASSERT(strstr(msg, dlerror_no_error) == NULL);
 
-    /* Should return the same error twice in a row. */
-    msg = uv_dlerror(&lib);
-    ASSERT(msg != NULL);
+  /* Should return the same error twice in a row. */
+  msg = uv_dlerror(&lib);
+  ASSERT(msg != NULL);
 #ifndef __OpenBSD__
-    ASSERT(strstr(msg, path) != NULL);
+  ASSERT(strstr(msg, path) != NULL);
 #endif
-    ASSERT(strstr(msg, dlerror_no_error) == NULL);
+  ASSERT(strstr(msg, dlerror_no_error) == NULL);
 
-    uv_dlclose(&lib);
+  uv_dlclose(&lib);
 
-    return 0;
+  return 0;
 }

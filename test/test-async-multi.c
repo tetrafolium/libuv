@@ -19,8 +19,8 @@
  * IN THE SOFTWARE.
  */
 
-#include "uv.h"
 #include "task.h"
+#include "uv.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -31,56 +31,47 @@ static uv_prepare_t prepare;
 static int async_cb_called;
 static int close_cb_called;
 
+void close_cb(uv_handle_t *handle) { close_cb_called++; }
 
-void close_cb(uv_handle_t* handle) {
-    close_cb_called++;
+void connect_cb(uv_connect_t *req, int status) {
+  ASSERT(status == UV_ENOENT);
+  uv_close((uv_handle_t *)req->handle, close_cb);
 }
 
-
-void connect_cb(uv_connect_t* req, int status) {
-    ASSERT(status == UV_ENOENT);
-    uv_close((uv_handle_t*) req->handle, close_cb);
+void async_cb(uv_async_t *handle) {
+  async_cb_called++;
+  uv_close((uv_handle_t *)handle, close_cb);
 }
 
-
-void async_cb(uv_async_t* handle) {
-    async_cb_called++;
-    uv_close((uv_handle_t*) handle, close_cb);
+void prepare_cb(uv_prepare_t *handle) {
+  uv_pipe_connect(&connect_req, &pipe_dummy, "nonexistent_file_path",
+                  connect_cb);
+  uv_close((uv_handle_t *)handle, close_cb);
 }
-
-
-void prepare_cb(uv_prepare_t* handle) {
-    uv_pipe_connect(&connect_req,
-                    &pipe_dummy,
-                    "nonexistent_file_path",
-                    connect_cb);
-    uv_close((uv_handle_t*) handle, close_cb);
-}
-
 
 TEST_IMPL(async_multi) {
-    uv_loop_t* loop;
-    uv_async_t async1;
-    uv_async_t async2;
+  uv_loop_t *loop;
+  uv_async_t async1;
+  uv_async_t async2;
 
-    loop = uv_default_loop();
+  loop = uv_default_loop();
 
-    ASSERT(0 == uv_async_init(loop, &async1, async_cb));
-    ASSERT(0 == uv_async_init(loop, &async2, async_cb));
+  ASSERT(0 == uv_async_init(loop, &async1, async_cb));
+  ASSERT(0 == uv_async_init(loop, &async2, async_cb));
 
-    /* Create a pending notification */
-    ASSERT(0 == uv_pipe_init(loop, &pipe_dummy, 0));
-    ASSERT(0 == uv_prepare_init(loop, &prepare));
-    ASSERT(0 == uv_prepare_start(&prepare, prepare_cb));
+  /* Create a pending notification */
+  ASSERT(0 == uv_pipe_init(loop, &pipe_dummy, 0));
+  ASSERT(0 == uv_prepare_init(loop, &prepare));
+  ASSERT(0 == uv_prepare_start(&prepare, prepare_cb));
 
-    ASSERT(0 == uv_async_send(&async1));
-    ASSERT(0 == uv_async_send(&async2));
+  ASSERT(0 == uv_async_send(&async1));
+  ASSERT(0 == uv_async_send(&async2));
 
-    uv_run(loop, UV_RUN_DEFAULT);
+  uv_run(loop, UV_RUN_DEFAULT);
 
-    ASSERT(async_cb_called == 2);
-    ASSERT(close_cb_called == 4);
+  ASSERT(async_cb_called == 2);
+  ASSERT(close_cb_called == 4);
 
-    MAKE_VALGRIND_HAPPY();
-    return 0;
+  MAKE_VALGRIND_HAPPY();
+  return 0;
 }

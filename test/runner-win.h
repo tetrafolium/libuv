@@ -19,20 +19,18 @@
  * IN THE SOFTWARE.
  */
 
-
 /* Don't complain about write(), fileno() etc. being deprecated. */
 #ifdef _MSC_VER
 #pragma warning(disable : 4996)
 #endif
 
-#include <winsock2.h>
-#include <windows.h>
 #include <stdio.h>
-
+#include <windows.h>
+#include <winsock2.h>
 
 typedef struct {
-    HANDLE process;
-    HANDLE stdio_in;
-    HANDLE stdio_out;
-    char *name;
+  HANDLE process;
+  HANDLE stdio_in;
+  HANDLE stdio_out;
+  char *name;
 } process_info_t;
