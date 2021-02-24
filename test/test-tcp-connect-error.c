@@ -28,38 +28,38 @@ static int connect_cb_called = 0;
 static int close_cb_called = 0;
 
 static void connect_cb(uv_connect_t *handle, int status) {
-  ASSERT(handle != NULL);
-  connect_cb_called++;
+	ASSERT(handle != NULL);
+	connect_cb_called++;
 }
 
 static void close_cb(uv_handle_t *handle) {
-  ASSERT(handle != NULL);
-  close_cb_called++;
+	ASSERT(handle != NULL);
+	close_cb_called++;
 }
 
 TEST_IMPL(tcp_connect_error_fault) {
-  const char garbage[] =
-      "blah blah blah blah blah blah blah blah blah blah blah blah";
-  const struct sockaddr_in *garbage_addr;
-  uv_tcp_t server;
-  int r;
-  uv_connect_t req;
+	const char garbage[] =
+		"blah blah blah blah blah blah blah blah blah blah blah blah";
+	const struct sockaddr_in *garbage_addr;
+	uv_tcp_t server;
+	int r;
+	uv_connect_t req;
 
-  garbage_addr = (const struct sockaddr_in *)&garbage;
+	garbage_addr = (const struct sockaddr_in *)&garbage;
 
-  r = uv_tcp_init(uv_default_loop(), &server);
-  ASSERT(r == 0);
-  r = uv_tcp_connect(&req, &server, (const struct sockaddr *)garbage_addr,
-                     connect_cb);
-  ASSERT(r == UV_EINVAL);
+	r = uv_tcp_init(uv_default_loop(), &server);
+	ASSERT(r == 0);
+	r = uv_tcp_connect(&req, &server, (const struct sockaddr *)garbage_addr,
+	                   connect_cb);
+	ASSERT(r == UV_EINVAL);
 
-  uv_close((uv_handle_t *)&server, close_cb);
+	uv_close((uv_handle_t *)&server, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(connect_cb_called == 0);
-  ASSERT(close_cb_called == 1);
+	ASSERT(connect_cb_called == 0);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

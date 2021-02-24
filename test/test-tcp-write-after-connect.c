@@ -31,30 +31,30 @@ uv_write_t write_request;
 uv_buf_t buf = {"HELLO", 4};
 
 static void write_cb(uv_write_t *req, int status) {
-  ASSERT(status == UV_ECANCELED);
-  uv_close((uv_handle_t *)req->handle, NULL);
+	ASSERT(status == UV_ECANCELED);
+	uv_close((uv_handle_t *)req->handle, NULL);
 }
 
 static void connect_cb(uv_connect_t *req, int status) {
-  ASSERT(status == UV_ECONNREFUSED);
+	ASSERT(status == UV_ECONNREFUSED);
 }
 
 TEST_IMPL(tcp_write_after_connect) {
-  struct sockaddr_in sa;
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &sa));
-  ASSERT(0 == uv_loop_init(&loop));
-  ASSERT(0 == uv_tcp_init(&loop, &tcp_client));
+	struct sockaddr_in sa;
+	ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &sa));
+	ASSERT(0 == uv_loop_init(&loop));
+	ASSERT(0 == uv_tcp_init(&loop, &tcp_client));
 
-  ASSERT(0 == uv_tcp_connect(&connection_request, &tcp_client,
-                             (const struct sockaddr *)&sa, connect_cb));
+	ASSERT(0 == uv_tcp_connect(&connection_request, &tcp_client,
+	                           (const struct sockaddr *)&sa, connect_cb));
 
-  ASSERT(0 == uv_write(&write_request, (uv_stream_t *)&tcp_client, &buf, 1,
-                       write_cb));
+	ASSERT(0 == uv_write(&write_request, (uv_stream_t *)&tcp_client, &buf, 1,
+	                     write_cb));
 
-  uv_run(&loop, UV_RUN_DEFAULT);
+	uv_run(&loop, UV_RUN_DEFAULT);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 #else

@@ -33,93 +33,93 @@
 #define FD_DIFF 9
 
 void assert_nonexistent(uv_os_fd_t fd) {
-  struct uv__fd_info_s info = {0};
-  ASSERT(!uv__fd_hash_get(fd, &info));
-  ASSERT(!uv__fd_hash_remove(fd, &info));
+	struct uv__fd_info_s info = {0};
+	ASSERT(!uv__fd_hash_get(fd, &info));
+	ASSERT(!uv__fd_hash_remove(fd, &info));
 }
 
 void assert_existent(uv_os_fd_t fd) {
-  struct uv__fd_info_s info = {0};
-  ASSERT(uv__fd_hash_get(fd, &info));
-  ASSERT(info.flags == (intptr_t)fd + FD_DIFF);
+	struct uv__fd_info_s info = {0};
+	ASSERT(uv__fd_hash_get(fd, &info));
+	ASSERT(info.flags == (intptr_t)fd + FD_DIFF);
 }
 
 void assert_insertion(uv_os_fd_t fd) {
-  struct uv__fd_info_s info = {0};
-  assert_nonexistent(fd);
-  info.flags = (intptr_t)fd + FD_DIFF;
-  uv__fd_hash_add(fd, &info);
-  assert_existent(fd);
+	struct uv__fd_info_s info = {0};
+	assert_nonexistent(fd);
+	info.flags = (intptr_t)fd + FD_DIFF;
+	uv__fd_hash_add(fd, &info);
+	assert_existent(fd);
 }
 
 void assert_removal(uv_os_fd_t fd) {
-  struct uv__fd_info_s info = {0};
-  assert_existent(fd);
-  uv__fd_hash_remove(fd, &info);
-  ASSERT(info.flags == (intptr_t)fd + FD_DIFF);
-  assert_nonexistent(fd);
+	struct uv__fd_info_s info = {0};
+	assert_existent(fd);
+	uv__fd_hash_remove(fd, &info);
+	ASSERT(info.flags == (intptr_t)fd + FD_DIFF);
+	assert_nonexistent(fd);
 }
 
 /* Run a function for a set of values up to a very high number */
 #define RUN_HASH(function)                                                     \
-  do {                                                                         \
-    for (fd = 0; fd < HASH_MAX; fd += HASH_INC) {                              \
-      function((uv_os_fd_t)fd);                                                \
-    }                                                                          \
-  } while (0)
+	do {                                                                         \
+		for (fd = 0; fd < HASH_MAX; fd += HASH_INC) {                              \
+			function((uv_os_fd_t)fd);                                                \
+		}                                                                          \
+	} while (0)
 
 /* Run a function for a set of values that will cause many collisions */
 #define RUN_COLLISIONS(function)                                               \
-  do {                                                                         \
-    for (fd = 1; fd < BUCKET_MAX; fd += BUCKET_INC) {                          \
-      function((uv_os_fd_t)fd);                                                \
-    }                                                                          \
-  } while (0)
+	do {                                                                         \
+		for (fd = 1; fd < BUCKET_MAX; fd += BUCKET_INC) {                          \
+			function((uv_os_fd_t)fd);                                                \
+		}                                                                          \
+	} while (0)
 
 TEST_IMPL(fs_fd_hash) {
-  uintptr_t fd;
+	uintptr_t fd;
 
-  uv__fd_hash_init();
+	uv__fd_hash_init();
 
-  /* Empty table */
-  RUN_HASH(assert_nonexistent);
-  RUN_COLLISIONS(assert_nonexistent);
+	/* Empty table */
+	RUN_HASH(assert_nonexistent);
+	RUN_COLLISIONS(assert_nonexistent);
 
-  /* Fill up */
-  RUN_HASH(assert_insertion);
-  RUN_COLLISIONS(assert_insertion);
+	/* Fill up */
+	RUN_HASH(assert_insertion);
+	RUN_COLLISIONS(assert_insertion);
 
-  /* Full */
-  RUN_HASH(assert_existent);
-  RUN_COLLISIONS(assert_existent);
+	/* Full */
+	RUN_HASH(assert_existent);
+	RUN_COLLISIONS(assert_existent);
 
-  /* Update */
-  {
-    struct uv__fd_info_s info = {0};
-    info.flags = FD_DIFF + FD_DIFF;
-    uv__fd_hash_add(0, &info);
-  }
-  {
-    struct uv__fd_info_s info = {0};
-    ASSERT(uv__fd_hash_get((uv_os_fd_t)0, &info));
-    ASSERT(info.flags == FD_DIFF + FD_DIFF);
-  }
-  {
-    /* Leave as it was, will be again tested below */
-    struct uv__fd_info_s info = {0};
-    info.flags = FD_DIFF;
-    uv__fd_hash_add(0, &info);
-  }
+	/* Update */
+	{
+		struct uv__fd_info_s info = {0};
+		info.flags = FD_DIFF + FD_DIFF;
+		uv__fd_hash_add(0, &info);
+	}
+	{
+		struct uv__fd_info_s info = {0};
+		ASSERT(uv__fd_hash_get((uv_os_fd_t)0, &info));
+		ASSERT(info.flags == FD_DIFF + FD_DIFF);
+	}
+	{
+		/* Leave as it was, will be again tested below */
+		struct uv__fd_info_s info = {0};
+		info.flags = FD_DIFF;
+		uv__fd_hash_add(0, &info);
+	}
 
-  /* Remove all */
-  RUN_HASH(assert_removal);
-  RUN_COLLISIONS(assert_removal);
+	/* Remove all */
+	RUN_HASH(assert_removal);
+	RUN_COLLISIONS(assert_removal);
 
-  /* Empty table */
-  RUN_HASH(assert_nonexistent);
-  RUN_COLLISIONS(assert_nonexistent);
+	/* Empty table */
+	RUN_HASH(assert_nonexistent);
+	RUN_COLLISIONS(assert_nonexistent);
 
-  return 0;
+	return 0;
 }
 
 #else

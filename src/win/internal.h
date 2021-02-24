@@ -44,14 +44,14 @@ int uv__dup(uv_os_fd_t fd, uv_os_fd_t *dupfd);
  */
 
 typedef enum {
-  UV__IPC_SOCKET_XFER_NONE = 0,
-  UV__IPC_SOCKET_XFER_TCP_CONNECTION,
-  UV__IPC_SOCKET_XFER_TCP_SERVER
+	UV__IPC_SOCKET_XFER_NONE = 0,
+	UV__IPC_SOCKET_XFER_TCP_CONNECTION,
+	UV__IPC_SOCKET_XFER_TCP_SERVER
 } uv__ipc_socket_xfer_type_t;
 
 typedef struct {
-  WSAPROTOCOL_INFOW socket_info;
-  uint32_t delayed_error;
+	WSAPROTOCOL_INFOW socket_info;
+	uint32_t delayed_error;
 } uv__ipc_socket_xfer_info_t;
 
 int uv_tcp_listen(uv_tcp_t *handle, int backlog, uv_connection_cb cb);
@@ -231,7 +231,7 @@ int uv__getpwuid_r(uv_passwd_t *pwd);
 int uv__convert_utf16_to_utf8(const WCHAR *utf16, int utf16len, char **utf8);
 int uv__convert_utf8_to_utf16(const char *utf8, int utf8len, WCHAR **utf16);
 
-typedef int(WINAPI *uv__peersockfunc)(SOCKET, struct sockaddr *, int *);
+typedef int (WINAPI *uv__peersockfunc)(SOCKET, struct sockaddr *, int *);
 
 int uv__getsockpeername(const uv_handle_t *handle, uv__peersockfunc func,
                         struct sockaddr *name, int *namelen, int delayed_error);
@@ -269,10 +269,10 @@ uv_wsarecv_workaround(SOCKET socket, WSABUF *buffers, DWORD buffer_count,
                       DWORD *bytes, DWORD *flags, WSAOVERLAPPED *overlapped,
                       LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
 int WSAAPI uv_wsarecvfrom_workaround(
-    SOCKET socket, WSABUF *buffers, DWORD buffer_count, DWORD *bytes,
-    DWORD *flags, struct sockaddr *addr, int *addr_len,
-    WSAOVERLAPPED *overlapped,
-    LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
+	SOCKET socket, WSABUF *buffers, DWORD buffer_count, DWORD *bytes,
+	DWORD *flags, struct sockaddr *addr, int *addr_len,
+	WSAOVERLAPPED *overlapped,
+	LPWSAOVERLAPPED_COMPLETION_ROUTINE completion_routine);
 
 int WSAAPI uv_msafd_poll(SOCKET socket, AFD_POLL_INFO *info_in,
                          AFD_POLL_INFO *info_out, OVERLAPPED *overlapped);

@@ -24,65 +24,65 @@
 #include <string.h>
 
 TEST_IMPL(get_passwd) {
-  uv_passwd_t pwd;
-  size_t len;
-  int r;
+	uv_passwd_t pwd;
+	size_t len;
+	int r;
 
-  /* Test the normal case */
-  r = uv_os_get_passwd(&pwd);
-  ASSERT(r == 0);
-  len = strlen(pwd.username);
-  ASSERT(len > 0);
-
-#ifdef _WIN32
-  ASSERT(pwd.shell == NULL);
-#else
-  len = strlen(pwd.shell);
-  ASSERT(len > 0);
-#endif
-
-  len = strlen(pwd.homedir);
-  ASSERT(len > 0);
+	/* Test the normal case */
+	r = uv_os_get_passwd(&pwd);
+	ASSERT(r == 0);
+	len = strlen(pwd.username);
+	ASSERT(len > 0);
 
 #ifdef _WIN32
-  if (len == 3 && pwd.homedir[1] == ':')
-    ASSERT(pwd.homedir[2] == '\\');
-  else
-    ASSERT(pwd.homedir[len - 1] != '\\');
+	ASSERT(pwd.shell == NULL);
 #else
-  if (len == 1)
-    ASSERT(pwd.homedir[0] == '/');
-  else
-    ASSERT(pwd.homedir[len - 1] != '/');
+	len = strlen(pwd.shell);
+	ASSERT(len > 0);
+#endif
+
+	len = strlen(pwd.homedir);
+	ASSERT(len > 0);
+
+#ifdef _WIN32
+	if (len == 3 && pwd.homedir[1] == ':')
+		ASSERT(pwd.homedir[2] == '\\');
+	else
+		ASSERT(pwd.homedir[len - 1] != '\\');
+#else
+	if (len == 1)
+		ASSERT(pwd.homedir[0] == '/');
+	else
+		ASSERT(pwd.homedir[len - 1] != '/');
 #endif
 
 #ifdef _WIN32
-  ASSERT(pwd.uid == -1);
-  ASSERT(pwd.gid == -1);
+	ASSERT(pwd.uid == -1);
+	ASSERT(pwd.gid == -1);
 #else
-  ASSERT(pwd.uid >= 0);
-  ASSERT(pwd.gid >= 0);
+	ASSERT(pwd.uid >= 0);
+	ASSERT(pwd.gid >= 0);
 #endif
 
-  /* Test uv_os_free_passwd() */
-  uv_os_free_passwd(&pwd);
+	/* Test uv_os_free_passwd() */
+	uv_os_free_passwd(&pwd);
 
-  ASSERT(pwd.username == NULL);
-  ASSERT(pwd.shell == NULL);
-  ASSERT(pwd.homedir == NULL);
-  ASSERT(pwd.gecos == NULL);
+	ASSERT(pwd.username == NULL);
+	ASSERT(pwd.shell == NULL);
+	ASSERT(pwd.homedir == NULL);
+	ASSERT(pwd.gecos == NULL);
 
-  /* Test a double free */
-  uv_os_free_passwd(&pwd);
+	/* Test a double free */
+	uv_os_free_passwd(&pwd);
 
-  ASSERT(pwd.username == NULL);
-  ASSERT(pwd.shell == NULL);
-  ASSERT(pwd.homedir == NULL);
-  ASSERT(pwd.gecos == NULL);
+	ASSERT(pwd.username == NULL);
+	ASSERT(pwd.shell == NULL);
+	ASSERT(pwd.homedir == NULL);
+	ASSERT(pwd.gecos == NULL);
 
-  /* Test invalid input */
-  r = uv_os_get_passwd(NULL);
-  ASSERT(r == UV_EINVAL);
+	/* Test invalid input */
+	r = uv_os_get_passwd(NULL);
+	ASSERT(r == UV_EINVAL);
 
-  return 0;
+	return 0;
 }

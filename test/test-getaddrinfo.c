@@ -37,120 +37,120 @@ static int fail_cb_called;
 
 static void getaddrinfo_fail_cb(uv_getaddrinfo_t *req, int status,
                                 struct addrinfo *res) {
-  ASSERT(fail_cb_called == 0);
-  ASSERT(status < 0);
-  ASSERT(res == NULL);
-  uv_freeaddrinfo(res); /* Should not crash. */
-  fail_cb_called++;
+	ASSERT(fail_cb_called == 0);
+	ASSERT(status < 0);
+	ASSERT(res == NULL);
+	uv_freeaddrinfo(res); /* Should not crash. */
+	fail_cb_called++;
 }
 
 static void getaddrinfo_basic_cb(uv_getaddrinfo_t *handle, int status,
                                  struct addrinfo *res) {
-  ASSERT(handle == getaddrinfo_handle);
-  getaddrinfo_cbs++;
-  free(handle);
-  uv_freeaddrinfo(res);
+	ASSERT(handle == getaddrinfo_handle);
+	getaddrinfo_cbs++;
+	free(handle);
+	uv_freeaddrinfo(res);
 }
 
 static void getaddrinfo_cuncurrent_cb(uv_getaddrinfo_t *handle, int status,
                                       struct addrinfo *res) {
-  int i;
-  int *data = (int *)handle->data;
+	int i;
+	int *data = (int *)handle->data;
 
-  for (i = 0; i < CONCURRENT_COUNT; i++) {
-    if (&getaddrinfo_handles[i] == handle) {
-      ASSERT(i == *data);
+	for (i = 0; i < CONCURRENT_COUNT; i++) {
+		if (&getaddrinfo_handles[i] == handle) {
+			ASSERT(i == *data);
 
-      callback_counts[i]++;
-      break;
-    }
-  }
-  ASSERT(i < CONCURRENT_COUNT);
+			callback_counts[i]++;
+			break;
+		}
+	}
+	ASSERT(i < CONCURRENT_COUNT);
 
-  free(data);
-  uv_freeaddrinfo(res);
+	free(data);
+	uv_freeaddrinfo(res);
 
-  getaddrinfo_cbs++;
+	getaddrinfo_cbs++;
 }
 
 TEST_IMPL(getaddrinfo_fail) {
-  uv_getaddrinfo_t req;
+	uv_getaddrinfo_t req;
 
-  ASSERT(UV_EINVAL == uv_getaddrinfo(uv_default_loop(), &req,
-                                     (uv_getaddrinfo_cb)abort, NULL, NULL,
-                                     NULL));
+	ASSERT(UV_EINVAL == uv_getaddrinfo(uv_default_loop(), &req,
+	                                   (uv_getaddrinfo_cb)abort, NULL, NULL,
+	                                   NULL));
 
-  /* Use a FQDN by ending in a period */
-  ASSERT(0 == uv_getaddrinfo(uv_default_loop(), &req, getaddrinfo_fail_cb,
-                             "xyzzy.xyzzy.xyzzy.", NULL, NULL));
-  ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
-  ASSERT(fail_cb_called == 1);
+	/* Use a FQDN by ending in a period */
+	ASSERT(0 == uv_getaddrinfo(uv_default_loop(), &req, getaddrinfo_fail_cb,
+	                           "xyzzy.xyzzy.xyzzy.", NULL, NULL));
+	ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
+	ASSERT(fail_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(getaddrinfo_fail_sync) {
-  uv_getaddrinfo_t req;
+	uv_getaddrinfo_t req;
 
-  /* Use a FQDN by ending in a period */
-  ASSERT(0 > uv_getaddrinfo(uv_default_loop(), &req, NULL, "xyzzy.xyzzy.xyzzy.",
-                            NULL, NULL));
-  uv_freeaddrinfo(req.addrinfo);
+	/* Use a FQDN by ending in a period */
+	ASSERT(0 > uv_getaddrinfo(uv_default_loop(), &req, NULL, "xyzzy.xyzzy.xyzzy.",
+	                          NULL, NULL));
+	uv_freeaddrinfo(req.addrinfo);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(getaddrinfo_basic) {
-  int r;
-  getaddrinfo_handle = (uv_getaddrinfo_t *)malloc(sizeof(uv_getaddrinfo_t));
+	int r;
+	getaddrinfo_handle = (uv_getaddrinfo_t *)malloc(sizeof(uv_getaddrinfo_t));
 
-  r = uv_getaddrinfo(uv_default_loop(), getaddrinfo_handle,
-                     &getaddrinfo_basic_cb, name, NULL, NULL);
-  ASSERT(r == 0);
+	r = uv_getaddrinfo(uv_default_loop(), getaddrinfo_handle,
+	                   &getaddrinfo_basic_cb, name, NULL, NULL);
+	ASSERT(r == 0);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(getaddrinfo_cbs == 1);
+	ASSERT(getaddrinfo_cbs == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(getaddrinfo_basic_sync) {
-  uv_getaddrinfo_t req;
+	uv_getaddrinfo_t req;
 
-  ASSERT(0 == uv_getaddrinfo(uv_default_loop(), &req, NULL, name, NULL, NULL));
-  uv_freeaddrinfo(req.addrinfo);
+	ASSERT(0 == uv_getaddrinfo(uv_default_loop(), &req, NULL, name, NULL, NULL));
+	uv_freeaddrinfo(req.addrinfo);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(getaddrinfo_concurrent) {
-  int i, r;
-  int *data;
+	int i, r;
+	int *data;
 
-  for (i = 0; i < CONCURRENT_COUNT; i++) {
-    callback_counts[i] = 0;
+	for (i = 0; i < CONCURRENT_COUNT; i++) {
+		callback_counts[i] = 0;
 
-    data = (int *)malloc(sizeof(int));
-    ASSERT(data != NULL);
-    *data = i;
-    getaddrinfo_handles[i].data = data;
+		data = (int *)malloc(sizeof(int));
+		ASSERT(data != NULL);
+		*data = i;
+		getaddrinfo_handles[i].data = data;
 
-    r = uv_getaddrinfo(uv_default_loop(), &getaddrinfo_handles[i],
-                       &getaddrinfo_cuncurrent_cb, name, NULL, NULL);
-    ASSERT(r == 0);
-  }
+		r = uv_getaddrinfo(uv_default_loop(), &getaddrinfo_handles[i],
+		                   &getaddrinfo_cuncurrent_cb, name, NULL, NULL);
+		ASSERT(r == 0);
+	}
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  for (i = 0; i < CONCURRENT_COUNT; i++) {
-    ASSERT(callback_counts[i] == 1);
-  }
+	for (i = 0; i < CONCURRENT_COUNT; i++) {
+		ASSERT(callback_counts[i] == 1);
+	}
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

@@ -27,46 +27,46 @@
 #define SMALLPATH 1
 
 TEST_IMPL(homedir) {
-  char homedir[PATHMAX];
-  size_t len;
-  int r;
+	char homedir[PATHMAX];
+	size_t len;
+	int r;
 
-  /* Test the normal case */
-  len = sizeof homedir;
-  homedir[0] = '\0';
-  ASSERT(strlen(homedir) == 0);
-  r = uv_os_homedir(homedir, &len);
-  ASSERT(r == 0);
-  ASSERT(strlen(homedir) == len);
-  ASSERT(len > 0);
-  ASSERT(homedir[len] == '\0');
+	/* Test the normal case */
+	len = sizeof homedir;
+	homedir[0] = '\0';
+	ASSERT(strlen(homedir) == 0);
+	r = uv_os_homedir(homedir, &len);
+	ASSERT(r == 0);
+	ASSERT(strlen(homedir) == len);
+	ASSERT(len > 0);
+	ASSERT(homedir[len] == '\0');
 
 #ifdef _WIN32
-  if (len == 3 && homedir[1] == ':')
-    ASSERT(homedir[2] == '\\');
-  else
-    ASSERT(homedir[len - 1] != '\\');
+	if (len == 3 && homedir[1] == ':')
+		ASSERT(homedir[2] == '\\');
+	else
+		ASSERT(homedir[len - 1] != '\\');
 #else
-  if (len == 1)
-    ASSERT(homedir[0] == '/');
-  else
-    ASSERT(homedir[len - 1] != '/');
+	if (len == 1)
+		ASSERT(homedir[0] == '/');
+	else
+		ASSERT(homedir[len - 1] != '/');
 #endif
 
-  /* Test the case where the buffer is too small */
-  len = SMALLPATH;
-  r = uv_os_homedir(homedir, &len);
-  ASSERT(r == UV_ENOBUFS);
-  ASSERT(len > SMALLPATH);
+	/* Test the case where the buffer is too small */
+	len = SMALLPATH;
+	r = uv_os_homedir(homedir, &len);
+	ASSERT(r == UV_ENOBUFS);
+	ASSERT(len > SMALLPATH);
 
-  /* Test invalid inputs */
-  r = uv_os_homedir(NULL, &len);
-  ASSERT(r == UV_EINVAL);
-  r = uv_os_homedir(homedir, NULL);
-  ASSERT(r == UV_EINVAL);
-  len = 0;
-  r = uv_os_homedir(homedir, &len);
-  ASSERT(r == UV_EINVAL);
+	/* Test invalid inputs */
+	r = uv_os_homedir(NULL, &len);
+	ASSERT(r == UV_EINVAL);
+	r = uv_os_homedir(homedir, NULL);
+	ASSERT(r == UV_EINVAL);
+	len = 0;
+	r = uv_os_homedir(homedir, &len);
+	ASSERT(r == UV_EINVAL);
 
-  return 0;
+	return 0;
 }

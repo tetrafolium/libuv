@@ -60,52 +60,52 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 #define container_of(ptr, type, member)                                        \
-  ((type *)((char *)(ptr)-offsetof(type, member)))
+	((type *)((char *)(ptr)-offsetof(type, member)))
 
 typedef enum { TCP = 0, UDP, PIPE } stream_type;
 
 /* Die with fatal error. */
 #define FATAL(msg)                                                             \
-  do {                                                                         \
-    fprintf(stderr, "Fatal error in %s on line %d: %s\n", __FILE__, __LINE__,  \
-            msg);                                                              \
-    fflush(stderr);                                                            \
-    abort();                                                                   \
-  } while (0)
+	do {                                                                         \
+		fprintf(stderr, "Fatal error in %s on line %d: %s\n", __FILE__, __LINE__,  \
+		        msg);                                                              \
+		fflush(stderr);                                                            \
+		abort();                                                                   \
+	} while (0)
 
 /* Have our own assert, so we are sure it does not get optimized away in
  * a release build.
  */
 #define ASSERT(expr)                                                           \
-  do {                                                                         \
-    if (!(expr)) {                                                             \
-      fprintf(stderr, "Assertion failed in %s on line %d: %s\n", __FILE__,     \
-              __LINE__, #expr);                                                \
-      abort();                                                                 \
-    }                                                                          \
-  } while (0)
+	do {                                                                         \
+		if (!(expr)) {                                                             \
+			fprintf(stderr, "Assertion failed in %s on line %d: %s\n", __FILE__,     \
+			        __LINE__, #expr);                                                \
+			abort();                                                                 \
+		}                                                                          \
+	} while (0)
 
 /* This macro cleans up the main loop. This is used to avoid valgrind
  * warnings about memory being "leaked" by the main event loop.
  */
 #define MAKE_VALGRIND_HAPPY()                                                  \
-  do {                                                                         \
-    close_loop(uv_default_loop());                                             \
-    ASSERT(0 == uv_loop_close(uv_default_loop()));                             \
-  } while (0)
+	do {                                                                         \
+		close_loop(uv_default_loop());                                             \
+		ASSERT(0 == uv_loop_close(uv_default_loop()));                             \
+	} while (0)
 
 /* Just sugar for wrapping the main() for a task or helper. */
 #define TEST_IMPL(name)                                                        \
-  int run_test_##name(void);                                                   \
-  int run_test_##name(void)
+	int run_test_ ## name(void);                                                   \
+	int run_test_ ## name(void)
 
 #define BENCHMARK_IMPL(name)                                                   \
-  int run_benchmark_##name(void);                                              \
-  int run_benchmark_##name(void)
+	int run_benchmark_ ## name(void);                                              \
+	int run_benchmark_ ## name(void)
 
 #define HELPER_IMPL(name)                                                      \
-  int run_helper_##name(void);                                                 \
-  int run_helper_##name(void)
+	int run_helper_ ## name(void);                                                 \
+	int run_helper_ ## name(void)
 
 /* Format big numbers nicely. WARNING: leaks memory. */
 const char *fmt(double d);
@@ -114,33 +114,33 @@ const char *fmt(double d);
 enum test_status { TEST_OK = 0, TEST_SKIP };
 
 #define RETURN_OK()                                                            \
-  do {                                                                         \
-    return TEST_OK;                                                            \
-  } while (0)
+	do {                                                                         \
+		return TEST_OK;                                                            \
+	} while (0)
 
 #define RETURN_SKIP(explanation)                                               \
-  do {                                                                         \
-    fprintf(stderr, "%s\n", explanation);                                      \
-    fflush(stderr);                                                            \
-    return TEST_SKIP;                                                          \
-  } while (0)
+	do {                                                                         \
+		fprintf(stderr, "%s\n", explanation);                                      \
+		fflush(stderr);                                                            \
+		return TEST_SKIP;                                                          \
+	} while (0)
 
 #if !defined(_WIN32)
 
 #define TEST_FILE_LIMIT(num)                                                   \
-  do {                                                                         \
-    struct rlimit lim;                                                         \
-    lim.rlim_cur = (num);                                                      \
-    lim.rlim_max = lim.rlim_cur;                                               \
-    if (setrlimit(RLIMIT_NOFILE, &lim))                                        \
-      RETURN_SKIP("File descriptor limit too low.");                           \
-  } while (0)
+	do {                                                                         \
+		struct rlimit lim;                                                         \
+		lim.rlim_cur = (num);                                                      \
+		lim.rlim_max = lim.rlim_cur;                                               \
+		if (setrlimit(RLIMIT_NOFILE, &lim))                                        \
+		RETURN_SKIP("File descriptor limit too low.");                           \
+	} while (0)
 
 #else /* defined(_WIN32) */
 
 #define TEST_FILE_LIMIT(num)                                                   \
-  do {                                                                         \
-  } while (0)
+	do {                                                                         \
+	} while (0)
 
 #endif
 
@@ -158,30 +158,30 @@ extern void notify_parent_process(void);
 
 /* Fully close a loop */
 static void close_walk_cb(uv_handle_t *handle, void *arg) {
-  if (!uv_is_closing(handle))
-    uv_close(handle, NULL);
+	if (!uv_is_closing(handle))
+		uv_close(handle, NULL);
 }
 
 UNUSED static void close_loop(uv_loop_t *loop) {
-  uv_walk(loop, close_walk_cb, NULL);
-  uv_run(loop, UV_RUN_DEFAULT);
+	uv_walk(loop, close_walk_cb, NULL);
+	uv_run(loop, UV_RUN_DEFAULT);
 }
 
 UNUSED static int can_ipv6(void) {
-  uv_interface_address_t *addr;
-  int supported;
-  int count;
-  int i;
+	uv_interface_address_t *addr;
+	int supported;
+	int count;
+	int i;
 
-  if (uv_interface_addresses(&addr, &count))
-    return 0; /* Assume no IPv6 support on failure. */
+	if (uv_interface_addresses(&addr, &count))
+		return 0; /* Assume no IPv6 support on failure. */
 
-  supported = 0;
-  for (i = 0; supported == 0 && i < count; i += 1)
-    supported = (AF_INET6 == addr[i].address.address6.sin6_family);
+	supported = 0;
+	for (i = 0; supported == 0 && i < count; i += 1)
+		supported = (AF_INET6 == addr[i].address.address6.sin6_family);
 
-  uv_free_interface_addresses(addr, count);
-  return supported;
+	uv_free_interface_addresses(addr, count);
+	return supported;
 }
 
 #if defined(__CYGWIN__) || defined(__MSYS__) || defined(__PASE__)
@@ -190,17 +190,17 @@ UNUSED static int can_ipv6(void) {
 
 #if defined(__MSYS__)
 #define NO_SEND_HANDLE_ON_PIPE                                                 \
-  "MSYS2 runtime does not support sending handles on pipes."
+	"MSYS2 runtime does not support sending handles on pipes."
 #elif defined(__CYGWIN__)
 #define NO_SEND_HANDLE_ON_PIPE                                                 \
-  "Cygwin runtime does not support sending handles on pipes."
+	"Cygwin runtime does not support sending handles on pipes."
 #endif
 
 #if defined(__MSYS__)
 #define NO_SELF_CONNECT "MSYS2 runtime hangs on listen+connect in same process."
 #elif defined(__CYGWIN__)
 #define NO_SELF_CONNECT                                                        \
-  "Cygwin runtime hangs on listen+connect in same process."
+	"Cygwin runtime hangs on listen+connect in same process."
 #endif
 
 #if !defined(__linux__) && !defined(__FreeBSD__) && !defined(_WIN32)

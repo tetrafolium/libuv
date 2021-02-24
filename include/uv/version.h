@@ -37,6 +37,6 @@
 #define UV_VERSION_SUFFIX "dev"
 
 #define UV_VERSION_HEX                                                         \
-  ((UV_VERSION_MAJOR << 16) | (UV_VERSION_MINOR << 8) | (UV_VERSION_PATCH))
+	((UV_VERSION_MAJOR << 16) | (UV_VERSION_MINOR << 8) | (UV_VERSION_PATCH))
 
 #endif /* UV_VERSION_H */

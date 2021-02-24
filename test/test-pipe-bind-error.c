@@ -34,123 +34,123 @@
 static int close_cb_called = 0;
 
 static void close_cb(uv_handle_t *handle) {
-  ASSERT(handle != NULL);
-  close_cb_called++;
+	ASSERT(handle != NULL);
+	close_cb_called++;
 }
 
 TEST_IMPL(pipe_bind_error_addrinuse) {
-  uv_pipe_t server1, server2;
-  int r;
+	uv_pipe_t server1, server2;
+	int r;
 
-  r = uv_pipe_init(uv_default_loop(), &server1, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_bind(&server1, TEST_PIPENAME);
-  ASSERT(r == 0);
+	r = uv_pipe_init(uv_default_loop(), &server1, 0);
+	ASSERT(r == 0);
+	r = uv_pipe_bind(&server1, TEST_PIPENAME);
+	ASSERT(r == 0);
 
-  r = uv_pipe_init(uv_default_loop(), &server2, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_bind(&server2, TEST_PIPENAME);
-  ASSERT(r == UV_EADDRINUSE);
+	r = uv_pipe_init(uv_default_loop(), &server2, 0);
+	ASSERT(r == 0);
+	r = uv_pipe_bind(&server2, TEST_PIPENAME);
+	ASSERT(r == UV_EADDRINUSE);
 
-  r = uv_listen((uv_stream_t *)&server1, SOMAXCONN, NULL);
-  ASSERT(r == 0);
-  r = uv_listen((uv_stream_t *)&server2, SOMAXCONN, NULL);
-  ASSERT(r == UV_EINVAL);
+	r = uv_listen((uv_stream_t *)&server1, SOMAXCONN, NULL);
+	ASSERT(r == 0);
+	r = uv_listen((uv_stream_t *)&server2, SOMAXCONN, NULL);
+	ASSERT(r == UV_EINVAL);
 
-  uv_close((uv_handle_t *)&server1, close_cb);
-  uv_close((uv_handle_t *)&server2, close_cb);
+	uv_close((uv_handle_t *)&server1, close_cb);
+	uv_close((uv_handle_t *)&server2, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(close_cb_called == 2);
+	ASSERT(close_cb_called == 2);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(pipe_bind_error_addrnotavail) {
-  uv_pipe_t server;
-  int r;
+	uv_pipe_t server;
+	int r;
 
-  r = uv_pipe_init(uv_default_loop(), &server, 0);
-  ASSERT(r == 0);
+	r = uv_pipe_init(uv_default_loop(), &server, 0);
+	ASSERT(r == 0);
 
-  r = uv_pipe_bind(&server, BAD_PIPENAME);
-  ASSERT(r == UV_EACCES);
+	r = uv_pipe_bind(&server, BAD_PIPENAME);
+	ASSERT(r == UV_EACCES);
 
-  uv_close((uv_handle_t *)&server, close_cb);
+	uv_close((uv_handle_t *)&server, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(close_cb_called == 1);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(pipe_bind_error_inval) {
-  uv_pipe_t server;
-  int r;
+	uv_pipe_t server;
+	int r;
 
-  r = uv_pipe_init(uv_default_loop(), &server, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_bind(&server, TEST_PIPENAME);
-  ASSERT(r == 0);
-  r = uv_pipe_bind(&server, TEST_PIPENAME_2);
-  ASSERT(r == UV_EINVAL);
+	r = uv_pipe_init(uv_default_loop(), &server, 0);
+	ASSERT(r == 0);
+	r = uv_pipe_bind(&server, TEST_PIPENAME);
+	ASSERT(r == 0);
+	r = uv_pipe_bind(&server, TEST_PIPENAME_2);
+	ASSERT(r == UV_EINVAL);
 
-  uv_close((uv_handle_t *)&server, close_cb);
+	uv_close((uv_handle_t *)&server, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(close_cb_called == 1);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(pipe_listen_without_bind) {
 #if defined(NO_SELF_CONNECT)
-  RETURN_SKIP(NO_SELF_CONNECT);
+	RETURN_SKIP(NO_SELF_CONNECT);
 #endif
-  uv_pipe_t server;
-  int r;
+	uv_pipe_t server;
+	int r;
 
-  r = uv_pipe_init(uv_default_loop(), &server, 0);
-  ASSERT(r == 0);
+	r = uv_pipe_init(uv_default_loop(), &server, 0);
+	ASSERT(r == 0);
 
-  r = uv_listen((uv_stream_t *)&server, SOMAXCONN, NULL);
-  ASSERT(r == UV_EINVAL);
+	r = uv_listen((uv_stream_t *)&server, SOMAXCONN, NULL);
+	ASSERT(r == UV_EINVAL);
 
-  uv_close((uv_handle_t *)&server, close_cb);
+	uv_close((uv_handle_t *)&server, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(close_cb_called == 1);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }
 
 TEST_IMPL(pipe_bind_error_long_path) {
-  char path[2048];
-  uv_pipe_t server;
-  int r;
+	char path[2048];
+	uv_pipe_t server;
+	int r;
 
-  memset(path, '.', sizeof(path) - 1);
-  path[sizeof(path) - 1] = '\0';
+	memset(path, '.', sizeof(path) - 1);
+	path[sizeof(path) - 1] = '\0';
 
-  r = uv_pipe_init(uv_default_loop(), &server, 0);
-  ASSERT(r == 0);
-  r = uv_pipe_bind(&server, path);
-  ASSERT(r == UV_ENAMETOOLONG);
+	r = uv_pipe_init(uv_default_loop(), &server, 0);
+	ASSERT(r == 0);
+	r = uv_pipe_bind(&server, path);
+	ASSERT(r == UV_ENAMETOOLONG);
 
-  uv_close((uv_handle_t *)&server, close_cb);
+	uv_close((uv_handle_t *)&server, close_cb);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(close_cb_called == 1);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

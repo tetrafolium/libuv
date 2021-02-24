@@ -428,7 +428,7 @@ TEST_DECLARE(thread_equal)
 TEST_DECLARE(thread_affinity)
 TEST_DECLARE(dlerror)
 #if (defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))) &&        \
-    !defined(__sun)
+        !defined(__sun)
 TEST_DECLARE(poll_oob)
 #endif
 TEST_DECLARE(poll_duplex)
@@ -497,7 +497,7 @@ TEST_DECLARE(fork_socketpair_started)
 TEST_DECLARE(fork_signal_to_child)
 TEST_DECLARE(fork_signal_to_child_closed)
 #ifndef __APPLE__ /* This is forbidden in a fork child: The process has forked \
-                     and you cannot use this CoreFoundation functionality      \
+                     and you cannot use this CoreFoundation functionality \
                      safely. You MUST exec(). */
 TEST_DECLARE(fork_fs_events_child)
 TEST_DECLARE(fork_fs_events_child_dir)
@@ -857,7 +857,7 @@ TEST_ENTRY(poll_unidirectional)
 TEST_ENTRY(poll_close)
 TEST_ENTRY(poll_bad_fdtype)
 #if (defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))) &&        \
-    !defined(__sun)
+        !defined(__sun)
 TEST_ENTRY(poll_oob)
 #endif
 

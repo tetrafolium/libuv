@@ -58,7 +58,7 @@
 #elif defined(__APPLE__)
 #include "uv/darwin.h"
 #elif defined(__DragonFly__) || defined(__FreeBSD__) ||                        \
-    defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__NetBSD__)
+        defined(__FreeBSD_kernel__) || defined(__OpenBSD__) || defined(__NetBSD__)
 #include "uv/bsd.h"
 #elif defined(__CYGWIN__) || defined(__MSYS__) || defined(__GNU__)
 #include "uv/posix.h"
@@ -86,13 +86,13 @@ typedef void (*uv__io_cb)(struct uv_loop_s *loop, struct uv__io_s *w,
 typedef struct uv__io_s uv__io_t;
 
 struct uv__io_s {
-  uv__io_cb cb;
-  void *pending_queue[2];
-  void *watcher_queue[2];
-  unsigned int pevents; /* Pending event mask i.e. mask at next tick. */
-  unsigned int events;  /* Current event mask. */
-  int fd;
-  UV_IO_PRIVATE_PLATFORM_FIELDS
+	uv__io_cb cb;
+	void *pending_queue[2];
+	void *watcher_queue[2];
+	unsigned int pevents; /* Pending event mask i.e. mask at next tick. */
+	unsigned int events; /* Current event mask. */
+	int fd;
+	UV_IO_PRIVATE_PLATFORM_FIELDS
 };
 
 #ifndef UV_PLATFORM_SEM_T
@@ -113,8 +113,8 @@ struct uv__io_s {
 
 /* Note: May be cast to struct iovec. See writev(2). */
 typedef struct uv_buf_t {
-  char *base;
-  size_t len;
+	char *base;
+	size_t len;
 } uv_buf_t;
 
 typedef int uv_os_sock_t;
@@ -133,13 +133,13 @@ typedef pthread_key_t uv_key_t;
 
 /* Note: guard clauses should match uv_barrier_init's in src/unix/thread.c. */
 #if defined(_AIX) || defined(__OpenBSD__) ||                                   \
-    !defined(PTHREAD_BARRIER_SERIAL_THREAD)
+        !defined(PTHREAD_BARRIER_SERIAL_THREAD)
 typedef struct {
-  uv_mutex_t mutex;
-  uv_cond_t cond;
-  unsigned threshold;
-  unsigned in;
-  unsigned out;
+	uv_mutex_t mutex;
+	uv_cond_t cond;
+	unsigned threshold;
+	unsigned in;
+	unsigned out;
 } uv_barrier_t;
 #else
 typedef pthread_barrier_t uv_barrier_t;
@@ -196,42 +196,42 @@ typedef struct dirent uv__dirent_t;
 #define UV_DYNAMIC /* empty */
 
 typedef struct {
-  void *handle;
-  char *errmsg;
+	void *handle;
+	char *errmsg;
 } uv_lib_t;
 
 #define UV_LOOP_PRIVATE_FIELDS                                                 \
-  unsigned long flags;                                                         \
-  int backend_fd;                                                              \
-  void *pending_queue[2];                                                      \
-  void *watcher_queue[2];                                                      \
-  uv__io_t **watchers;                                                         \
-  unsigned int nwatchers;                                                      \
-  unsigned int nfds;                                                           \
-  void *wq[2];                                                                 \
-  uv_mutex_t wq_mutex;                                                         \
-  uv_async_t wq_async;                                                         \
-  uv_rwlock_t cloexec_lock;                                                    \
-  uv_handle_t *closing_handles;                                                \
-  void *process_handles[2];                                                    \
-  void *prepare_handles[2];                                                    \
-  void *check_handles[2];                                                      \
-  void *idle_handles[2];                                                       \
-  void *async_handles[2];                                                      \
-  void (*async_unused)(void); /* TODO(bnoordhuis) Remove in libuv v2. */       \
-  uv__io_t async_io_watcher;                                                   \
-  int async_wfd;                                                               \
-  struct {                                                                     \
-    void *min;                                                                 \
-    unsigned int nelts;                                                        \
-  } timer_heap;                                                                \
-  uint64_t timer_counter;                                                      \
-  uint64_t time;                                                               \
-  int signal_pipefd[2];                                                        \
-  uv__io_t signal_io_watcher;                                                  \
-  uv_signal_t child_watcher;                                                   \
-  int emfile_fd;                                                               \
-  UV_PLATFORM_LOOP_FIELDS
+	unsigned long flags;                                                         \
+	int backend_fd;                                                              \
+	void *pending_queue[2];                                                      \
+	void *watcher_queue[2];                                                      \
+	uv__io_t **watchers;                                                         \
+	unsigned int nwatchers;                                                      \
+	unsigned int nfds;                                                           \
+	void *wq[2];                                                                 \
+	uv_mutex_t wq_mutex;                                                         \
+	uv_async_t wq_async;                                                         \
+	uv_rwlock_t cloexec_lock;                                                    \
+	uv_handle_t *closing_handles;                                                \
+	void *process_handles[2];                                                    \
+	void *prepare_handles[2];                                                    \
+	void *check_handles[2];                                                      \
+	void *idle_handles[2];                                                       \
+	void *async_handles[2];                                                      \
+	void (*async_unused)(void); /* TODO(bnoordhuis) Remove in libuv v2. */       \
+	uv__io_t async_io_watcher;                                                   \
+	int async_wfd;                                                               \
+	struct {                                                                     \
+		void *min;                                                                 \
+		unsigned int nelts;                                                        \
+	} timer_heap;                                                                \
+	uint64_t timer_counter;                                                      \
+	uint64_t time;                                                               \
+	int signal_pipefd[2];                                                        \
+	uv__io_t signal_io_watcher;                                                  \
+	uv_signal_t child_watcher;                                                   \
+	int emfile_fd;                                                               \
+	UV_PLATFORM_LOOP_FIELDS
 
 #define UV_REQ_TYPE_PRIVATE /* empty */
 
@@ -240,138 +240,138 @@ typedef struct {
 #define UV_PRIVATE_REQ_TYPES /* empty */
 
 #define UV_WRITE_PRIVATE_FIELDS                                                \
-  void *queue[2];                                                              \
-  unsigned int write_index;                                                    \
-  uv_buf_t *bufs;                                                              \
-  unsigned int nbufs;                                                          \
-  int error;                                                                   \
-  uv_buf_t bufsml[4];
+	void *queue[2];                                                              \
+	unsigned int write_index;                                                    \
+	uv_buf_t *bufs;                                                              \
+	unsigned int nbufs;                                                          \
+	int error;                                                                   \
+	uv_buf_t bufsml[4];
 
 #define UV_CONNECT_PRIVATE_FIELDS void *queue[2];
 
 #define UV_SHUTDOWN_PRIVATE_FIELDS /* empty */
 
 #define UV_UDP_SEND_PRIVATE_FIELDS                                             \
-  void *queue[2];                                                              \
-  struct sockaddr_storage addr;                                                \
-  unsigned int nbufs;                                                          \
-  uv_buf_t *bufs;                                                              \
-  ssize_t status;                                                              \
-  uv_udp_send_cb send_cb;                                                      \
-  uv_buf_t bufsml[4];
+	void *queue[2];                                                              \
+	struct sockaddr_storage addr;                                                \
+	unsigned int nbufs;                                                          \
+	uv_buf_t *bufs;                                                              \
+	ssize_t status;                                                              \
+	uv_udp_send_cb send_cb;                                                      \
+	uv_buf_t bufsml[4];
 
 #define UV_HANDLE_PRIVATE_FIELDS                                               \
-  uv_handle_t *next_closing;                                                   \
-  unsigned int flags;
+	uv_handle_t *next_closing;                                                   \
+	unsigned int flags;
 
 #define UV_STREAM_PRIVATE_FIELDS                                               \
-  uv_connect_t *connect_req;                                                   \
-  uv_shutdown_t *shutdown_req;                                                 \
-  uv__io_t io_watcher;                                                         \
-  void *write_queue[2];                                                        \
-  void *write_completed_queue[2];                                              \
-  uv_connection_cb connection_cb;                                              \
-  int delayed_error;                                                           \
-  int accepted_fd;                                                             \
-  void *queued_fds;                                                            \
-  UV_STREAM_PRIVATE_PLATFORM_FIELDS
+	uv_connect_t *connect_req;                                                   \
+	uv_shutdown_t *shutdown_req;                                                 \
+	uv__io_t io_watcher;                                                         \
+	void *write_queue[2];                                                        \
+	void *write_completed_queue[2];                                              \
+	uv_connection_cb connection_cb;                                              \
+	int delayed_error;                                                           \
+	int accepted_fd;                                                             \
+	void *queued_fds;                                                            \
+	UV_STREAM_PRIVATE_PLATFORM_FIELDS
 
 #define UV_TCP_PRIVATE_FIELDS /* empty */
 
 #define UV_UDP_PRIVATE_FIELDS                                                  \
-  uv_alloc_cb alloc_cb;                                                        \
-  uv_udp_recv_cb recv_cb;                                                      \
-  uv__io_t io_watcher;                                                         \
-  void *write_queue[2];                                                        \
-  void *write_completed_queue[2];
+	uv_alloc_cb alloc_cb;                                                        \
+	uv_udp_recv_cb recv_cb;                                                      \
+	uv__io_t io_watcher;                                                         \
+	void *write_queue[2];                                                        \
+	void *write_completed_queue[2];
 
 #define UV_PIPE_PRIVATE_FIELDS const char *pipe_fname; /* strdup'ed */
 
 #define UV_POLL_PRIVATE_FIELDS uv__io_t io_watcher;
 
 #define UV_PREPARE_PRIVATE_FIELDS                                              \
-  uv_prepare_cb prepare_cb;                                                    \
-  void *queue[2];
+	uv_prepare_cb prepare_cb;                                                    \
+	void *queue[2];
 
 #define UV_CHECK_PRIVATE_FIELDS                                                \
-  uv_check_cb check_cb;                                                        \
-  void *queue[2];
+	uv_check_cb check_cb;                                                        \
+	void *queue[2];
 
 #define UV_IDLE_PRIVATE_FIELDS                                                 \
-  uv_idle_cb idle_cb;                                                          \
-  void *queue[2];
+	uv_idle_cb idle_cb;                                                          \
+	void *queue[2];
 
 #define UV_ASYNC_PRIVATE_FIELDS                                                \
-  uv_async_cb async_cb;                                                        \
-  void *queue[2];                                                              \
-  int pending;
+	uv_async_cb async_cb;                                                        \
+	void *queue[2];                                                              \
+	int pending;
 
 #define UV_TIMER_PRIVATE_FIELDS                                                \
-  uv_timer_cb timer_cb;                                                        \
-  void *heap_node[3];                                                          \
-  uint64_t timeout;                                                            \
-  uint64_t repeat;                                                             \
-  uint64_t start_id;
+	uv_timer_cb timer_cb;                                                        \
+	void *heap_node[3];                                                          \
+	uint64_t timeout;                                                            \
+	uint64_t repeat;                                                             \
+	uint64_t start_id;
 
 #define UV_GETADDRINFO_PRIVATE_FIELDS                                          \
-  struct uv__work work_req;                                                    \
-  uv_getaddrinfo_cb cb;                                                        \
-  struct addrinfo *hints;                                                      \
-  char *hostname;                                                              \
-  char *service;                                                               \
-  struct addrinfo *addrinfo;                                                   \
-  int retcode;
+	struct uv__work work_req;                                                    \
+	uv_getaddrinfo_cb cb;                                                        \
+	struct addrinfo *hints;                                                      \
+	char *hostname;                                                              \
+	char *service;                                                               \
+	struct addrinfo *addrinfo;                                                   \
+	int retcode;
 
 #define UV_GETNAMEINFO_PRIVATE_FIELDS                                          \
-  struct uv__work work_req;                                                    \
-  uv_getnameinfo_cb getnameinfo_cb;                                            \
-  struct sockaddr_storage storage;                                             \
-  int flags;                                                                   \
-  char host[NI_MAXHOST];                                                       \
-  char service[NI_MAXSERV];                                                    \
-  int retcode;
+	struct uv__work work_req;                                                    \
+	uv_getnameinfo_cb getnameinfo_cb;                                            \
+	struct sockaddr_storage storage;                                             \
+	int flags;                                                                   \
+	char host[NI_MAXHOST];                                                       \
+	char service[NI_MAXSERV];                                                    \
+	int retcode;
 
 #define UV_PROCESS_PRIVATE_FIELDS                                              \
-  void *queue[2];                                                              \
-  int status;
+	void *queue[2];                                                              \
+	int status;
 
 #define UV_FS_PRIVATE_FIELDS                                                   \
-  const char *new_path;                                                        \
-  uv_os_fd_t file;                                                             \
-  int flags;                                                                   \
-  mode_t mode;                                                                 \
-  unsigned int nbufs;                                                          \
-  uv_buf_t *bufs;                                                              \
-  off_t off;                                                                   \
-  uv_uid_t uid;                                                                \
-  uv_gid_t gid;                                                                \
-  double btime;                                                                \
-  double atime;                                                                \
-  double mtime;                                                                \
-  struct uv__work work_req;                                                    \
-  uv_buf_t bufsml[4];
+	const char *new_path;                                                        \
+	uv_os_fd_t file;                                                             \
+	int flags;                                                                   \
+	mode_t mode;                                                                 \
+	unsigned int nbufs;                                                          \
+	uv_buf_t *bufs;                                                              \
+	off_t off;                                                                   \
+	uv_uid_t uid;                                                                \
+	uv_gid_t gid;                                                                \
+	double btime;                                                                \
+	double atime;                                                                \
+	double mtime;                                                                \
+	struct uv__work work_req;                                                    \
+	uv_buf_t bufsml[4];
 
 #define UV_WORK_PRIVATE_FIELDS struct uv__work work_req;
 
 #define UV_TTY_PRIVATE_FIELDS                                                  \
-  struct termios orig_termios;                                                 \
-  int mode;
+	struct termios orig_termios;                                                 \
+	int mode;
 
 #define UV_SIGNAL_PRIVATE_FIELDS                                               \
-  /* RB_ENTRY(uv_signal_s) tree_entry; */                                      \
-  struct {                                                                     \
-    struct uv_signal_s *rbe_left;                                              \
-    struct uv_signal_s *rbe_right;                                             \
-    struct uv_signal_s *rbe_parent;                                            \
-    int rbe_color;                                                             \
-  } tree_entry;                                                                \
-  /* Use two counters here so we don have to fiddle with atomics. */           \
-  unsigned int caught_signals;                                                 \
-  unsigned int dispatched_signals;
+	/* RB_ENTRY(uv_signal_s) tree_entry; */                                      \
+	struct {                                                                     \
+		struct uv_signal_s *rbe_left;                                              \
+		struct uv_signal_s *rbe_right;                                             \
+		struct uv_signal_s *rbe_parent;                                            \
+		int rbe_color;                                                             \
+	} tree_entry;                                                                \
+	/* Use two counters here so we don have to fiddle with atomics. */           \
+	unsigned int caught_signals;                                                 \
+	unsigned int dispatched_signals;
 
 #define UV_FS_EVENT_PRIVATE_FIELDS                                             \
-  uv_fs_event_cb cb;                                                           \
-  UV_PLATFORM_FS_EVENT_FIELDS
+	uv_fs_event_cb cb;                                                           \
+	UV_PLATFORM_FS_EVENT_FIELDS
 
 /* fs open() flags supported on this platform: */
 #if defined(O_APPEND)

@@ -35,73 +35,73 @@ static uv_connect_t connect_req;
 static uv_write_t write_req;
 
 static void close_socket(uv_tcp_t *sock) {
-  uv_os_fd_t fd;
-  int r;
+	uv_os_fd_t fd;
+	int r;
 
-  r = uv_fileno((uv_handle_t *)sock, &fd);
-  ASSERT(r == 0);
+	r = uv_fileno((uv_handle_t *)sock, &fd);
+	ASSERT(r == 0);
 #ifdef _WIN32
-  r = closesocket((uv_os_sock_t)fd);
+	r = closesocket((uv_os_sock_t)fd);
 #else
-  r = close(fd);
+	r = close(fd);
 #endif
-  ASSERT(r == 0);
+	ASSERT(r == 0);
 }
 
 static void close_cb(uv_handle_t *handle) {
-  ASSERT(handle != NULL);
-  close_cb_called++;
+	ASSERT(handle != NULL);
+	close_cb_called++;
 }
 
 static void write_cb(uv_write_t *req, int status) {
-  ASSERT(req != NULL);
+	ASSERT(req != NULL);
 
-  ASSERT(status != 0);
-  fprintf(stderr, "uv_write error: %s\n", uv_strerror(status));
-  write_cb_called++;
+	ASSERT(status != 0);
+	fprintf(stderr, "uv_write error: %s\n", uv_strerror(status));
+	write_cb_called++;
 
-  uv_close((uv_handle_t *)(req->handle), close_cb);
+	uv_close((uv_handle_t *)(req->handle), close_cb);
 }
 
 static void connect_cb(uv_connect_t *req, int status) {
-  uv_buf_t buf;
-  uv_stream_t *stream;
-  int r;
+	uv_buf_t buf;
+	uv_stream_t *stream;
+	int r;
 
-  ASSERT(req == &connect_req);
-  ASSERT(status == 0);
+	ASSERT(req == &connect_req);
+	ASSERT(status == 0);
 
-  stream = req->handle;
-  connect_cb_called++;
+	stream = req->handle;
+	connect_cb_called++;
 
-  /* close the socket, the hard way */
-  close_socket((uv_tcp_t *)stream);
+	/* close the socket, the hard way */
+	close_socket((uv_tcp_t *)stream);
 
-  buf = uv_buf_init("hello\n", 6);
-  r = uv_write(&write_req, stream, &buf, 1, write_cb);
-  ASSERT(r == 0);
+	buf = uv_buf_init("hello\n", 6);
+	r = uv_write(&write_req, stream, &buf, 1, write_cb);
+	ASSERT(r == 0);
 }
 
 TEST_IMPL(tcp_write_fail) {
-  struct sockaddr_in addr;
-  uv_tcp_t client;
-  int r;
+	struct sockaddr_in addr;
+	uv_tcp_t client;
+	int r;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+	ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  r = uv_tcp_init(uv_default_loop(), &client);
-  ASSERT(r == 0);
+	r = uv_tcp_init(uv_default_loop(), &client);
+	ASSERT(r == 0);
 
-  r = uv_tcp_connect(&connect_req, &client, (const struct sockaddr *)&addr,
-                     connect_cb);
-  ASSERT(r == 0);
+	r = uv_tcp_connect(&connect_req, &client, (const struct sockaddr *)&addr,
+	                   connect_cb);
+	ASSERT(r == 0);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+	uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  ASSERT(connect_cb_called == 1);
-  ASSERT(write_cb_called == 1);
-  ASSERT(close_cb_called == 1);
+	ASSERT(connect_cb_called == 1);
+	ASSERT(write_cb_called == 1);
+	ASSERT(close_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+	MAKE_VALGRIND_HAPPY();
+	return 0;
 }

@@ -31,55 +31,55 @@
 #endif
 
 static const char *titles[] = {"8L2NY0Kdj0XyNFZnmUZigIOfcWjyNr0SkMmUhKw99VLUsZF"
-                               "rvCQQC3XIRfNR8pjyMjXObllled",
-                               "jUAcscJN49oLSN8GdmXj2Wo34XX2T2vp2j5khfajNQarlOu"
-                               "lp57cE130yiY53ipJFnPyTn5i82",
-                               "9niCI5icXGFS72XudhXqo5alftmZ1tpE7B3cwUmrq0CCDjC"
-                               "84FzBNB8XAHqvpNQfI2QAQG6ztT",
-                               "n8qXVXuG6IEHDpabJgTEiwtpY6LHMZ8MgznnMpdHARu5Eyw"
-                               "ufA6hcBaQfetb0YhEsK0ykDd7JU"};
+	                       "rvCQQC3XIRfNR8pjyMjXObllled",
+	                       "jUAcscJN49oLSN8GdmXj2Wo34XX2T2vp2j5khfajNQarlOu"
+	                       "lp57cE130yiY53ipJFnPyTn5i82",
+	                       "9niCI5icXGFS72XudhXqo5alftmZ1tpE7B3cwUmrq0CCDjC"
+	                       "84FzBNB8XAHqvpNQfI2QAQG6ztT",
+	                       "n8qXVXuG6IEHDpabJgTEiwtpY6LHMZ8MgznnMpdHARu5Eyw"
+	                       "ufA6hcBaQfetb0YhEsK0ykDd7JU"};
 
 static void getter_thread_body(void *arg) {
-  char buffer[512];
+	char buffer[512];
 
-  for (;;) {
-    ASSERT(0 == uv_get_process_title(buffer, sizeof(buffer)));
-    ASSERT(0 == strcmp(buffer, titles[0]) || 0 == strcmp(buffer, titles[1]) ||
-           0 == strcmp(buffer, titles[2]) || 0 == strcmp(buffer, titles[3]));
+	for (;;) {
+		ASSERT(0 == uv_get_process_title(buffer, sizeof(buffer)));
+		ASSERT(0 == strcmp(buffer, titles[0]) || 0 == strcmp(buffer, titles[1]) ||
+		       0 == strcmp(buffer, titles[2]) || 0 == strcmp(buffer, titles[3]));
 
-    uv_sleep(0);
-  }
+		uv_sleep(0);
+	}
 }
 
 static void setter_thread_body(void *arg) {
-  int i;
+	int i;
 
-  for (i = 0; i < NUM_ITERATIONS; i++) {
-    ASSERT(0 == uv_set_process_title(titles[0]));
-    ASSERT(0 == uv_set_process_title(titles[1]));
-    ASSERT(0 == uv_set_process_title(titles[2]));
-    ASSERT(0 == uv_set_process_title(titles[3]));
-  }
+	for (i = 0; i < NUM_ITERATIONS; i++) {
+		ASSERT(0 == uv_set_process_title(titles[0]));
+		ASSERT(0 == uv_set_process_title(titles[1]));
+		ASSERT(0 == uv_set_process_title(titles[2]));
+		ASSERT(0 == uv_set_process_title(titles[3]));
+	}
 }
 
 TEST_IMPL(process_title_threadsafe) {
-  uv_thread_t setter_threads[4];
-  uv_thread_t getter_thread;
-  int i;
+	uv_thread_t setter_threads[4];
+	uv_thread_t getter_thread;
+	int i;
 
 #if defined(__sun) || defined(__CYGWIN__) || defined(__MSYS__) ||              \
-    defined(__MVS__) || defined(__PASE__)
-  RETURN_SKIP("uv_(get|set)_process_title is not implemented.");
+	defined(__MVS__) || defined(__PASE__)
+	RETURN_SKIP("uv_(get|set)_process_title is not implemented.");
 #endif
 
-  ASSERT(0 == uv_set_process_title(titles[0]));
-  ASSERT(0 == uv_thread_create(&getter_thread, getter_thread_body, NULL));
+	ASSERT(0 == uv_set_process_title(titles[0]));
+	ASSERT(0 == uv_thread_create(&getter_thread, getter_thread_body, NULL));
 
-  for (i = 0; i < (int)ARRAY_SIZE(setter_threads); i++)
-    ASSERT(0 == uv_thread_create(&setter_threads[i], setter_thread_body, NULL));
+	for (i = 0; i < (int)ARRAY_SIZE(setter_threads); i++)
+		ASSERT(0 == uv_thread_create(&setter_threads[i], setter_thread_body, NULL));
 
-  for (i = 0; i < (int)ARRAY_SIZE(setter_threads); i++)
-    ASSERT(0 == uv_thread_join(&setter_threads[i]));
+	for (i = 0; i < (int)ARRAY_SIZE(setter_threads); i++)
+		ASSERT(0 == uv_thread_join(&setter_threads[i]));
 
-  return 0;
+	return 0;
 }
