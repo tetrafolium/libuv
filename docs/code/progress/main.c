@@ -19,7 +19,7 @@ void fake_download(uv_work_t *req) {
 
         sleep(1);
         downloaded += (200+random())%1000; // can only download max 1000bytes/sec,
-                                           // but at least a 200;
+        // but at least a 200;
     }
 }
 

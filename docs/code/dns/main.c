@@ -6,8 +6,8 @@
 uv_loop_t *loop;
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
-  buf->base = malloc(suggested_size);
-  buf->len = suggested_size;
+    buf->base = malloc(suggested_size);
+    buf->len = suggested_size;
 }
 
 void on_read(uv_stream_t *client, ssize_t nread, const uv_buf_t *buf) {

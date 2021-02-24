@@ -63,9 +63,9 @@
   ((type *) ((char *) (ptr) - offsetof(type, member)))
 
 typedef enum {
-  TCP = 0,
-  UDP,
-  PIPE
+    TCP = 0,
+    UDP,
+    PIPE
 } stream_type;
 
 /* Die with fatal error. */
@@ -122,8 +122,8 @@ const char* fmt(double d);
 
 /* Reserved test exit codes. */
 enum test_status {
-  TEST_OK = 0,
-  TEST_SKIP
+    TEST_OK = 0,
+    TEST_SKIP
 };
 
 #define RETURN_OK()                                                           \
@@ -171,30 +171,30 @@ extern void notify_parent_process(void);
 
 /* Fully close a loop */
 static void close_walk_cb(uv_handle_t* handle, void* arg) {
-  if (!uv_is_closing(handle))
-    uv_close(handle, NULL);
+    if (!uv_is_closing(handle))
+        uv_close(handle, NULL);
 }
 
 UNUSED static void close_loop(uv_loop_t* loop) {
-  uv_walk(loop, close_walk_cb, NULL);
-  uv_run(loop, UV_RUN_DEFAULT);
+    uv_walk(loop, close_walk_cb, NULL);
+    uv_run(loop, UV_RUN_DEFAULT);
 }
 
 UNUSED static int can_ipv6(void) {
-  uv_interface_address_t* addr;
-  int supported;
-  int count;
-  int i;
+    uv_interface_address_t* addr;
+    int supported;
+    int count;
+    int i;
 
-  if (uv_interface_addresses(&addr, &count))
-    return 0;  /* Assume no IPv6 support on failure. */
+    if (uv_interface_addresses(&addr, &count))
+        return 0;  /* Assume no IPv6 support on failure. */
 
-  supported = 0;
-  for (i = 0; supported == 0 && i < count; i += 1)
-    supported = (AF_INET6 == addr[i].address.address6.sin6_family);
+    supported = 0;
+    for (i = 0; supported == 0 && i < count; i += 1)
+        supported = (AF_INET6 == addr[i].address.address6.sin6_family);
 
-  uv_free_interface_addresses(addr, count);
-  return supported;
+    uv_free_interface_addresses(addr, count);
+    return supported;
 }
 
 #if defined(__CYGWIN__) || defined(__MSYS__) || defined(__PASE__)

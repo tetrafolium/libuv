@@ -41,16 +41,16 @@ static unsigned int close_called;
 
 
 static void set_nonblocking(uv_os_sock_t sock) {
-  int r;
+    int r;
 #ifdef _WIN32
-  unsigned long on = 1;
-  r = ioctlsocket(sock, FIONBIO, &on);
-  ASSERT(r == 0);
+    unsigned long on = 1;
+    r = ioctlsocket(sock, FIONBIO, &on);
+    ASSERT(r == 0);
 #else
-  int flags = fcntl(sock, F_GETFL, 0);
-  ASSERT(flags >= 0);
-  r = fcntl(sock, F_SETFL, flags | O_NONBLOCK);
-  ASSERT(r >= 0);
+    int flags = fcntl(sock, F_GETFL, 0);
+    ASSERT(flags >= 0);
+    r = fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+    ASSERT(r >= 0);
 #endif
 }
 
@@ -58,115 +58,115 @@ static void set_nonblocking(uv_os_sock_t sock) {
 
 
 static void close_cb(uv_handle_t* handle) {
-  close_called++;
+    close_called++;
 }
 
 
 static void alloc_cb(uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-  static char base[1];
+    static char base[1];
 
-  buf->base = base;
-  buf->len = sizeof(base);
+    buf->base = base;
+    buf->len = sizeof(base);
 }
 
 
 static void read_cb(uv_stream_t* handle,
                     ssize_t nread,
                     const uv_buf_t* buf) {
-  uv_pipe_t* p;
-  uv_pipe_t* inc;
-  uv_handle_type pending;
-  unsigned int i;
+    uv_pipe_t* p;
+    uv_pipe_t* inc;
+    uv_handle_type pending;
+    unsigned int i;
 
-  p = (uv_pipe_t*) handle;
-  ASSERT(nread >= 0);
+    p = (uv_pipe_t*) handle;
+    ASSERT(nread >= 0);
 
-  while (uv_pipe_pending_count(p) != 0) {
-    pending = uv_pipe_pending_type(p);
-    ASSERT(pending == UV_NAMED_PIPE);
+    while (uv_pipe_pending_count(p) != 0) {
+        pending = uv_pipe_pending_type(p);
+        ASSERT(pending == UV_NAMED_PIPE);
 
-    ASSERT(incoming_count < ARRAY_SIZE(incoming));
-    inc = &incoming[incoming_count++];
-    ASSERT(0 == uv_pipe_init(p->loop, inc, 0));
-    ASSERT(0 == uv_accept(handle, (uv_stream_t*) inc));
-  }
+        ASSERT(incoming_count < ARRAY_SIZE(incoming));
+        inc = &incoming[incoming_count++];
+        ASSERT(0 == uv_pipe_init(p->loop, inc, 0));
+        ASSERT(0 == uv_accept(handle, (uv_stream_t*) inc));
+    }
 
-  if (incoming_count != ARRAY_SIZE(incoming))
-    return;
+    if (incoming_count != ARRAY_SIZE(incoming))
+        return;
 
-  ASSERT(0 == uv_read_stop((uv_stream_t*) p));
-  uv_close((uv_handle_t*) p, close_cb);
-  for (i = 0; i < ARRAY_SIZE(incoming); i++)
-    uv_close((uv_handle_t*) &incoming[i], close_cb);
+    ASSERT(0 == uv_read_stop((uv_stream_t*) p));
+    uv_close((uv_handle_t*) p, close_cb);
+    for (i = 0; i < ARRAY_SIZE(incoming); i++)
+        uv_close((uv_handle_t*) &incoming[i], close_cb);
 }
 
 
 TEST_IMPL(pipe_sendmsg) {
 #if defined(NO_SEND_HANDLE_ON_PIPE)
-  RETURN_SKIP(NO_SEND_HANDLE_ON_PIPE);
+    RETURN_SKIP(NO_SEND_HANDLE_ON_PIPE);
 #endif
-  uv_pipe_t p;
-  int r;
-  int fds[2];
-  int send_fds[ARRAY_SIZE(incoming)];
-  struct msghdr msg;
-  char scratch[64];
-  struct cmsghdr *cmsg;
-  unsigned int i;
-  uv_buf_t buf;
+    uv_pipe_t p;
+    int r;
+    int fds[2];
+    int send_fds[ARRAY_SIZE(incoming)];
+    struct msghdr msg;
+    char scratch[64];
+    struct cmsghdr *cmsg;
+    unsigned int i;
+    uv_buf_t buf;
 
-  ASSERT(0 == socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
-  for (i = 0; i < ARRAY_SIZE(send_fds); i += 2)
-    ASSERT(0 == socketpair(AF_UNIX, SOCK_STREAM, 0, send_fds + i));
-  ASSERT(i == ARRAY_SIZE(send_fds));
-  ASSERT(0 == uv_pipe_init(uv_default_loop(), &p, 1));
-  ASSERT(0 == uv_pipe_open(&p, fds[1]));
+    ASSERT(0 == socketpair(AF_UNIX, SOCK_STREAM, 0, fds));
+    for (i = 0; i < ARRAY_SIZE(send_fds); i += 2)
+        ASSERT(0 == socketpair(AF_UNIX, SOCK_STREAM, 0, send_fds + i));
+    ASSERT(i == ARRAY_SIZE(send_fds));
+    ASSERT(0 == uv_pipe_init(uv_default_loop(), &p, 1));
+    ASSERT(0 == uv_pipe_open(&p, fds[1]));
 
-  buf = uv_buf_init("X", 1);
-  memset(&msg, 0, sizeof(msg));
-  msg.msg_iov = (struct iovec*) &buf;
-  msg.msg_iovlen = 1;
-  msg.msg_flags = 0;
+    buf = uv_buf_init("X", 1);
+    memset(&msg, 0, sizeof(msg));
+    msg.msg_iov = (struct iovec*) &buf;
+    msg.msg_iovlen = 1;
+    msg.msg_flags = 0;
 
-  msg.msg_control = (void*) scratch;
-  msg.msg_controllen = CMSG_LEN(sizeof(send_fds));
-  ASSERT(sizeof(scratch) >= msg.msg_controllen);
+    msg.msg_control = (void*) scratch;
+    msg.msg_controllen = CMSG_LEN(sizeof(send_fds));
+    ASSERT(sizeof(scratch) >= msg.msg_controllen);
 
-  cmsg = CMSG_FIRSTHDR(&msg);
-  cmsg->cmsg_level = SOL_SOCKET;
-  cmsg->cmsg_type = SCM_RIGHTS;
-  cmsg->cmsg_len = msg.msg_controllen;
+    cmsg = CMSG_FIRSTHDR(&msg);
+    cmsg->cmsg_level = SOL_SOCKET;
+    cmsg->cmsg_type = SCM_RIGHTS;
+    cmsg->cmsg_len = msg.msg_controllen;
 
-  /* silence aliasing warning */
-  {
-    void* pv = CMSG_DATA(cmsg);
-    int* pi = pv;
-    for (i = 0; i < ARRAY_SIZE(send_fds); i++)
-      pi[i] = send_fds[i];
-  }
+    /* silence aliasing warning */
+    {
+        void* pv = CMSG_DATA(cmsg);
+        int* pi = pv;
+        for (i = 0; i < ARRAY_SIZE(send_fds); i++)
+            pi[i] = send_fds[i];
+    }
 
-  set_nonblocking(fds[1]);
-  ASSERT(0 == uv_read_start((uv_stream_t*) &p, alloc_cb, read_cb));
+    set_nonblocking(fds[1]);
+    ASSERT(0 == uv_read_start((uv_stream_t*) &p, alloc_cb, read_cb));
 
-  do
-    r = sendmsg(fds[0], &msg, 0);
-  while (r == -1 && errno == EINTR);
-  ASSERT(r == 1);
+    do
+        r = sendmsg(fds[0], &msg, 0);
+    while (r == -1 && errno == EINTR);
+    ASSERT(r == 1);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-  ASSERT(ARRAY_SIZE(incoming) == incoming_count);
-  ASSERT(ARRAY_SIZE(incoming) + 1 == close_called);
-  close(fds[0]);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    ASSERT(ARRAY_SIZE(incoming) == incoming_count);
+    ASSERT(ARRAY_SIZE(incoming) + 1 == close_called);
+    close(fds[0]);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 #else  /* !_WIN32 */
 
 TEST_IMPL(pipe_sendmsg) {
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 #endif  /* _WIN32 */

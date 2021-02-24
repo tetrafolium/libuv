@@ -29,41 +29,41 @@
 
 TEST_IMPL(uname) {
 #ifndef _WIN32
-  struct utsname buf;
+    struct utsname buf;
 #endif
 #ifdef _AIX
-  char temp[256];
+    char temp[256];
 #endif
-  uv_utsname_t buffer;
-  int r;
+    uv_utsname_t buffer;
+    int r;
 
-  /* Verify that NULL is handled properly. */
-  r = uv_os_uname(NULL);
-  ASSERT(r == UV_EINVAL);
+    /* Verify that NULL is handled properly. */
+    r = uv_os_uname(NULL);
+    ASSERT(r == UV_EINVAL);
 
-  /* Verify the happy path. */
-  r = uv_os_uname(&buffer);
-  ASSERT(r == 0);
+    /* Verify the happy path. */
+    r = uv_os_uname(&buffer);
+    ASSERT(r == 0);
 
 #ifndef _WIN32
-  ASSERT(uname(&buf) != -1);
-  ASSERT(strcmp(buffer.sysname, buf.sysname) == 0);
-  ASSERT(strcmp(buffer.version, buf.version) == 0);
+    ASSERT(uname(&buf) != -1);
+    ASSERT(strcmp(buffer.sysname, buf.sysname) == 0);
+    ASSERT(strcmp(buffer.version, buf.version) == 0);
 
 # ifdef _AIX
-  snprintf(temp, sizeof(temp), "%s.%s", buf.version, buf.release);
-  ASSERT(strcmp(buffer.release, temp) == 0);
+    snprintf(temp, sizeof(temp), "%s.%s", buf.version, buf.release);
+    ASSERT(strcmp(buffer.release, temp) == 0);
 # else
-  ASSERT(strcmp(buffer.release, buf.release) == 0);
+    ASSERT(strcmp(buffer.release, buf.release) == 0);
 # endif /* _AIX */
 
 # if defined(_AIX) || defined(__PASE__)
-  ASSERT(strcmp(buffer.machine, "ppc64") == 0);
+    ASSERT(strcmp(buffer.machine, "ppc64") == 0);
 # else
-  ASSERT(strcmp(buffer.machine, buf.machine) == 0);
+    ASSERT(strcmp(buffer.machine, buf.machine) == 0);
 # endif /* defined(_AIX) || defined(__PASE__) */
 
 #endif /* _WIN32 */
 
-  return 0;
+    return 0;
 }

@@ -92,13 +92,13 @@ typedef void (*uv__io_cb)(struct uv_loop_s* loop,
 typedef struct uv__io_s uv__io_t;
 
 struct uv__io_s {
-  uv__io_cb cb;
-  void* pending_queue[2];
-  void* watcher_queue[2];
-  unsigned int pevents; /* Pending event mask i.e. mask at next tick. */
-  unsigned int events;  /* Current event mask. */
-  int fd;
-  UV_IO_PRIVATE_PLATFORM_FIELDS
+    uv__io_cb cb;
+    void* pending_queue[2];
+    void* watcher_queue[2];
+    unsigned int pevents; /* Pending event mask i.e. mask at next tick. */
+    unsigned int events;  /* Current event mask. */
+    int fd;
+    UV_IO_PRIVATE_PLATFORM_FIELDS
 };
 
 #ifndef UV_PLATFORM_SEM_T
@@ -119,8 +119,8 @@ struct uv__io_s {
 
 /* Note: May be cast to struct iovec. See writev(2). */
 typedef struct uv_buf_t {
-  char* base;
-  size_t len;
+    char* base;
+    size_t len;
 } uv_buf_t;
 
 typedef int uv_os_sock_t;
@@ -142,11 +142,11 @@ typedef pthread_key_t uv_key_t;
     defined(__OpenBSD__) || \
     !defined(PTHREAD_BARRIER_SERIAL_THREAD)
 typedef struct {
-  uv_mutex_t mutex;
-  uv_cond_t cond;
-  unsigned threshold;
-  unsigned in;
-  unsigned out;
+    uv_mutex_t mutex;
+    uv_cond_t cond;
+    unsigned threshold;
+    unsigned in;
+    unsigned out;
 } uv_barrier_t;
 #else
 typedef pthread_barrier_t uv_barrier_t;
@@ -204,8 +204,8 @@ typedef struct dirent uv__dirent_t;
 #define UV_DYNAMIC /* empty */
 
 typedef struct {
-  void* handle;
-  char* errmsg;
+    void* handle;
+    char* errmsg;
 } uv_lib_t;
 
 #define UV_LOOP_PRIVATE_FIELDS                                                \

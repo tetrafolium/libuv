@@ -31,47 +31,47 @@ static uv_timer_t timer_handle;
 
 /* idle_cb should run before timer_cb */
 static void idle_cb(uv_idle_t* handle) {
-  ASSERT(idle_cb_called == 0);
-  ASSERT(timer_cb_called == 0);
-  uv_idle_stop(handle);
-  idle_cb_called++;
+    ASSERT(idle_cb_called == 0);
+    ASSERT(timer_cb_called == 0);
+    uv_idle_stop(handle);
+    idle_cb_called++;
 }
 
 
 static void timer_cb(uv_timer_t* handle) {
-  ASSERT(idle_cb_called == 1);
-  ASSERT(timer_cb_called == 0);
-  uv_timer_stop(handle);
-  timer_cb_called++;
+    ASSERT(idle_cb_called == 1);
+    ASSERT(timer_cb_called == 0);
+    uv_timer_stop(handle);
+    timer_cb_called++;
 }
 
 
 static void next_tick(uv_idle_t* handle) {
-  uv_loop_t* loop = handle->loop;
-  uv_idle_stop(handle);
-  uv_idle_init(loop, &idle_handle);
-  uv_idle_start(&idle_handle, idle_cb);
-  uv_timer_init(loop, &timer_handle);
-  uv_timer_start(&timer_handle, timer_cb, 0, 0);
+    uv_loop_t* loop = handle->loop;
+    uv_idle_stop(handle);
+    uv_idle_init(loop, &idle_handle);
+    uv_idle_start(&idle_handle, idle_cb);
+    uv_timer_init(loop, &timer_handle);
+    uv_timer_start(&timer_handle, timer_cb, 0, 0);
 }
 
 
 TEST_IMPL(callback_order) {
-  uv_loop_t* loop;
-  uv_idle_t idle;
+    uv_loop_t* loop;
+    uv_idle_t idle;
 
-  loop = uv_default_loop();
-  uv_idle_init(loop, &idle);
-  uv_idle_start(&idle, next_tick);
+    loop = uv_default_loop();
+    uv_idle_init(loop, &idle);
+    uv_idle_start(&idle, next_tick);
 
-  ASSERT(idle_cb_called == 0);
-  ASSERT(timer_cb_called == 0);
+    ASSERT(idle_cb_called == 0);
+    ASSERT(timer_cb_called == 0);
 
-  uv_run(loop, UV_RUN_DEFAULT);
+    uv_run(loop, UV_RUN_DEFAULT);
 
-  ASSERT(idle_cb_called == 1);
-  ASSERT(timer_cb_called == 1);
+    ASSERT(idle_cb_called == 1);
+    ASSERT(timer_cb_called == 1);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

@@ -32,104 +32,104 @@
 
 
 TEST_IMPL(udp_create_early) {
-  struct sockaddr_in addr;
-  struct sockaddr_in sockname;
-  uv_udp_t client;
-  uv_os_fd_t fd;
-  int r, namelen;
+    struct sockaddr_in addr;
+    struct sockaddr_in sockname;
+    uv_udp_t client;
+    uv_os_fd_t fd;
+    int r, namelen;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  r = uv_udp_init_ex(uv_default_loop(), &client, AF_INET);
-  ASSERT(r == 0);
+    r = uv_udp_init_ex(uv_default_loop(), &client, AF_INET);
+    ASSERT(r == 0);
 
-  r = uv_fileno((const uv_handle_t*) &client, &fd);
-  ASSERT(r == 0);
-  ASSERT(fd != INVALID_FD);
+    r = uv_fileno((const uv_handle_t*) &client, &fd);
+    ASSERT(r == 0);
+    ASSERT(fd != INVALID_FD);
 
-  /* Windows returns WSAEINVAL if the socket is not bound */
+    /* Windows returns WSAEINVAL if the socket is not bound */
 #ifndef _WIN32
-  namelen = sizeof sockname;
-  r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
-  ASSERT(r == 0);
-  ASSERT(sockname.sin_family == AF_INET);
+    namelen = sizeof sockname;
+    r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
+    ASSERT(r == 0);
+    ASSERT(sockname.sin_family == AF_INET);
 #endif
 
-  r = uv_udp_bind(&client, (const struct sockaddr*) &addr, 0);
-  ASSERT(r == 0);
+    r = uv_udp_bind(&client, (const struct sockaddr*) &addr, 0);
+    ASSERT(r == 0);
 
-  namelen = sizeof sockname;
-  r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
-  ASSERT(r == 0);
-  ASSERT(memcmp(&addr.sin_addr,
-                &sockname.sin_addr,
-                sizeof(addr.sin_addr)) == 0);
+    namelen = sizeof sockname;
+    r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
+    ASSERT(r == 0);
+    ASSERT(memcmp(&addr.sin_addr,
+                  &sockname.sin_addr,
+                  sizeof(addr.sin_addr)) == 0);
 
-  uv_close((uv_handle_t*) &client, NULL);
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_close((uv_handle_t*) &client, NULL);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 
 TEST_IMPL(udp_create_early_bad_bind) {
-  struct sockaddr_in addr;
-  uv_udp_t client;
-  uv_os_fd_t fd;
-  int r;
+    struct sockaddr_in addr;
+    uv_udp_t client;
+    uv_os_fd_t fd;
+    int r;
 
-  if (!can_ipv6())
-    RETURN_SKIP("IPv6 not supported");
+    if (!can_ipv6())
+        RETURN_SKIP("IPv6 not supported");
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
 
-  r = uv_udp_init_ex(uv_default_loop(), &client, AF_INET6);
-  ASSERT(r == 0);
-
-  r = uv_fileno((const uv_handle_t*) &client, &fd);
-  ASSERT(r == 0);
-  ASSERT(fd != INVALID_FD);
-
-  /* Windows returns WSAEINVAL if the socket is not bound */
-#ifndef _WIN32
-  {
-    int namelen;
-    struct sockaddr_in6 sockname;
-    namelen = sizeof sockname;
-    r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
+    r = uv_udp_init_ex(uv_default_loop(), &client, AF_INET6);
     ASSERT(r == 0);
-    ASSERT(sockname.sin6_family == AF_INET6);
-  }
+
+    r = uv_fileno((const uv_handle_t*) &client, &fd);
+    ASSERT(r == 0);
+    ASSERT(fd != INVALID_FD);
+
+    /* Windows returns WSAEINVAL if the socket is not bound */
+#ifndef _WIN32
+    {
+        int namelen;
+        struct sockaddr_in6 sockname;
+        namelen = sizeof sockname;
+        r = uv_udp_getsockname(&client, (struct sockaddr*) &sockname, &namelen);
+        ASSERT(r == 0);
+        ASSERT(sockname.sin6_family == AF_INET6);
+    }
 #endif
 
-  r = uv_udp_bind(&client, (const struct sockaddr*) &addr, 0);
+    r = uv_udp_bind(&client, (const struct sockaddr*) &addr, 0);
 #if !defined(_WIN32) && !defined(__CYGWIN__) && !defined(__MSYS__)
-  ASSERT(r == UV_EINVAL);
+    ASSERT(r == UV_EINVAL);
 #else
-  ASSERT(r == UV_EFAULT);
+    ASSERT(r == UV_EFAULT);
 #endif
 
-  uv_close((uv_handle_t*) &client, NULL);
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_close((uv_handle_t*) &client, NULL);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 
 TEST_IMPL(udp_create_early_bad_domain) {
-  uv_udp_t client;
-  int r;
+    uv_udp_t client;
+    int r;
 
-  r = uv_udp_init_ex(uv_default_loop(), &client, 47);
-  ASSERT(r == UV_EINVAL);
+    r = uv_udp_init_ex(uv_default_loop(), &client, 47);
+    ASSERT(r == UV_EINVAL);
 
-  r = uv_udp_init_ex(uv_default_loop(), &client, 1024);
-  ASSERT(r == UV_EINVAL);
+    r = uv_udp_init_ex(uv_default_loop(), &client, 1024);
+    ASSERT(r == UV_EINVAL);
 
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }

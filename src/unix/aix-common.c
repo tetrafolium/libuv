@@ -60,11 +60,11 @@
 #include <sys/vnode.h>
 
 uint64_t uv__hrtime(uv_clocktype_t type) {
-  uint64_t G = 1000000000;
-  timebasestruct_t t;
-  read_wall_time(&t, TIMEBASE_SZ);
-  time_base_to_time(&t, TIMEBASE_SZ);
-  return (uint64_t) t.tb_high * G + t.tb_low;
+    uint64_t G = 1000000000;
+    timebasestruct_t t;
+    read_wall_time(&t, TIMEBASE_SZ);
+    time_base_to_time(&t, TIMEBASE_SZ);
+    return (uint64_t) t.tb_high * G + t.tb_low;
 }
 
 
@@ -77,81 +77,81 @@ uint64_t uv__hrtime(uv_clocktype_t type) {
  * and use it in conjunction with PATH environment variable to craft one.
  */
 int uv_exepath(char* buffer, size_t* size) {
-  int res;
-  char args[PATH_MAX];
-  char abspath[PATH_MAX];
-  size_t abspath_size;
-  struct procsinfo pi;
+    int res;
+    char args[PATH_MAX];
+    char abspath[PATH_MAX];
+    size_t abspath_size;
+    struct procsinfo pi;
 
-  if (buffer == NULL || size == NULL || *size == 0)
-    return UV_EINVAL;
+    if (buffer == NULL || size == NULL || *size == 0)
+        return UV_EINVAL;
 
-  pi.pi_pid = getpid();
-  res = getargs(&pi, sizeof(pi), args, sizeof(args));
-  if (res < 0)
-    return UV_EINVAL;
+    pi.pi_pid = getpid();
+    res = getargs(&pi, sizeof(pi), args, sizeof(args));
+    if (res < 0)
+        return UV_EINVAL;
 
-  /*
-   * Possibilities for args:
-   * i) an absolute path such as: /home/user/myprojects/nodejs/node
-   * ii) a relative path such as: ./node or ../myprojects/nodejs/node
-   * iii) a bare filename such as "node", after exporting PATH variable
-   *     to its location.
-   */
+    /*
+     * Possibilities for args:
+     * i) an absolute path such as: /home/user/myprojects/nodejs/node
+     * ii) a relative path such as: ./node or ../myprojects/nodejs/node
+     * iii) a bare filename such as "node", after exporting PATH variable
+     *     to its location.
+     */
 
-  /* Case i) and ii) absolute or relative paths */
-  if (strchr(args, '/') != NULL) {
-    if (realpath(args, abspath) != abspath)
-      return UV__ERR(errno);
+    /* Case i) and ii) absolute or relative paths */
+    if (strchr(args, '/') != NULL) {
+        if (realpath(args, abspath) != abspath)
+            return UV__ERR(errno);
 
-    abspath_size = strlen(abspath);
+        abspath_size = strlen(abspath);
 
-    *size -= 1;
-    if (*size > abspath_size)
-      *size = abspath_size;
-
-    memcpy(buffer, abspath, *size);
-    buffer[*size] = '\0';
-
-    return 0;
-  } else {
-    /* Case iii). Search PATH environment variable */
-    char trypath[PATH_MAX];
-    char *clonedpath = NULL;
-    char *token = NULL;
-    char *path = getenv("PATH");
-
-    if (path == NULL)
-      return UV_EINVAL;
-
-    clonedpath = uv__strdup(path);
-    if (clonedpath == NULL)
-      return UV_ENOMEM;
-
-    token = strtok(clonedpath, ":");
-    while (token != NULL) {
-      snprintf(trypath, sizeof(trypath) - 1, "%s/%s", token, args);
-      if (realpath(trypath, abspath) == abspath) {
-        /* Check the match is executable */
-        if (access(abspath, X_OK) == 0) {
-          abspath_size = strlen(abspath);
-
-          *size -= 1;
-          if (*size > abspath_size)
+        *size -= 1;
+        if (*size > abspath_size)
             *size = abspath_size;
 
-          memcpy(buffer, abspath, *size);
-          buffer[*size] = '\0';
+        memcpy(buffer, abspath, *size);
+        buffer[*size] = '\0';
 
-          uv__free(clonedpath);
-          return 0;
+        return 0;
+    } else {
+        /* Case iii). Search PATH environment variable */
+        char trypath[PATH_MAX];
+        char *clonedpath = NULL;
+        char *token = NULL;
+        char *path = getenv("PATH");
+
+        if (path == NULL)
+            return UV_EINVAL;
+
+        clonedpath = uv__strdup(path);
+        if (clonedpath == NULL)
+            return UV_ENOMEM;
+
+        token = strtok(clonedpath, ":");
+        while (token != NULL) {
+            snprintf(trypath, sizeof(trypath) - 1, "%s/%s", token, args);
+            if (realpath(trypath, abspath) == abspath) {
+                /* Check the match is executable */
+                if (access(abspath, X_OK) == 0) {
+                    abspath_size = strlen(abspath);
+
+                    *size -= 1;
+                    if (*size > abspath_size)
+                        *size = abspath_size;
+
+                    memcpy(buffer, abspath, *size);
+                    buffer[*size] = '\0';
+
+                    uv__free(clonedpath);
+                    return 0;
+                }
+            }
+            token = strtok(NULL, ":");
         }
-      }
-      token = strtok(NULL, ":");
-    }
-    uv__free(clonedpath);
+        uv__free(clonedpath);
 
-    /* Out of tokens (path entries), and no match found */
-    return UV_EINVAL;
-  }
+        /* Out of tokens (path entries), and no match found */
+        return UV_EINVAL;
+    }
 }

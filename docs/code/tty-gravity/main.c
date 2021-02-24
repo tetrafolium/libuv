@@ -17,9 +17,9 @@ void update(uv_timer_t *req) {
     uv_buf_t buf;
     buf.base = data;
     buf.len = sprintf(data, "\033[2J\033[H\033[%dB\033[%luC\033[42;37m%s",
-                            pos,
-                            (unsigned long) (width-strlen(message))/2,
-                            message);
+                      pos,
+                      (unsigned long) (width-strlen(message))/2,
+                      message);
     uv_write(&write_req, (uv_stream_t*) &tty, &buf, 1, NULL);
 
     pos++;
@@ -34,7 +34,7 @@ int main() {
 
     uv_tty_init(loop, &tty, STDOUT_FILENO, 0);
     uv_tty_set_mode(&tty, 0);
-    
+
     if (uv_tty_get_winsize(&tty, &width, &height)) {
         fprintf(stderr, "Could not get TTY information\n");
         uv_tty_reset_mode();

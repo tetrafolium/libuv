@@ -22,13 +22,13 @@
 #ifndef UV_VERSION_H
 #define UV_VERSION_H
 
- /*
- * Versions with the same major number are ABI stable. API is allowed to
- * evolve between minor releases, but only in a backwards compatible way.
- * Make sure you update the -soname directives in configure.ac
- * and uv.gyp whenever you bump UV_VERSION_MAJOR or UV_VERSION_MINOR (but
- * not UV_VERSION_PATCH.)
- */
+/*
+* Versions with the same major number are ABI stable. API is allowed to
+* evolve between minor releases, but only in a backwards compatible way.
+* Make sure you update the -soname directives in configure.ac
+* and uv.gyp whenever you bump UV_VERSION_MAJOR or UV_VERSION_MINOR (but
+* not UV_VERSION_PATCH.)
+*/
 
 #define UV_VERSION_MAJOR 2
 #define UV_VERSION_MINOR 0

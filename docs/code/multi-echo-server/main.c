@@ -24,8 +24,8 @@ void close_process_handle(uv_process_t *req, int64_t exit_status, int term_signa
 }
 
 void alloc_buffer(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
-  buf->base = malloc(suggested_size);
-  buf->len = suggested_size;
+    buf->base = malloc(suggested_size);
+    buf->len = suggested_size;
 }
 
 void on_new_connection(uv_stream_t *server, int status) {
@@ -89,7 +89,7 @@ void setup_workers() {
         worker->options.file = args[0];
         worker->options.args = args;
 
-        uv_spawn(loop, &worker->req, &worker->options); 
+        uv_spawn(loop, &worker->req, &worker->options);
         fprintf(stderr, "Started worker %d\n", worker->req.pid);
     }
 }

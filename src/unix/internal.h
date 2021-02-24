@@ -133,24 +133,24 @@ typedef struct uv__stream_queued_fds_s uv__stream_queued_fds_t;
 
 /* loop flags */
 enum {
-  UV_LOOP_BLOCK_SIGPROF = 1
+    UV_LOOP_BLOCK_SIGPROF = 1
 };
 
 /* flags of excluding ifaddr */
 enum {
-  UV__EXCLUDE_IFPHYS,
-  UV__EXCLUDE_IFADDR
+    UV__EXCLUDE_IFPHYS,
+    UV__EXCLUDE_IFADDR
 };
 
 typedef enum {
-  UV_CLOCK_PRECISE = 0,  /* Use the highest resolution clock available. */
-  UV_CLOCK_FAST = 1      /* Use the fastest clock with <= 1ms granularity. */
+    UV_CLOCK_PRECISE = 0,  /* Use the highest resolution clock available. */
+    UV_CLOCK_FAST = 1      /* Use the fastest clock with <= 1ms granularity. */
 } uv_clocktype_t;
 
 struct uv__stream_queued_fds_s {
-  unsigned int size;
-  unsigned int offset;
-  int fds[1];
+    unsigned int size;
+    unsigned int offset;
+    int fds[1];
 };
 
 
@@ -217,7 +217,7 @@ void uv__run_prepare(uv_loop_t* loop);
 
 /* stream */
 void uv__stream_init(uv_loop_t* loop, uv_stream_t* stream,
-    uv_handle_type type);
+                     uv_handle_type type);
 int uv__stream_open(uv_stream_t*, int fd, int flags);
 void uv__stream_destroy(uv_stream_t* stream);
 #if defined(__APPLE__)
@@ -295,19 +295,19 @@ void uv__fsevents_loop_delete(uv_loop_t* loop);
 #endif /* defined(__APPLE__) */
 
 UV_UNUSED(static void uv__update_time(uv_loop_t* loop)) {
-  /* Use a fast time source if available.  We only need millisecond precision.
-   */
-  loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
+    /* Use a fast time source if available.  We only need millisecond precision.
+     */
+    loop->time = uv__hrtime(UV_CLOCK_FAST) / 1000000;
 }
 
 UV_UNUSED(static char* uv__basename_r(const char* path)) {
-  char* s;
+    char* s;
 
-  s = strrchr(path, '/');
-  if (s == NULL)
-    return (char*) path;
+    s = strrchr(path, '/');
+    if (s == NULL)
+        return (char*) path;
 
-  return s + 1;
+    return s + 1;
 }
 
 #if defined(__linux__)

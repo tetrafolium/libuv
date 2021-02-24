@@ -42,8 +42,8 @@ void write_data(uv_stream_t *dest, size_t size, uv_buf_t buf, uv_write_cb cb) {
 }
 
 void read_stdin(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
-    if (nread < 0){
-        if (nread == UV_EOF){
+    if (nread < 0) {
+        if (nread == UV_EOF) {
             // end of file
             uv_close((uv_handle_t *)&stdin_pipe, NULL);
             uv_close((uv_handle_t *)&stdout_pipe, NULL);
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 
     uv_pipe_init(loop, &stdout_pipe, 0);
     uv_pipe_open(&stdout_pipe, 1);
-    
+
     uv_fs_t file_req;
     int fd = uv_fs_open(loop, &file_req, argv[1], O_CREAT | O_RDWR, 0644, NULL);
     uv_pipe_init(loop, &file_pipe, 0);

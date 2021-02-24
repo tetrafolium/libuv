@@ -60,55 +60,55 @@
 
 
 typedef struct {
-  int bytes_available;
-  int bytes_returned;
-  char current_date_and_time[8];
-  char system_name[8];
-  char elapsed_time[6];
-  char restricted_state_flag;
-  char reserved;
-  int percent_processing_unit_used;
-  int jobs_in_system;
-  int percent_permanent_addresses;
-  int percent_temporary_addresses;
-  int system_asp;
-  int percent_system_asp_used;
-  int total_auxiliary_storage;
-  int current_unprotected_storage_used;
-  int maximum_unprotected_storage_used;
-  int percent_db_capability;
-  int main_storage_size;
-  int number_of_partitions;
-  int partition_identifier;
-  int reserved1;
-  int current_processing_capacity;
-  char processor_sharing_attribute;
-  char reserved2[3];
-  int number_of_processors;
-  int active_jobs_in_system;
-  int active_threads_in_system;
-  int maximum_jobs_in_system;
-  int percent_temporary_256mb_segments_used;
-  int percent_temporary_4gb_segments_used;
-  int percent_permanent_256mb_segments_used;
-  int percent_permanent_4gb_segments_used;
-  int percent_current_interactive_performance;
-  int percent_uncapped_cpu_capacity_used;
-  int percent_shared_processor_pool_used;
-  long main_storage_size_long;
+    int bytes_available;
+    int bytes_returned;
+    char current_date_and_time[8];
+    char system_name[8];
+    char elapsed_time[6];
+    char restricted_state_flag;
+    char reserved;
+    int percent_processing_unit_used;
+    int jobs_in_system;
+    int percent_permanent_addresses;
+    int percent_temporary_addresses;
+    int system_asp;
+    int percent_system_asp_used;
+    int total_auxiliary_storage;
+    int current_unprotected_storage_used;
+    int maximum_unprotected_storage_used;
+    int percent_db_capability;
+    int main_storage_size;
+    int number_of_partitions;
+    int partition_identifier;
+    int reserved1;
+    int current_processing_capacity;
+    char processor_sharing_attribute;
+    char reserved2[3];
+    int number_of_processors;
+    int active_jobs_in_system;
+    int active_threads_in_system;
+    int maximum_jobs_in_system;
+    int percent_temporary_256mb_segments_used;
+    int percent_temporary_4gb_segments_used;
+    int percent_permanent_256mb_segments_used;
+    int percent_permanent_4gb_segments_used;
+    int percent_current_interactive_performance;
+    int percent_uncapped_cpu_capacity_used;
+    int percent_shared_processor_pool_used;
+    long main_storage_size_long;
 } SSTS0200;
 
 
 typedef struct {
-  char header[208];
-  unsigned char loca_adapter_address[12];
+    char header[208];
+    unsigned char loca_adapter_address[12];
 } LIND0500;
 
 
 typedef struct {
-  int bytes_provided;
-  int bytes_available;
-  char msgid[7];
+    int bytes_provided;
+    int bytes_available;
+    char msgid[7];
 } errcode_s;
 
 
@@ -128,7 +128,8 @@ static const unsigned char e2a[256] = {
     123, 65, 66, 67, 68, 69, 70, 71, 72, 73, 232, 233, 234, 235, 236, 237,
     125, 74, 75, 76, 77, 78, 79, 80, 81, 82, 238, 239, 240, 241, 242, 243,
     92, 159, 83, 84, 85, 86, 87, 88, 89, 90, 244, 245, 246, 247, 248, 249,
-    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 250, 251, 252, 253, 254, 255};
+    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 250, 251, 252, 253, 254, 255
+};
 
 
 static const unsigned char a2e[256] = {
@@ -147,330 +148,331 @@ static const unsigned char a2e[256] = {
     118, 119, 120, 128, 138, 139, 140, 141, 142, 143, 144, 154, 155, 156, 157, 158,
     159, 160, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183,
     184, 185, 186, 187, 188, 189, 190, 191, 202, 203, 204, 205, 206, 207, 218, 219,
-    220, 221, 222, 223, 234, 235, 236, 237, 238, 239, 250, 251, 252, 253, 254, 255};
+    220, 221, 222, 223, 234, 235, 236, 237, 238, 239, 250, 251, 252, 253, 254, 255
+};
 
 
 static void iconv_e2a(unsigned char src[], unsigned char dst[], size_t length) {
-  size_t i;
-  for (i = 0; i < length; i++)
-    dst[i] = e2a[src[i]];
+    size_t i;
+    for (i = 0; i < length; i++)
+        dst[i] = e2a[src[i]];
 }
 
 
 static void iconv_a2e(const char* src, unsigned char dst[], size_t length) {
-  size_t srclen;
-  size_t i;
+    size_t srclen;
+    size_t i;
 
-  srclen = strlen(src);
-  if (srclen > length)
-    abort();
-  for (i = 0; i < srclen; i++)
-    dst[i] = a2e[src[i]];
-  /* padding the remaining part with spaces */
-  for (; i < length; i++)
-    dst[i] = a2e[' '];
+    srclen = strlen(src);
+    if (srclen > length)
+        abort();
+    for (i = 0; i < srclen; i++)
+        dst[i] = a2e[src[i]];
+    /* padding the remaining part with spaces */
+    for (; i < length; i++)
+        dst[i] = a2e[' '];
 }
 
 
 static int get_ibmi_system_status(SSTS0200* rcvr) {
-  /* rcvrlen is input parameter 2 to QWCRSSTS */
-  unsigned int rcvrlen = sizeof(*rcvr);
-  unsigned char format[8], reset_status[10];
+    /* rcvrlen is input parameter 2 to QWCRSSTS */
+    unsigned int rcvrlen = sizeof(*rcvr);
+    unsigned char format[8], reset_status[10];
 
-  /* format is input parameter 3 to QWCRSSTS */
-  iconv_a2e("SSTS0200", format, sizeof(format));
-  /* reset_status is input parameter 4 */
-  iconv_a2e("*NO", reset_status, sizeof(reset_status));
+    /* format is input parameter 3 to QWCRSSTS */
+    iconv_a2e("SSTS0200", format, sizeof(format));
+    /* reset_status is input parameter 4 */
+    iconv_a2e("*NO", reset_status, sizeof(reset_status));
 
-  /* errcode is input parameter 5 to QWCRSSTS */
-  errcode_s errcode;
+    /* errcode is input parameter 5 to QWCRSSTS */
+    errcode_s errcode;
 
-  /* qwcrssts_pointer is the 16-byte tagged system pointer to QWCRSSTS */
-  ILEpointer __attribute__((aligned(16))) qwcrssts_pointer;
+    /* qwcrssts_pointer is the 16-byte tagged system pointer to QWCRSSTS */
+    ILEpointer __attribute__((aligned(16))) qwcrssts_pointer;
 
-  /* qwcrssts_argv is the array of argument pointers to QWCRSSTS */
-  void* qwcrssts_argv[6];
+    /* qwcrssts_argv is the array of argument pointers to QWCRSSTS */
+    void* qwcrssts_argv[6];
 
-  /* Set the IBM i pointer to the QSYS/QWCRSSTS *PGM object */
-  int rc = _RSLOBJ2(&qwcrssts_pointer, RSLOBJ_TS_PGM, "QWCRSSTS", "QSYS");
+    /* Set the IBM i pointer to the QSYS/QWCRSSTS *PGM object */
+    int rc = _RSLOBJ2(&qwcrssts_pointer, RSLOBJ_TS_PGM, "QWCRSSTS", "QSYS");
 
-  if (rc != 0)
+    if (rc != 0)
+        return rc;
+
+    /* initialize the QWCRSSTS returned info structure */
+    memset(rcvr, 0, sizeof(*rcvr));
+
+    /* initialize the QWCRSSTS error code structure */
+    memset(&errcode, 0, sizeof(errcode));
+    errcode.bytes_provided = sizeof(errcode);
+
+    /* initialize the array of argument pointers for the QWCRSSTS API */
+    qwcrssts_argv[0] = rcvr;
+    qwcrssts_argv[1] = &rcvrlen;
+    qwcrssts_argv[2] = &format;
+    qwcrssts_argv[3] = &reset_status;
+    qwcrssts_argv[4] = &errcode;
+    qwcrssts_argv[5] = NULL;
+
+    /* Call the IBM i QWCRSSTS API from PASE */
+    rc = _PGMCALL(&qwcrssts_pointer, qwcrssts_argv, 0);
+
     return rc;
-
-  /* initialize the QWCRSSTS returned info structure */
-  memset(rcvr, 0, sizeof(*rcvr));
-
-  /* initialize the QWCRSSTS error code structure */
-  memset(&errcode, 0, sizeof(errcode));
-  errcode.bytes_provided = sizeof(errcode);
-
-  /* initialize the array of argument pointers for the QWCRSSTS API */
-  qwcrssts_argv[0] = rcvr;
-  qwcrssts_argv[1] = &rcvrlen;
-  qwcrssts_argv[2] = &format;
-  qwcrssts_argv[3] = &reset_status;
-  qwcrssts_argv[4] = &errcode;
-  qwcrssts_argv[5] = NULL;
-
-  /* Call the IBM i QWCRSSTS API from PASE */
-  rc = _PGMCALL(&qwcrssts_pointer, qwcrssts_argv, 0);
-
-  return rc;
 }
 
 
 uint64_t uv_get_free_memory(void) {
-  SSTS0200 rcvr;
+    SSTS0200 rcvr;
 
-  if (get_ibmi_system_status(&rcvr))
-    return 0;
+    if (get_ibmi_system_status(&rcvr))
+        return 0;
 
-  /* The amount of main storage, in kilobytes, in the system. */
-  uint64_t main_storage_size = rcvr.main_storage_size;
+    /* The amount of main storage, in kilobytes, in the system. */
+    uint64_t main_storage_size = rcvr.main_storage_size;
 
-  /* The current amount of storage in use for temporary objects.
-   * in millions (M) of bytes.
-   */
-  uint64_t current_unprotected_storage_used =
-    rcvr.current_unprotected_storage_used * 1024ULL;
+    /* The current amount of storage in use for temporary objects.
+     * in millions (M) of bytes.
+     */
+    uint64_t current_unprotected_storage_used =
+        rcvr.current_unprotected_storage_used * 1024ULL;
 
-  /* Current unprotected storage includes the storage used for memory
-   * and disks so it is possible to exceed the amount of main storage.
-   */
-  if (main_storage_size <= current_unprotected_storage_used)
-    return 0ULL;
+    /* Current unprotected storage includes the storage used for memory
+     * and disks so it is possible to exceed the amount of main storage.
+     */
+    if (main_storage_size <= current_unprotected_storage_used)
+        return 0ULL;
 
-  return (main_storage_size - current_unprotected_storage_used) * 1024ULL;
+    return (main_storage_size - current_unprotected_storage_used) * 1024ULL;
 }
 
 
 uint64_t uv_get_total_memory(void) {
-  SSTS0200 rcvr;
+    SSTS0200 rcvr;
 
-  if (get_ibmi_system_status(&rcvr))
-    return 0;
+    if (get_ibmi_system_status(&rcvr))
+        return 0;
 
-  return (uint64_t)rcvr.main_storage_size * 1024ULL;
+    return (uint64_t)rcvr.main_storage_size * 1024ULL;
 }
 
 
 uint64_t uv_get_constrained_memory(void) {
-  return 0;  /* Memory constraints are unknown. */
+    return 0;  /* Memory constraints are unknown. */
 }
 
 
 void uv_loadavg(double avg[3]) {
-  SSTS0200 rcvr;
+    SSTS0200 rcvr;
 
-  if (get_ibmi_system_status(&rcvr)) {
-    avg[0] = avg[1] = avg[2] = 0;
-    return;
-  }
+    if (get_ibmi_system_status(&rcvr)) {
+        avg[0] = avg[1] = avg[2] = 0;
+        return;
+    }
 
-  /* The average (in tenths) of the elapsed time during which the processing
-   * units were in use. For example, a value of 411 in binary would be 41.1%.
-   * This percentage could be greater than 100% for an uncapped partition.
-   */
-  double processing_unit_used_percent =
-    rcvr.percent_processing_unit_used / 1000.0;
+    /* The average (in tenths) of the elapsed time during which the processing
+     * units were in use. For example, a value of 411 in binary would be 41.1%.
+     * This percentage could be greater than 100% for an uncapped partition.
+     */
+    double processing_unit_used_percent =
+        rcvr.percent_processing_unit_used / 1000.0;
 
-  avg[0] = avg[1] = avg[2] = processing_unit_used_percent;
+    avg[0] = avg[1] = avg[2] = processing_unit_used_percent;
 }
 
 
 int uv_resident_set_memory(size_t* rss) {
-  *rss = 0;
-  return 0;
+    *rss = 0;
+    return 0;
 }
 
 
 int uv_uptime(double* uptime) {
-  return UV_ENOSYS;
+    return UV_ENOSYS;
 }
 
 
 int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
-  unsigned int numcpus, idx = 0;
-  uv_cpu_info_t* cpu_info;
+    unsigned int numcpus, idx = 0;
+    uv_cpu_info_t* cpu_info;
 
-  *cpu_infos = NULL;
-  *count = 0;
+    *cpu_infos = NULL;
+    *count = 0;
 
-  numcpus = sysconf(_SC_NPROCESSORS_ONLN);
+    numcpus = sysconf(_SC_NPROCESSORS_ONLN);
 
-  *cpu_infos = uv__malloc(numcpus * sizeof(uv_cpu_info_t));
-  if (!*cpu_infos) {
-    return UV_ENOMEM;
-  }
+    *cpu_infos = uv__malloc(numcpus * sizeof(uv_cpu_info_t));
+    if (!*cpu_infos) {
+        return UV_ENOMEM;
+    }
 
-  cpu_info = *cpu_infos;
-  for (idx = 0; idx < numcpus; idx++) {
-    cpu_info->speed = 0;
-    cpu_info->model = uv__strdup("unknown");
-    cpu_info->cpu_times.user = 0;
-    cpu_info->cpu_times.sys = 0;
-    cpu_info->cpu_times.idle = 0;
-    cpu_info->cpu_times.irq = 0;
-    cpu_info->cpu_times.nice = 0;
-    cpu_info++;
-  }
-  *count = numcpus;
+    cpu_info = *cpu_infos;
+    for (idx = 0; idx < numcpus; idx++) {
+        cpu_info->speed = 0;
+        cpu_info->model = uv__strdup("unknown");
+        cpu_info->cpu_times.user = 0;
+        cpu_info->cpu_times.sys = 0;
+        cpu_info->cpu_times.idle = 0;
+        cpu_info->cpu_times.irq = 0;
+        cpu_info->cpu_times.nice = 0;
+        cpu_info++;
+    }
+    *count = numcpus;
 
-  return 0;
+    return 0;
 }
 
 
 static int get_ibmi_physical_address(const char* line, char (*phys_addr)[6]) {
-  LIND0500 rcvr;
-  /* rcvrlen is input parameter 2 to QDCRLIND */
-  unsigned int rcvrlen = sizeof(rcvr);
-  unsigned char format[8], line_name[10];
-  unsigned char mac_addr[sizeof(rcvr.loca_adapter_address)];
-  int c[6];
+    LIND0500 rcvr;
+    /* rcvrlen is input parameter 2 to QDCRLIND */
+    unsigned int rcvrlen = sizeof(rcvr);
+    unsigned char format[8], line_name[10];
+    unsigned char mac_addr[sizeof(rcvr.loca_adapter_address)];
+    int c[6];
 
-  /* format is input parameter 3 to QDCRLIND */
-  iconv_a2e("LIND0500", format, sizeof(format));
+    /* format is input parameter 3 to QDCRLIND */
+    iconv_a2e("LIND0500", format, sizeof(format));
 
-  /* line_name is input parameter 4 to QDCRLIND */
-  iconv_a2e(line, line_name, sizeof(line_name));
+    /* line_name is input parameter 4 to QDCRLIND */
+    iconv_a2e(line, line_name, sizeof(line_name));
 
-  /* err is input parameter 5 to QDCRLIND */
-  errcode_s err;
+    /* err is input parameter 5 to QDCRLIND */
+    errcode_s err;
 
-  /* qwcrssts_pointer is the 16-byte tagged system pointer to QDCRLIND */
-  ILEpointer __attribute__((aligned(16))) qdcrlind_pointer;
+    /* qwcrssts_pointer is the 16-byte tagged system pointer to QDCRLIND */
+    ILEpointer __attribute__((aligned(16))) qdcrlind_pointer;
 
-  /* qwcrssts_argv is the array of argument pointers to QDCRLIND */
-  void* qdcrlind_argv[6];
+    /* qwcrssts_argv is the array of argument pointers to QDCRLIND */
+    void* qdcrlind_argv[6];
 
-  /* Set the IBM i pointer to the QSYS/QDCRLIND *PGM object */
-  int rc = _RSLOBJ2(&qdcrlind_pointer, RSLOBJ_TS_PGM, "QDCRLIND", "QSYS");
+    /* Set the IBM i pointer to the QSYS/QDCRLIND *PGM object */
+    int rc = _RSLOBJ2(&qdcrlind_pointer, RSLOBJ_TS_PGM, "QDCRLIND", "QSYS");
 
-  if (rc != 0)
+    if (rc != 0)
+        return rc;
+
+    /* initialize the QDCRLIND returned info structure */
+    memset(&rcvr, 0, sizeof(rcvr));
+
+    /* initialize the QDCRLIND error code structure */
+    memset(&err, 0, sizeof(err));
+    err.bytes_provided = sizeof(err);
+
+    /* initialize the array of argument pointers for the QDCRLIND API */
+    qdcrlind_argv[0] = &rcvr;
+    qdcrlind_argv[1] = &rcvrlen;
+    qdcrlind_argv[2] = &format;
+    qdcrlind_argv[3] = &line_name;
+    qdcrlind_argv[4] = &err;
+    qdcrlind_argv[5] = NULL;
+
+    /* Call the IBM i QDCRLIND API from PASE */
+    rc = _PGMCALL(&qdcrlind_pointer, qdcrlind_argv, 0);
+    if (rc != 0)
+        return rc;
+
+    /* convert ebcdic loca_adapter_address to ascii first */
+    iconv_e2a(rcvr.loca_adapter_address, mac_addr,
+              sizeof(rcvr.loca_adapter_address));
+
+    /* convert loca_adapter_address(char[12]) to phys_addr(char[6]) */
+    int r = sscanf(mac_addr, "%02x%02x%02x%02x%02x%02x",
+                   &c[0], &c[1], &c[2], &c[3], &c[4], &c[5]);
+
+    if (r == ARRAY_SIZE(c)) {
+        (*phys_addr)[0] = c[0];
+        (*phys_addr)[1] = c[1];
+        (*phys_addr)[2] = c[2];
+        (*phys_addr)[3] = c[3];
+        (*phys_addr)[4] = c[4];
+        (*phys_addr)[5] = c[5];
+    } else {
+        memset(*phys_addr, 0, sizeof(*phys_addr));
+        rc = -1;
+    }
     return rc;
-
-  /* initialize the QDCRLIND returned info structure */
-  memset(&rcvr, 0, sizeof(rcvr));
-
-  /* initialize the QDCRLIND error code structure */
-  memset(&err, 0, sizeof(err));
-  err.bytes_provided = sizeof(err);
-
-  /* initialize the array of argument pointers for the QDCRLIND API */
-  qdcrlind_argv[0] = &rcvr;
-  qdcrlind_argv[1] = &rcvrlen;
-  qdcrlind_argv[2] = &format;
-  qdcrlind_argv[3] = &line_name;
-  qdcrlind_argv[4] = &err;
-  qdcrlind_argv[5] = NULL;
-
-  /* Call the IBM i QDCRLIND API from PASE */
-  rc = _PGMCALL(&qdcrlind_pointer, qdcrlind_argv, 0);
-  if (rc != 0)
-    return rc;
-
-  /* convert ebcdic loca_adapter_address to ascii first */
-  iconv_e2a(rcvr.loca_adapter_address, mac_addr,
-            sizeof(rcvr.loca_adapter_address));
-
-  /* convert loca_adapter_address(char[12]) to phys_addr(char[6]) */
-  int r = sscanf(mac_addr, "%02x%02x%02x%02x%02x%02x",
-                &c[0], &c[1], &c[2], &c[3], &c[4], &c[5]);
-
-  if (r == ARRAY_SIZE(c)) {
-    (*phys_addr)[0] = c[0];
-    (*phys_addr)[1] = c[1];
-    (*phys_addr)[2] = c[2];
-    (*phys_addr)[3] = c[3];
-    (*phys_addr)[4] = c[4];
-    (*phys_addr)[5] = c[5];
-  } else {
-    memset(*phys_addr, 0, sizeof(*phys_addr));
-    rc = -1;
-  }
-  return rc;
 }
 
 
 int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
-  uv_interface_address_t* address;
-  struct ifaddrs_pase *ifap = NULL, *cur;
-  int inet6, r = 0;
+    uv_interface_address_t* address;
+    struct ifaddrs_pase *ifap = NULL, *cur;
+    int inet6, r = 0;
 
-  *count = 0;
-  *addresses = NULL;
+    *count = 0;
+    *addresses = NULL;
 
-  if (Qp2getifaddrs(&ifap))
-    return UV_ENOSYS;
+    if (Qp2getifaddrs(&ifap))
+        return UV_ENOSYS;
 
-  /* The first loop to get the size of the array to be allocated */
-  for (cur = ifap; cur; cur = cur->ifa_next) {
-    if (!(cur->ifa_addr->sa_family == AF_INET6 ||
-          cur->ifa_addr->sa_family == AF_INET))
-      continue;
+    /* The first loop to get the size of the array to be allocated */
+    for (cur = ifap; cur; cur = cur->ifa_next) {
+        if (!(cur->ifa_addr->sa_family == AF_INET6 ||
+                cur->ifa_addr->sa_family == AF_INET))
+            continue;
 
-    if (!(cur->ifa_flags & IFF_UP && cur->ifa_flags & IFF_RUNNING))
-      continue;
+        if (!(cur->ifa_flags & IFF_UP && cur->ifa_flags & IFF_RUNNING))
+            continue;
 
-    (*count)++;
-  }
-
-  if (*count == 0) {
-    Qp2freeifaddrs(ifap);
-    return 0;
-  }
-
-  /* Alloc the return interface structs */
-  *addresses = uv__calloc(*count, sizeof(**addresses));
-  if (*addresses == NULL) {
-    Qp2freeifaddrs(ifap);
-    return UV_ENOMEM;
-  }
-  address = *addresses;
-
-  /* The second loop to fill in the array */
-  for (cur = ifap; cur; cur = cur->ifa_next) {
-    if (!(cur->ifa_addr->sa_family == AF_INET6 ||
-          cur->ifa_addr->sa_family == AF_INET))
-      continue;
-
-    if (!(cur->ifa_flags & IFF_UP && cur->ifa_flags & IFF_RUNNING))
-      continue;
-
-    address->name = uv__strdup(cur->ifa_name);
-
-    inet6 = (cur->ifa_addr->sa_family == AF_INET6);
-
-    if (inet6) {
-      address->address.address6 = *((struct sockaddr_in6*)cur->ifa_addr);
-      address->netmask.netmask6 = *((struct sockaddr_in6*)cur->ifa_netmask);
-      address->netmask.netmask6.sin6_family = AF_INET6;
-    } else {
-      address->address.address4 = *((struct sockaddr_in*)cur->ifa_addr);
-      address->netmask.netmask4 = *((struct sockaddr_in*)cur->ifa_netmask);
-      address->netmask.netmask4.sin_family = AF_INET;
-    }
-    address->is_internal = cur->ifa_flags & IFF_LOOPBACK ? 1 : 0;
-    if (!address->is_internal) {
-      int rc = get_ibmi_physical_address(address->name, &address->phys_addr);
-      if (rc != 0)
-        r = rc;
+        (*count)++;
     }
 
-    address++;
-  }
+    if (*count == 0) {
+        Qp2freeifaddrs(ifap);
+        return 0;
+    }
 
-  Qp2freeifaddrs(ifap);
-  return r;
+    /* Alloc the return interface structs */
+    *addresses = uv__calloc(*count, sizeof(**addresses));
+    if (*addresses == NULL) {
+        Qp2freeifaddrs(ifap);
+        return UV_ENOMEM;
+    }
+    address = *addresses;
+
+    /* The second loop to fill in the array */
+    for (cur = ifap; cur; cur = cur->ifa_next) {
+        if (!(cur->ifa_addr->sa_family == AF_INET6 ||
+                cur->ifa_addr->sa_family == AF_INET))
+            continue;
+
+        if (!(cur->ifa_flags & IFF_UP && cur->ifa_flags & IFF_RUNNING))
+            continue;
+
+        address->name = uv__strdup(cur->ifa_name);
+
+        inet6 = (cur->ifa_addr->sa_family == AF_INET6);
+
+        if (inet6) {
+            address->address.address6 = *((struct sockaddr_in6*)cur->ifa_addr);
+            address->netmask.netmask6 = *((struct sockaddr_in6*)cur->ifa_netmask);
+            address->netmask.netmask6.sin6_family = AF_INET6;
+        } else {
+            address->address.address4 = *((struct sockaddr_in*)cur->ifa_addr);
+            address->netmask.netmask4 = *((struct sockaddr_in*)cur->ifa_netmask);
+            address->netmask.netmask4.sin_family = AF_INET;
+        }
+        address->is_internal = cur->ifa_flags & IFF_LOOPBACK ? 1 : 0;
+        if (!address->is_internal) {
+            int rc = get_ibmi_physical_address(address->name, &address->phys_addr);
+            if (rc != 0)
+                r = rc;
+        }
+
+        address++;
+    }
+
+    Qp2freeifaddrs(ifap);
+    return r;
 }
 
 
 void uv_free_interface_addresses(uv_interface_address_t* addresses, int count) {
-  int i;
+    int i;
 
-  for (i = 0; i < count; ++i) {
-    uv__free(addresses[i].name);
-  }
+    for (i = 0; i < count; ++i) {
+        uv__free(addresses[i].name);
+    }
 
-  uv__free(addresses);
+    uv__free(addresses);
 }

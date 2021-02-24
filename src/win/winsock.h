@@ -51,19 +51,19 @@
  * We only need receive flags so far.
  */
 #ifndef TDI_RECEIVE_NORMAL
-  #define TDI_RECEIVE_BROADCAST           0x00000004
-  #define TDI_RECEIVE_MULTICAST           0x00000008
-  #define TDI_RECEIVE_PARTIAL             0x00000010
-  #define TDI_RECEIVE_NORMAL              0x00000020
-  #define TDI_RECEIVE_EXPEDITED           0x00000040
-  #define TDI_RECEIVE_PEEK                0x00000080
-  #define TDI_RECEIVE_NO_RESPONSE_EXP     0x00000100
-  #define TDI_RECEIVE_COPY_LOOKAHEAD      0x00000200
-  #define TDI_RECEIVE_ENTIRE_MESSAGE      0x00000400
-  #define TDI_RECEIVE_AT_DISPATCH_LEVEL   0x00000800
-  #define TDI_RECEIVE_CONTROL_INFO        0x00001000
-  #define TDI_RECEIVE_FORCE_INDICATION    0x00002000
-  #define TDI_RECEIVE_NO_PUSH             0x00004000
+#define TDI_RECEIVE_BROADCAST           0x00000004
+#define TDI_RECEIVE_MULTICAST           0x00000008
+#define TDI_RECEIVE_PARTIAL             0x00000010
+#define TDI_RECEIVE_NORMAL              0x00000020
+#define TDI_RECEIVE_EXPEDITED           0x00000040
+#define TDI_RECEIVE_PEEK                0x00000080
+#define TDI_RECEIVE_NO_RESPONSE_EXP     0x00000100
+#define TDI_RECEIVE_COPY_LOOKAHEAD      0x00000200
+#define TDI_RECEIVE_ENTIRE_MESSAGE      0x00000400
+#define TDI_RECEIVE_AT_DISPATCH_LEVEL   0x00000800
+#define TDI_RECEIVE_CONTROL_INFO        0x00001000
+#define TDI_RECEIVE_FORCE_INDICATION    0x00002000
+#define TDI_RECEIVE_NO_PUSH             0x00004000
 #endif
 
 /*
@@ -140,46 +140,46 @@ typedef struct _AFD_RECV_INFO {
 
 #if defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR)
 typedef struct _IP_ADAPTER_UNICAST_ADDRESS_XP {
-  /* FIXME: __C89_NAMELESS was removed */
-  /* __C89_NAMELESS */ union {
-    ULONGLONG Alignment;
-    /* __C89_NAMELESS */ struct {
-      ULONG Length;
-      DWORD Flags;
+    /* FIXME: __C89_NAMELESS was removed */
+    /* __C89_NAMELESS */ union {
+        ULONGLONG Alignment;
+        /* __C89_NAMELESS */ struct {
+            ULONG Length;
+            DWORD Flags;
+        };
     };
-  };
-  struct _IP_ADAPTER_UNICAST_ADDRESS_XP *Next;
-  SOCKET_ADDRESS Address;
-  IP_PREFIX_ORIGIN PrefixOrigin;
-  IP_SUFFIX_ORIGIN SuffixOrigin;
-  IP_DAD_STATE DadState;
-  ULONG ValidLifetime;
-  ULONG PreferredLifetime;
-  ULONG LeaseLifetime;
+    struct _IP_ADAPTER_UNICAST_ADDRESS_XP *Next;
+    SOCKET_ADDRESS Address;
+    IP_PREFIX_ORIGIN PrefixOrigin;
+    IP_SUFFIX_ORIGIN SuffixOrigin;
+    IP_DAD_STATE DadState;
+    ULONG ValidLifetime;
+    ULONG PreferredLifetime;
+    ULONG LeaseLifetime;
 } IP_ADAPTER_UNICAST_ADDRESS_XP,*PIP_ADAPTER_UNICAST_ADDRESS_XP;
 
 typedef struct _IP_ADAPTER_UNICAST_ADDRESS_LH {
-  union {
-    ULONGLONG Alignment;
-    struct {
-      ULONG Length;
-      DWORD Flags;
+    union {
+        ULONGLONG Alignment;
+        struct {
+            ULONG Length;
+            DWORD Flags;
+        };
     };
-  };
-  struct _IP_ADAPTER_UNICAST_ADDRESS_LH *Next;
-  SOCKET_ADDRESS Address;
-  IP_PREFIX_ORIGIN PrefixOrigin;
-  IP_SUFFIX_ORIGIN SuffixOrigin;
-  IP_DAD_STATE DadState;
-  ULONG ValidLifetime;
-  ULONG PreferredLifetime;
-  ULONG LeaseLifetime;
-  UINT8 OnLinkPrefixLength;
+    struct _IP_ADAPTER_UNICAST_ADDRESS_LH *Next;
+    SOCKET_ADDRESS Address;
+    IP_PREFIX_ORIGIN PrefixOrigin;
+    IP_SUFFIX_ORIGIN SuffixOrigin;
+    IP_DAD_STATE DadState;
+    ULONG ValidLifetime;
+    ULONG PreferredLifetime;
+    ULONG LeaseLifetime;
+    UINT8 OnLinkPrefixLength;
 } IP_ADAPTER_UNICAST_ADDRESS_LH,*PIP_ADAPTER_UNICAST_ADDRESS_LH;
 
 #endif
 
 int uv__convert_to_localhost_if_unspecified(const struct sockaddr* addr,
-                                            struct sockaddr_storage* storage);
+        struct sockaddr_storage* storage);
 
 #endif /* UV_WIN_WINSOCK_H_ */

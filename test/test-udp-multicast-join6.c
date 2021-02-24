@@ -35,14 +35,14 @@
     defined(__FreeBSD_kernel__) || \
     defined(__NetBSD__)         || \
     defined(__OpenBSD__)
-  #define MULTICAST_ADDR "ff02::1%lo0"
-  #define INTERFACE_ADDR "::1%lo0"
+#define MULTICAST_ADDR "ff02::1%lo0"
+#define INTERFACE_ADDR "::1%lo0"
 #elif defined(__MVS__)
-  #define MULTICAST_ADDR "ff02::1%LOOPBACK6"
-  #define INTERFACE_ADDR "::1%LOOPBACK6"
+#define MULTICAST_ADDR "ff02::1%LOOPBACK6"
+#define INTERFACE_ADDR "::1%LOOPBACK6"
 #else
-  #define MULTICAST_ADDR "ff02::1"
-  #define INTERFACE_ADDR NULL
+#define MULTICAST_ADDR "ff02::1"
+#define INTERFACE_ADDR NULL
 #endif
 
 static uv_udp_t server;
@@ -59,47 +59,47 @@ static int close_cb_called;
 static void alloc_cb(uv_handle_t* handle,
                      size_t suggested_size,
                      uv_buf_t* buf) {
-  static char slab[65536];
-  CHECK_HANDLE(handle);
-  ASSERT(suggested_size <= sizeof(slab));
-  buf->base = slab;
-  buf->len = sizeof(slab);
+    static char slab[65536];
+    CHECK_HANDLE(handle);
+    ASSERT(suggested_size <= sizeof(slab));
+    buf->base = slab;
+    buf->len = sizeof(slab);
 }
 
 
 static void close_cb(uv_handle_t* handle) {
-  CHECK_HANDLE(handle);
-  close_cb_called++;
+    CHECK_HANDLE(handle);
+    close_cb_called++;
 }
 
 
 static void sv_send_cb(uv_udp_send_t* req, int status) {
-  ASSERT(req != NULL);
-  ASSERT(status == 0);
-  CHECK_HANDLE(req->handle);
+    ASSERT(req != NULL);
+    ASSERT(status == 0);
+    CHECK_HANDLE(req->handle);
 
-  sv_send_cb_called++;
+    sv_send_cb_called++;
 
-  if (sv_send_cb_called == 2)
-    uv_close((uv_handle_t*) req->handle, close_cb);
+    if (sv_send_cb_called == 2)
+        uv_close((uv_handle_t*) req->handle, close_cb);
 }
 
 
 static int do_send(uv_udp_send_t* send_req) {
-  uv_buf_t buf;
-  struct sockaddr_in6 addr;
-  
-  buf = uv_buf_init("PING", 4);
+    uv_buf_t buf;
+    struct sockaddr_in6 addr;
 
-  ASSERT(0 == uv_ip6_addr(MULTICAST_ADDR, TEST_PORT, &addr));
+    buf = uv_buf_init("PING", 4);
 
-  /* client sends "PING" */
-  return uv_udp_send(send_req,
-                     &client,
-                     &buf,
-                     1,
-                     (const struct sockaddr*) &addr,
-                     sv_send_cb);
+    ASSERT(0 == uv_ip6_addr(MULTICAST_ADDR, TEST_PORT, &addr));
+
+    /* client sends "PING" */
+    return uv_udp_send(send_req,
+                       &client,
+                       &buf,
+                       1,
+                       (const struct sockaddr*) &addr,
+                       sv_send_cb);
 }
 
 
@@ -108,115 +108,115 @@ static void cl_recv_cb(uv_udp_t* handle,
                        const uv_buf_t* buf,
                        const struct sockaddr* addr,
                        unsigned flags) {
-  CHECK_HANDLE(handle);
-  ASSERT(flags == 0);
+    CHECK_HANDLE(handle);
+    ASSERT(flags == 0);
 
-  if (nread < 0) {
-    ASSERT(0 && "unexpected error");
-  }
+    if (nread < 0) {
+        ASSERT(0 && "unexpected error");
+    }
 
-  if (nread == 0) {
-    /* Returning unused buffer. Don't count towards cl_recv_cb_called */
-    ASSERT(addr == NULL);
-    return;
-  }
+    if (nread == 0) {
+        /* Returning unused buffer. Don't count towards cl_recv_cb_called */
+        ASSERT(addr == NULL);
+        return;
+    }
 
-  ASSERT(addr != NULL);
-  ASSERT(nread == 4);
-  ASSERT(!memcmp("PING", buf->base, nread));
+    ASSERT(addr != NULL);
+    ASSERT(nread == 4);
+    ASSERT(!memcmp("PING", buf->base, nread));
 
-  cl_recv_cb_called++;
+    cl_recv_cb_called++;
 
-  if (cl_recv_cb_called == 2) {
-    /* we are done with the server handle, we can close it */
-    uv_close((uv_handle_t*) &server, close_cb);
-  } else {
-    int r;
-    char source_addr[64];
+    if (cl_recv_cb_called == 2) {
+        /* we are done with the server handle, we can close it */
+        uv_close((uv_handle_t*) &server, close_cb);
+    } else {
+        int r;
+        char source_addr[64];
 
-    r = uv_ip6_name((const struct sockaddr_in6*)addr, source_addr, sizeof(source_addr));
-    ASSERT(r == 0);
+        r = uv_ip6_name((const struct sockaddr_in6*)addr, source_addr, sizeof(source_addr));
+        ASSERT(r == 0);
 
-    r = uv_udp_set_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, UV_LEAVE_GROUP);
-    ASSERT(r == 0);
+        r = uv_udp_set_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, UV_LEAVE_GROUP);
+        ASSERT(r == 0);
 
-    r = uv_udp_set_source_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, source_addr, UV_JOIN_GROUP);
-    ASSERT(r == 0);
+        r = uv_udp_set_source_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, source_addr, UV_JOIN_GROUP);
+        ASSERT(r == 0);
 
-    r = do_send(&req_ss);
-    ASSERT(r == 0);
-  }
+        r = do_send(&req_ss);
+        ASSERT(r == 0);
+    }
 }
 
 
 static int can_ipv6_external(void) {
-  uv_interface_address_t* addr;
-  int supported;
-  int count;
-  int i;
+    uv_interface_address_t* addr;
+    int supported;
+    int count;
+    int i;
 
-  if (uv_interface_addresses(&addr, &count))
-    return 0;  /* Assume no IPv6 support on failure. */
+    if (uv_interface_addresses(&addr, &count))
+        return 0;  /* Assume no IPv6 support on failure. */
 
-  supported = 0;
-  for (i = 0; supported == 0 && i < count; i += 1)
-    supported = (AF_INET6 == addr[i].address.address6.sin6_family &&
-                 !addr[i].is_internal);
+    supported = 0;
+    for (i = 0; supported == 0 && i < count; i += 1)
+        supported = (AF_INET6 == addr[i].address.address6.sin6_family &&
+                     !addr[i].is_internal);
 
-  uv_free_interface_addresses(addr, count);
-  return supported;
+    uv_free_interface_addresses(addr, count);
+    return supported;
 }
 
 
 TEST_IMPL(udp_multicast_join6) {
-  int r;
-  struct sockaddr_in6 addr;
+    int r;
+    struct sockaddr_in6 addr;
 
-  if (!can_ipv6_external())
-    RETURN_SKIP("No external IPv6 interface available");
+    if (!can_ipv6_external())
+        RETURN_SKIP("No external IPv6 interface available");
 
-  ASSERT(0 == uv_ip6_addr("::", TEST_PORT, &addr));
+    ASSERT(0 == uv_ip6_addr("::", TEST_PORT, &addr));
 
-  r = uv_udp_init(uv_default_loop(), &server);
-  ASSERT(r == 0);
+    r = uv_udp_init(uv_default_loop(), &server);
+    ASSERT(r == 0);
 
-  r = uv_udp_init(uv_default_loop(), &client);
-  ASSERT(r == 0);
+    r = uv_udp_init(uv_default_loop(), &client);
+    ASSERT(r == 0);
 
-  /* bind to the desired port */
-  r = uv_udp_bind(&server, (const struct sockaddr*) &addr, 0);
-  ASSERT(r == 0);
+    /* bind to the desired port */
+    r = uv_udp_bind(&server, (const struct sockaddr*) &addr, 0);
+    ASSERT(r == 0);
 
-  r = uv_udp_set_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, UV_JOIN_GROUP);
+    r = uv_udp_set_membership(&server, MULTICAST_ADDR, INTERFACE_ADDR, UV_JOIN_GROUP);
 
- #if defined(__MVS__)
-  if (r == UV_EADDRNOTAVAIL) {
+#if defined(__MVS__)
+    if (r == UV_EADDRNOTAVAIL) {
 #else
-  if (r == UV_ENODEV) {
+    if (r == UV_ENODEV) {
 #endif
+        MAKE_VALGRIND_HAPPY();
+        RETURN_SKIP("No ipv6 multicast route");
+    }
+
+    ASSERT(r == 0);
+
+    r = uv_udp_recv_start(&server, alloc_cb, cl_recv_cb);
+    ASSERT(r == 0);
+
+    r = do_send(&req);
+    ASSERT(r == 0);
+
+    ASSERT(close_cb_called == 0);
+    ASSERT(cl_recv_cb_called == 0);
+    ASSERT(sv_send_cb_called == 0);
+
+    /* run the loop till all events are processed */
+    uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+
+    ASSERT(cl_recv_cb_called == 2);
+    ASSERT(sv_send_cb_called == 2);
+    ASSERT(close_cb_called == 2);
+
     MAKE_VALGRIND_HAPPY();
-    RETURN_SKIP("No ipv6 multicast route");
-  }
-
-  ASSERT(r == 0);
-
-  r = uv_udp_recv_start(&server, alloc_cb, cl_recv_cb);
-  ASSERT(r == 0);
-  
-  r = do_send(&req);
-  ASSERT(r == 0);
-
-  ASSERT(close_cb_called == 0);
-  ASSERT(cl_recv_cb_called == 0);
-  ASSERT(sv_send_cb_called == 0);
-
-  /* run the loop till all events are processed */
-  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
-
-  ASSERT(cl_recv_cb_called == 2);
-  ASSERT(sv_send_cb_called == 2);
-  ASSERT(close_cb_called == 2);
-
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    return 0;
 }

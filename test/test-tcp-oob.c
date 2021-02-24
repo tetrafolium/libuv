@@ -39,104 +39,104 @@ static const int kMaxTicks = 10;
 static void alloc_cb(uv_handle_t* handle,
                      size_t suggested_size,
                      uv_buf_t* buf) {
-  static char storage[1024];
-  *buf = uv_buf_init(storage, sizeof(storage));
+    static char storage[1024];
+    *buf = uv_buf_init(storage, sizeof(storage));
 }
 
 
 static void idle_cb(uv_idle_t* idle) {
-  if (++ticks < kMaxTicks)
-    return;
+    if (++ticks < kMaxTicks)
+        return;
 
-  uv_close((uv_handle_t*) &server_handle, NULL);
-  uv_close((uv_handle_t*) &client_handle, NULL);
-  uv_close((uv_handle_t*) &peer_handle, NULL);
-  uv_close((uv_handle_t*) idle, NULL);
+    uv_close((uv_handle_t*) &server_handle, NULL);
+    uv_close((uv_handle_t*) &client_handle, NULL);
+    uv_close((uv_handle_t*) &peer_handle, NULL);
+    uv_close((uv_handle_t*) idle, NULL);
 }
 
 
 static void read_cb(uv_stream_t* handle, ssize_t nread, const uv_buf_t* buf) {
 #ifdef __MVS__
-  char lbuf[12];
+    char lbuf[12];
 #endif
-  uv_os_fd_t fd;
+    uv_os_fd_t fd;
 
-  ASSERT(nread >= 0);
-  ASSERT(0 == uv_fileno((uv_handle_t*)handle, &fd));
-  ASSERT(0 == uv_idle_start(&idle, idle_cb));
+    ASSERT(nread >= 0);
+    ASSERT(0 == uv_fileno((uv_handle_t*)handle, &fd));
+    ASSERT(0 == uv_idle_start(&idle, idle_cb));
 
 #ifdef __MVS__
-  /* Need to flush out the OOB data. Otherwise, this callback will get
-   * triggered on every poll with nread = 0.
-   */
-  ASSERT(-1 != recv(fd, lbuf, sizeof(lbuf), MSG_OOB));
+    /* Need to flush out the OOB data. Otherwise, this callback will get
+     * triggered on every poll with nread = 0.
+     */
+    ASSERT(-1 != recv(fd, lbuf, sizeof(lbuf), MSG_OOB));
 #endif
 }
 
 
 static void connect_cb(uv_connect_t* req, int status) {
-  ASSERT(req->handle == (uv_stream_t*) &client_handle);
-  ASSERT(0 == status);
+    ASSERT(req->handle == (uv_stream_t*) &client_handle);
+    ASSERT(0 == status);
 }
 
 
 static void connection_cb(uv_stream_t* handle, int status) {
-  int r;
-  uv_os_fd_t fd;
+    int r;
+    uv_os_fd_t fd;
 
-  ASSERT(0 == status);
-  ASSERT(0 == uv_accept(handle, (uv_stream_t*) &peer_handle));
-  ASSERT(0 == uv_read_start((uv_stream_t*) &peer_handle, alloc_cb, read_cb));
+    ASSERT(0 == status);
+    ASSERT(0 == uv_accept(handle, (uv_stream_t*) &peer_handle));
+    ASSERT(0 == uv_read_start((uv_stream_t*) &peer_handle, alloc_cb, read_cb));
 
-  /* Send some OOB data */
-  ASSERT(0 == uv_fileno((uv_handle_t*) &client_handle, &fd));
+    /* Send some OOB data */
+    ASSERT(0 == uv_fileno((uv_handle_t*) &client_handle, &fd));
 
-  ASSERT(0 == uv_stream_set_blocking((uv_stream_t*) &client_handle, 1));
+    ASSERT(0 == uv_stream_set_blocking((uv_stream_t*) &client_handle, 1));
 
-  /* The problem triggers only on a second message, it seem that xnu is not
-   * triggering `kevent()` for the first one
-   */
-  do {
-    r = send(fd, "hello", 5, MSG_OOB);
-  } while (r < 0 && errno == EINTR);
-  ASSERT(5 == r);
+    /* The problem triggers only on a second message, it seem that xnu is not
+     * triggering `kevent()` for the first one
+     */
+    do {
+        r = send(fd, "hello", 5, MSG_OOB);
+    } while (r < 0 && errno == EINTR);
+    ASSERT(5 == r);
 
-  do {
-    r = send(fd, "hello", 5, MSG_OOB);
-  } while (r < 0 && errno == EINTR);
-  ASSERT(5 == r);
+    do {
+        r = send(fd, "hello", 5, MSG_OOB);
+    } while (r < 0 && errno == EINTR);
+    ASSERT(5 == r);
 
-  ASSERT(0 == uv_stream_set_blocking((uv_stream_t*) &client_handle, 0));
+    ASSERT(0 == uv_stream_set_blocking((uv_stream_t*) &client_handle, 0));
 }
 
 
 TEST_IMPL(tcp_oob) {
-  struct sockaddr_in addr;
-  uv_loop_t* loop;
+    struct sockaddr_in addr;
+    uv_loop_t* loop;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
-  loop = uv_default_loop();
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    loop = uv_default_loop();
 
-  ASSERT(0 == uv_tcp_init(loop, &server_handle));
-  ASSERT(0 == uv_tcp_init(loop, &client_handle));
-  ASSERT(0 == uv_tcp_init(loop, &peer_handle));
-  ASSERT(0 == uv_idle_init(loop, &idle));
-  ASSERT(0 == uv_tcp_bind(&server_handle, (const struct sockaddr*) &addr, 0));
-  ASSERT(0 == uv_listen((uv_stream_t*) &server_handle, 1, connection_cb));
+    ASSERT(0 == uv_tcp_init(loop, &server_handle));
+    ASSERT(0 == uv_tcp_init(loop, &client_handle));
+    ASSERT(0 == uv_tcp_init(loop, &peer_handle));
+    ASSERT(0 == uv_idle_init(loop, &idle));
+    ASSERT(0 == uv_tcp_bind(&server_handle, (const struct sockaddr*) &addr, 0));
+    ASSERT(0 == uv_listen((uv_stream_t*) &server_handle, 1, connection_cb));
 
-  /* Ensure two separate packets */
-  ASSERT(0 == uv_tcp_nodelay(&client_handle, 1));
+    /* Ensure two separate packets */
+    ASSERT(0 == uv_tcp_nodelay(&client_handle, 1));
 
-  ASSERT(0 == uv_tcp_connect(&connect_req,
-                             &client_handle,
-                             (const struct sockaddr*) &addr,
-                             connect_cb));
-  ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
+    ASSERT(0 == uv_tcp_connect(&connect_req,
+                               &client_handle,
+                               (const struct sockaddr*) &addr,
+                               connect_cb));
+    ASSERT(0 == uv_run(loop, UV_RUN_DEFAULT));
 
-  ASSERT(ticks == kMaxTicks);
+    ASSERT(ticks == kMaxTicks);
 
-  MAKE_VALGRIND_HAPPY();
-  return 0;
+    MAKE_VALGRIND_HAPPY();
+    return 0;
 }
 
 #else

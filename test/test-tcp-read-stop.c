@@ -28,49 +28,49 @@ static uv_write_t write_req;
 
 
 static void fail_cb(void) {
-  ASSERT(0 && "fail_cb called");
+    ASSERT(0 && "fail_cb called");
 }
 
 
 static void write_cb(uv_write_t* req, int status) {
-  uv_close((uv_handle_t*) &timer_handle, NULL);
-  uv_close((uv_handle_t*) &tcp_handle, NULL);
+    uv_close((uv_handle_t*) &timer_handle, NULL);
+    uv_close((uv_handle_t*) &tcp_handle, NULL);
 }
 
 
 static void timer_cb(uv_timer_t* handle) {
-  uv_buf_t buf = uv_buf_init("PING", 4);
-  ASSERT(0 == uv_write(&write_req,
-                       (uv_stream_t*) &tcp_handle,
-                       &buf,
-                       1,
-                       write_cb));
-  ASSERT(0 == uv_read_stop((uv_stream_t*) &tcp_handle));
+    uv_buf_t buf = uv_buf_init("PING", 4);
+    ASSERT(0 == uv_write(&write_req,
+                         (uv_stream_t*) &tcp_handle,
+                         &buf,
+                         1,
+                         write_cb));
+    ASSERT(0 == uv_read_stop((uv_stream_t*) &tcp_handle));
 }
 
 
 static void connect_cb(uv_connect_t* req, int status) {
-  ASSERT(0 == status);
-  ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 50, 0));
-  ASSERT(0 == uv_read_start((uv_stream_t*) &tcp_handle,
-                            (uv_alloc_cb) fail_cb,
-                            (uv_read_cb) fail_cb));
+    ASSERT(0 == status);
+    ASSERT(0 == uv_timer_start(&timer_handle, timer_cb, 50, 0));
+    ASSERT(0 == uv_read_start((uv_stream_t*) &tcp_handle,
+                              (uv_alloc_cb) fail_cb,
+                              (uv_read_cb) fail_cb));
 }
 
 
 TEST_IMPL(tcp_read_stop) {
-  uv_connect_t connect_req;
-  struct sockaddr_in addr;
+    uv_connect_t connect_req;
+    struct sockaddr_in addr;
 
-  ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
-  ASSERT(0 == uv_timer_init(uv_default_loop(), &timer_handle));
-  ASSERT(0 == uv_tcp_init(uv_default_loop(), &tcp_handle));
-  ASSERT(0 == uv_tcp_connect(&connect_req,
-                             &tcp_handle,
-                             (const struct sockaddr*) &addr,
-                             connect_cb));
-  ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
-  MAKE_VALGRIND_HAPPY();
+    ASSERT(0 == uv_ip4_addr("127.0.0.1", TEST_PORT, &addr));
+    ASSERT(0 == uv_timer_init(uv_default_loop(), &timer_handle));
+    ASSERT(0 == uv_tcp_init(uv_default_loop(), &tcp_handle));
+    ASSERT(0 == uv_tcp_connect(&connect_req,
+                               &tcp_handle,
+                               (const struct sockaddr*) &addr,
+                               connect_cb));
+    ASSERT(0 == uv_run(uv_default_loop(), UV_RUN_DEFAULT));
+    MAKE_VALGRIND_HAPPY();
 
-  return 0;
+    return 0;
 }

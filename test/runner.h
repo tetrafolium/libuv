@@ -37,16 +37,16 @@
  * Struct to store both tests and to define helper processes for tasks.
  */
 typedef struct {
-  char *task_name;
-  char *process_name;
-  int (*main)(void);
-  int is_helper;
-  int show_output;
+    char *task_name;
+    char *process_name;
+    int (*main)(void);
+    int is_helper;
+    int show_output;
 
-  /*
-   * The time in milliseconds after which a single test or benchmark times out.
-   */
-  int timeout;
+    /*
+     * The time in milliseconds after which a single test or benchmark times out.
+     */
+    int timeout;
 } task_entry_t, bench_entry_t;
 
 
